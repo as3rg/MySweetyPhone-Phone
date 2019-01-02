@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppTheme"
+    tools:context=".Login"
+    tools:layout_editor_absoluteY="81dp">
+
+    <EditText
+        android:id="@+id/NickLOGIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="17dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/nickLOGIN"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ErrorLOGIN" tools:targetApi="o"/>
+
+    <EditText
+        android:id="@+id/PasswordLOGIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/passwordLOGIN"
+        android:inputType="textPassword"
+        app:layout_constraintStart_toStartOf="@+id/NickLOGIN"
+        app:layout_constraintTop_toBottomOf="@+id/NickLOGIN" />
+
+    <Button
+        android:id="@+id/LoginLOGIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:onClick="onLoginClick"
+        android:text="@string/log_inLOGIN"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/RegLOGIN" />
+
+    <TextView
+        android:id="@+id/ErrorLOGIN"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#FF0000"
+        android:textStyle="bold|italic"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/RegLOGIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="11dp"
+        android:onClick="onLoginClick"
+        android:text="@string/RegLOGIN"
+        app:layout_constraintStart_toStartOf="@+id/PasswordLOGIN"
+        app:layout_constraintTop_toBottomOf="@+id/PasswordLOGIN" />
+
+</android.support.constraint.ConstraintLayout>

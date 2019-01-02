@@ -1,0 +1,31 @@
+<resources>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="app_name">MySweetyPhone</string>
+    <string name="action_settings">Настройки</string>
+    <string name="passwordLOGIN">Пароль</string>
+    <string name="nickLOGIN">Имя</string>
+    <string name="log_inLOGIN">Войти</string>
+    <string name="ErrorLoggingInLOGIN">Ошибка! Неверное имя или пароль</string>
+    <string name="ErrorRegingLOGIN">Ошибка! Это имя уже используется</string>
+    <string name="Exception">Ошибка приложения!</string>
+    <string name="RegLOGIN">Зарегистрироваться</string>
+    <string name="UniqueNameADDPHONE">Дайте этому устройству уникальное имя</string>
+    <string name="DeviceNameADDPHONE">Имя устройства</string>
+    <string name="Next">Далее</string>
+    <string name="FillNameAndPassLOGIN">Имя и Пароль должны быть заполнены!</string>
+    <string name="NameExistADDPHONE">Вы уже используете это имя!</string>
+    <string name="FillNameADDPHONE">Вы должны указать имя!!</string>
+    <string name="titleDEVICESLIST">Список Устройств</string>
+    <string name="PhoneNameADDPHONE">Вы должны указать имя устройства!</string>
+    <string name="title_activity_devices_list">Список Устройств</string>
+    <string name="exitNAV">Выход</string>
+    <string name="deviceslistNAV">Устройства</string>
+    <string name="about">About</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="savedNAV">Сохраненное</string>
+    <string name="writeMessage">Введите сообщение</string>
+</resources>
