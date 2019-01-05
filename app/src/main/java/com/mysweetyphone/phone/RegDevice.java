@@ -57,6 +57,7 @@ public class RegDevice extends AppCompatActivity {
 
                             TextView Name = findViewById(R.id.PhoneNameADDPHONE);
                             editor.putString("name", Name.getText().toString());
+                            editor.putInt("regdate", responseBody.getInt("regdate"));
                             editor.commit();
                             Intent intent = new Intent(getApplicationContext(), Main.class);
                             startActivity(intent);
