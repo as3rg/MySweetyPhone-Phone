@@ -22,7 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DevicesList extends Fragment {
-
+    int regdate;
     int id;
     String name;
     String login;
@@ -37,12 +37,13 @@ public class DevicesList extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
         id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://mysweetyphone.herokuapp.com/?Type=ShowDevices&Login=" + login + "&Id=" + id + "&MyName=" + name, new JsonHttpResponseHandler() {
+        client.get("http://mysweetyphone.herokuapp.com/?Type=ShowDevices&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&MyName=" + name, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
@@ -51,8 +52,8 @@ public class DevicesList extends Fragment {
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                         getActivity().finish();
-                    }
-                    printDevices(responseBody.getJSONArray("PCs"),false, printDevices(responseBody.getJSONArray("Phones"),true, 0 ) );
+                    }else
+                        printDevices(responseBody.getJSONArray("PCs"),false, printDevices(responseBody.getJSONArray("Phones"),true, 0 ) );
                 }catch (Exception e){
                     Toast toast = Toast.makeText(getContext(),
                             e.getMessage(), Toast.LENGTH_LONG);
@@ -89,7 +90,7 @@ public class DevicesList extends Fragment {
                     final TableRow parent = (TableRow) v.getParent();
                     final TextView DeviceName = (TextView)parent.getChildAt(2);
                     AsyncHttpClient client = new AsyncHttpClient();
-                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + login + "&Id=" + id + "&Name=" + DeviceName.getText() + "&MyName=" + name, new JsonHttpResponseHandler() {
+                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&Name=" + DeviceName.getText() + "&MyName=" + name, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                             try {
