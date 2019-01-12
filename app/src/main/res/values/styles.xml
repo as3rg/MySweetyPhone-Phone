@@ -6,6 +6,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="buttonStyle">@style/AppTheme.Button</item>
+        <item name="editTextStyle">@style/AppTheme.EditText</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:textViewStyle">@style/AppTheme.TextView</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -16,5 +20,38 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Button">
+        <item name="android:background">@drawable/style_button_background</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="AppTheme.EditText" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/style_text_field_background</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/darker_gray</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:drawablePadding">15dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:editable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="AppTheme.Menu">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.TextView">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.MenuItem">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 
 </resources>

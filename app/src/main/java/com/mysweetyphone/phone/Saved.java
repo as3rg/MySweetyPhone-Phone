@@ -5,16 +5,21 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.support.v4.content.PermissionChecker;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,40 +52,19 @@ public class Saved extends Fragment {
         super.onActivityCreated(savedInstanceState);
         final LinearLayout mainLayout = getActivity().findViewById(R.id.mainLayoutSAVED);
         final TextView msg =  getActivity().findViewById(R.id.textFieldSAVED);
-
-        final Button chooseFileButton = getActivity().findViewById(R.id.chooseFileSAVED);
-        chooseFileButton.setOnClickListener(new View.OnClickListener() {    //выбор файла
-            @Override
-            public void onClick(View v) {
-                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M && PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED){
-                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
-                }
-                new MaterialFilePicker()
-                        .withActivity(getActivity())
-                        .withRequestCode(1)
-                        .withFilter(Pattern.compile(".*\\.$")) // Filtering files and directories by file name using regexp
-                        .withFilterDirectories(true) // Set directories filterable (false by default)
-                        .withHiddenFiles(true) // Show hidden files and folders
-                        .start();
-            }
-        });
-
         final Button sendButton = getActivity().findViewById(R.id.sendButtonSAVED);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                if(msg.getText().length() != 0){
-                    TextView sendText = new TextView(getActivity());
-                    sendText.setTextColor(Color.BLACK);
-                    sendText.setTextSize(21);
-                    sendText.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.saved_box));
-                    sendText.setPadding(40,40,40,40);
-                    sendText.setText(msg.getText());
-                    msg.setText("");
-                    mainLayout.addView(sendText);
-                }
+                TextView sendText = new TextView(getActivity());
+                sendText.setTextColor(Color.BLACK);
+                sendText.setTextSize(21);
+                sendText.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.saved_box));
+                sendText.setPadding(40,40,40,40);
+                sendText.setText(msg.getText());
+                msg.setText("");
+                mainLayout.addView(sendText);
             }
         });
     }

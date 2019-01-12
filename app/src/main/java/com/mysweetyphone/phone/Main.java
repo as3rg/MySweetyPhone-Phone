@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -21,9 +22,9 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 public class Main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    int id;
-    String name;
-    String login;
+    private int id;
+    private String login;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +32,8 @@ public class Main extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        if (ft.isEmpty())
-            ft.add(R.id.MainFragment, new DevicesList());
+        if (fm.getFragments().isEmpty())
+            ft.replace(R.id.MainFragment, new DevicesList());
         ft.commit();
 
         setContentView(R.layout.activity_main);
@@ -48,7 +49,6 @@ public class Main extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -63,6 +63,9 @@ public class Main extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        TextView name = findViewById(R.id.NameNav);
+        login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
+        name.setText(login);
         return true;
     }
 
@@ -94,7 +97,6 @@ public class Main extends AppCompatActivity
                 final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
                 final SharedPreferences.Editor editor = sharedPreferences.edit();
                 id = PreferenceManager.getDefaultSharedPreferences(this).getInt("id", -1);
-                login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
                 name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name","");
                 AsyncHttpClient client = new AsyncHttpClient();
                 client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + login + "&Id=" + id + "&Name=" + name, new JsonHttpResponseHandler());
@@ -103,7 +105,7 @@ public class Main extends AppCompatActivity
                 editor.remove("login");
                 editor.commit();
                 finish();
-                break;
+                return false;
             case R.id.nav_devices_list:
                 FragmentToReplace = new DevicesList();
                 break;
@@ -111,6 +113,7 @@ public class Main extends AppCompatActivity
                 FragmentToReplace = new Saved();
                 break;
         }
+        fm.getFragments().clear();
         ft.replace(R.id.MainFragment,FragmentToReplace);
         ft.commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

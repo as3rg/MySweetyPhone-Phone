@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#202020"
     android:theme="@style/AppTheme"
     tools:context=".Login"
     tools:layout_editor_absoluteY="81dp">
@@ -12,32 +13,34 @@
         android:id="@+id/NickLOGIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="17dp"
         android:autofillHints=""
+        android:drawableLeft="@drawable/ic_login_login"
         android:ems="10"
         android:hint="@string/nickLOGIN"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ErrorLOGIN" tools:targetApi="o"/>
+        app:layout_constraintTop_toBottomOf="@+id/ErrorLOGIN" />
 
     <EditText
         android:id="@+id/PasswordLOGIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="12dp"
         android:autofillHints=""
+        android:drawableLeft="@drawable/ic_login_pass"
         android:ems="10"
         android:hint="@string/passwordLOGIN"
         android:inputType="textPassword"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="@+id/NickLOGIN"
         app:layout_constraintTop_toBottomOf="@+id/NickLOGIN" />
 
     <Button
         android:id="@+id/LoginLOGIN"
-        android:layout_width="wrap_content"
+        android:layout_width="227dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="12dp"
         android:onClick="onLoginClick"
         android:text="@string/log_inLOGIN"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,11 +65,10 @@
         android:id="@+id/RegLOGIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="12dp"
         android:onClick="onLoginClick"
         android:text="@string/RegLOGIN"
-        app:layout_constraintStart_toStartOf="@+id/PasswordLOGIN"
+        app:layout_constraintStart_toStartOf="@+id/LoginLOGIN"
         app:layout_constraintTop_toBottomOf="@+id/PasswordLOGIN" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,9 +1,12 @@
 package com.mysweetyphone.phone;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,11 +81,13 @@ public class DevicesList extends Fragment {
             ImageView Icon = new ImageView(getContext());
             Icon.setImageResource(isPhone ? R.drawable.ic_devices_list_phone : R.drawable.ic_devices_list_pc);
             Icon.setPadding(150,30,0,0);
+            Icon.setImageTintList(ColorStateList.valueOf(0xFFFFFFFF));
             DeviceName.setText(arr.getString(i));
             DeviceName.setPadding(20,0,0,0);
             DeviceName.setTextSize(22);
             if (arr.getString(i).equals(name)) DeviceName.setTextColor(Color.RED);
-            RemoveButton.setTextColor(Color.RED);
+            RemoveButton.setTextColor(Color.WHITE);
+            RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.style_button_background));
             RemoveButton.setText("Удалить");
             RemoveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,7 +107,7 @@ public class DevicesList extends Fragment {
                                 }
                                 table.removeView(parent);
                                 for (int i = 0; i < table.getChildCount(); i++)
-                                    table.getChildAt(i).setBackgroundColor((i % 2 == 0) ? 0xFFE6E6E6 : Color.WHITE);
+                                    table.getChildAt(i).setBackgroundColor((i % 2 == 0) ? 0xFF252525 : 0xFF202020);
 
                             }catch (Exception e){
                                 Toast toast = Toast.makeText(getContext(),
@@ -118,8 +123,11 @@ public class DevicesList extends Fragment {
             row.addView(Icon);
             row.addView(DeviceName);
             if ((odd+i) % 2 == 0)
-                row.setBackgroundColor(0xFFE6E6E6);
+                row.setBackgroundColor(0xFF252525);
             table.addView(row);
+            TableLayout.LayoutParams tableRowParams = new TableLayout.LayoutParams(row.getLayoutParams());
+            tableRowParams.setMargins(0, 0, 0, 10);
+            row.setLayoutParams(tableRowParams);
         }
         return ((odd+i) % 2 == 0) ? 0 : 1 ;
     }

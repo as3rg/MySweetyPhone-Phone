@@ -16,7 +16,6 @@
         android:layout_marginEnd="14dp"
         android:text="@string/UniqueNameADDPHONE"
         android:textAlignment="center"
-        android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,22 +27,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:autofillHints=""
-        android:ems="10"
+        android:autoText="true"
+        android:clickable="true"
+        android:contextClickable="true"
+        android:drawableLeft="@drawable/ic_devices_list_phone"
+        android:editable="true"
+        android:enabled="true"
+        android:freezesText="false"
         android:hint="@string/DeviceNameADDPHONE"
         android:inputType="textPersonName"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewADDPHONE" />
 
     <Button
         android:id="@+id/nextADDPHONE"
-        android:layout_width="wrap_content"
+        android:layout_width="227dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="20dp"
         android:onClick="onAddPhoneClick"
         android:text="@string/Next"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PhoneNameADDPHONE" />
 
@@ -51,12 +57,14 @@
         android:id="@+id/ErrorADDPHONE"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="95dp"
         android:layout_marginEnd="2dp"
         android:textAlignment="center"
         android:textColor="#FF0000"
         android:textStyle="bold|italic"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/PhoneNameADDPHONE"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
