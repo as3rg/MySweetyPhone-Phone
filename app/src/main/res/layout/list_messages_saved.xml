@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="?attr/listPreferredItemHeight"
-    android:mode="twoLine">
+    android:layout_height="match_parent">
 
-    <TextView android:id="@+id/sentTextSAVED"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAppearance="?attr/textAppearanceListItem" />
-
-    <LinearLayout
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView android:id="@+id/dateTimeSAVED"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceListItemSecondary" />
-        <TextView
-            android:id="@+id/deviceNameSentSAVED"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceListItemSecondary"/>
-    </LinearLayout>
+        android:id="@+id/MessageTextViewSAVED"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/devicesTextViewSAVED"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/MessageTextViewSAVED"/>
+
+    <TextView
+        android:id="@+id/TimeTextViewSAVED"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/MessageTextViewSAVED"/>
+
+</RelativeLayout>

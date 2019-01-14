@@ -16,6 +16,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -81,7 +87,7 @@ public class Saved extends Fragment {
                 }
 
                 final String[] messages = new String[]{"s", "dfe", "s", "dfe","s", "dfe","s", "dfe","s", "dfe","s", "dfe","s", "dfe","s", "dfe",};
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                         R.layout.list_messages_saved, messages);
 
                 listMessages.setAdapter(adapter);
@@ -107,6 +113,7 @@ public class Saved extends Fragment {
             }
         });
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -126,7 +133,6 @@ public class Saved extends Fragment {
             case  1001: {
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     Toast.makeText(getActivity(), "Permission granted.", Toast.LENGTH_SHORT).show();
-
                 }
                 else{
                     Toast.makeText(getActivity(), "Permission NOT granted.", Toast.LENGTH_SHORT).show();

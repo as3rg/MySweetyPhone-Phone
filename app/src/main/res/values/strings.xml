@@ -5,7 +5,6 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="app_name">MySweetyPhone</string>
-    <string name="action_settings">Настройки</string>
     <string name="passwordLOGIN">Пароль</string>
     <string name="nickLOGIN">Имя</string>
     <string name="log_inLOGIN">Войти</string>
@@ -24,7 +23,6 @@
     <string name="title_activity_devices_list">Список Устройств</string>
     <string name="exitNAV">Выход</string>
     <string name="deviceslistNAV">Устройства</string>
-    <string name="about">About</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="savedNAV">Сохраненное</string>
     <string name="writeMessage">Введите сообщение</string>

@@ -21,7 +21,7 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.Button">
+    <style name="AppTheme.Button" parent="android:Widget.Button">
         <item name="android:background">@drawable/style_button_background</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:textColor">@android:color/primary_text_light</item>

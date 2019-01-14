@@ -38,16 +38,6 @@
             android:background="@color/chatColor"
             android:padding="4dp">
 
-            <ImageButton
-                android:id="@+id/ChooseFileSAVED"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/style_button_background"
-                android:src="?android:attr/actionModeFindDrawable"
-                tools:ignore="NestedWeights" />
-
             <EditText
                 android:id="@+id/TextFieldSAVED"
                 android:layout_width="270dp"
@@ -56,6 +46,16 @@
                 android:ems="10"
                 android:hint="@string/writeMessage"
                 android:inputType="textMultiLine" />
+
+            <ImageButton
+                android:id="@+id/ChooseFileSAVED"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/style_button_background"
+                android:src="?android:attr/actionModeFindDrawable"
+                tools:ignore="NestedWeights" />
 
             <ImageButton
                 android:id="@+id/SendButtonSAVED"
