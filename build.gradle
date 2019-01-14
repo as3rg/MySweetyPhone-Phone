@@ -20,7 +20,7 @@ allprojects {
         google()
         jcenter()
         maven {
-            url  "http://dl.bintray.com/lukaville/maven"    //для выбирания файлов в SAVED
+            url  "http://dl.bintray.com/lukaville/maven"    //для выбора файлов в SAVED
         }
     }
 }
