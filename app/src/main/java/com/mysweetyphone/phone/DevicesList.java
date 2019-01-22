@@ -2,7 +2,6 @@ package com.mysweetyphone.phone;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -87,7 +86,7 @@ public class DevicesList extends Fragment {
             DeviceName.setTextSize(22);
             if (arr.getString(i).equals(name)) DeviceName.setTextColor(Color.RED);
             RemoveButton.setTextColor(Color.WHITE);
-            RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.style_button_background));
+            RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_style_button_background));
             RemoveButton.setText("Удалить");
             RemoveButton.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -22,7 +22,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.Button" parent="android:Widget.Button">
-        <item name="android:background">@drawable/style_button_background</item>
+        <item name="android:background">@drawable/ic_style_button_background</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:textColor">@android:color/primary_text_light</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
@@ -31,7 +31,7 @@
     </style>
 
     <style name="AppTheme.EditText" parent="android:Widget.EditText">
-        <item name="android:background">@drawable/style_text_field_background</item>
+        <item name="android:background">@drawable/ic_style_text_field_background</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textColorHint">@android:color/darker_gray</item>
         <item name="android:padding">10dp</item>
