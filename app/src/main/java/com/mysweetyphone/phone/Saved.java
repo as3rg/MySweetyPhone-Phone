@@ -1,16 +1,16 @@
 package com.mysweetyphone.phone;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.PermissionChecker;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,31 +22,79 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nbsp.materialfilepicker.MaterialFilePicker;
-import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 
 public class Saved extends Fragment{
 
-    int regdate;
-    int id;
-    String name;
-    String login;
-
-    boolean isMsgWillBeHereDeleted = false;
-    private long timeMessage;
+    private int regdate;
+    private int id;
+    private String name;
+    private String login;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
-        id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
-        login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
-        name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
+        Runnable r = () -> {
+            try {
+                regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
+                id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
+                login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
+                name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
+
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id);
+
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject result = (JSONObject) JSONValue.parse(response.toString());
+                Long i = (Long) result.getOrDefault("code", 2);
+                if(i.equals(2L)){
+                    throw new Exception("Ошибка приложения!");
+                }else if(i.equals(1L)){
+                    throw new Exception("Неверные данные");
+                }else if(i.equals(0L)){
+                    JSONArray messagesArray = new JSONArray(result.get("messages"));
+                    for(int j = 0; j < messagesArray.length(); j++){
+                        Object message = new Object();
+                        DrawMessage(((String)((JSONObject)message).get("msg")).replace("\\n","\n"),
+                                (Long)((JSONObject)message).get("date"),
+                                (String)((JSONObject)message).get("sender"),
+                                (String)((JSONObject)message).get("type"));
+                    }
+                }else if(i.equals(4L)){
+                    throw new Exception("Ваше устройство не зарегистрировано");
+                }else{
+                    throw new Exception("Ошибка приложения!");
+                }
+            } catch (Exception e){
+                Toast toast = Toast.makeText(getContext(),
+                        "Ошибка", Toast.LENGTH_LONG);
+                toast.show();
+                e.printStackTrace();
+                getActivity().finish();
+            }
+        };
+        Thread t = new Thread(r);
+        t.run();
     }
 
     @Override
@@ -58,7 +106,7 @@ public class Saved extends Fragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        final TextView msg =  getActivity().findViewById(R.id.TextFieldSAVED);
+        final TextView MessageText =  getActivity().findViewById(R.id.TextFieldSAVED);
         final ImageButton sendButton = getActivity().findViewById(R.id.SendButtonSAVED);
 
         final ImageButton chooseFileButton = getActivity().findViewById(R.id.ChooseFileSAVED);
@@ -72,8 +120,42 @@ public class Saved extends Fragment{
         });
 
         sendButton.setOnClickListener(v -> {
-            DrawMessage(msg.getText().toString(),(Long)(System.currentTimeMillis()/1000),name, false,true);
-            msg.setText("");
+            Runnable r = () -> {
+                try {
+                    URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text&Msg="+MessageText.toString().replace(" ","%20").replace("\n","\\n"));
+
+                    HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                    connection.setRequestMethod("GET");
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    JSONObject result = new JSONObject(response.toString());
+                    Long i = (Long) result.getLong("code");
+                    if(i.equals(2L)){
+                        throw new Exception("Ошибка приложения!");
+                    }else if(i.equals(1L)){
+                        throw new Exception("Неверные данные");
+                    }else if(i.equals(0L)){
+                        DrawMessage(MessageText.getText(), (Long) result.getOrDefault("time", 2), name, "Text", true);
+                    }else if(i.equals(4L)){
+                       throw new Exception("Ваше устройство не зарегистрировано!");
+                    }else{
+                        throw new Exception("Ошибка приложения!");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            };
+            Thread t = new Thread(r);
+            t.run();
         });
     }
 
@@ -81,8 +163,8 @@ public class Saved extends Fragment{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            File file = new File(data.getData().getPath());
-            DrawMessage(file.getName(), 0L, name, true, true);
+            File file = new File(Objects.requireNonNull(data.getData()).getPath());
+            DrawMessage(file.getName(), 0L, name, "File", true);
         }
     }
 
@@ -101,22 +183,31 @@ public class Saved extends Fragment{
         }
     }
 
-    private void DrawMessage(String text, Long date, String sender, Boolean isFile, Boolean needsAnim) {
+    private void DrawMessage(String text, Long date, String sender, String type) {
+        DrawMessage(text, date, sender, type, false);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void DrawMessage(String text, Long date, String sender, String type, Boolean needsAnim) {
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
-        if (isFile) {
+        if (type.equals("File")) {
             ImageView image = new ImageView(getActivity());
             image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_attack_file));
             layout.addView(image);
         }
         TextView textBox = new TextView(getActivity());
-        textBox.setText(text);
+        if(text.length() == 0) {
+            textBox.setText("Пустое сообщение");
+            textBox.setTextColor(Color.parseColor("#cccccc"));
+            textBox.setTypeface(null, Typeface.ITALIC);
+        }else
+            textBox.setText(text);
         textBox.setTextSize(20);
         layout.addView(textBox);
         TextView dateBox = new TextView(getActivity());
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
-        dateBox.setText(sdf.format(date) + ", " + sender);
+        dateBox.setText(DateFormat.format("HH:mm dd.MM.yyyy",  date) + ", " +  sender);
         layout.addView(dateBox);
         layout.setPadding(35,35,35,35);
         LinearLayout messages = getActivity().findViewById(R.id.MessagesSAVED);

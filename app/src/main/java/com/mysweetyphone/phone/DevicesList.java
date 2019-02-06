@@ -88,35 +88,32 @@ public class DevicesList extends Fragment {
             RemoveButton.setTextColor(Color.WHITE);
             RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_style_button_background));
             RemoveButton.setText("Удалить");
-            RemoveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final TableRow parent = (TableRow) v.getParent();
-                    final TextView DeviceName = (TextView)parent.getChildAt(2);
-                    AsyncHttpClient client = new AsyncHttpClient();
-                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&Name=" + DeviceName.getText() + "&MyName=" + name, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                            try {
-                                if (responseBody.getInt("code") == 4 || DeviceName.getText().equals(name)){
-                                    Toast toast = Toast.makeText(getContext(),
-                                            "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                                    toast.show();
-                                    getActivity().finish();
-                                }
-                                table.removeView(parent);
-                                for (int i = 0; i < table.getChildCount(); i++)
-                                    table.getChildAt(i).setBackgroundColor((i % 2 == 0) ? 0xFF252525 : 0xFF202020);
-
-                            }catch (Exception e){
+            RemoveButton.setOnClickListener(v -> {
+                final TableRow parent = (TableRow) v.getParent();
+                final TextView DeviceName1 = (TextView)parent.getChildAt(2);
+                AsyncHttpClient client = new AsyncHttpClient();
+                client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&Name=" + DeviceName1.getText() + "&MyName=" + name, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                        try {
+                            if (responseBody.getInt("code") == 4 || DeviceName1.getText().equals(name)){
                                 Toast toast = Toast.makeText(getContext(),
-                                        e.getMessage(), Toast.LENGTH_LONG);
+                                        "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                 toast.show();
+                                getActivity().finish();
                             }
+                            table.removeView(parent);
+                            for (int i1 = 0; i1 < table.getChildCount(); i1++)
+                                table.getChildAt(i1).setBackgroundColor((i1 % 2 == 0) ? 0xFF252525 : 0xFF202020);
 
+                        }catch (Exception e){
+                            Toast toast = Toast.makeText(getContext(),
+                                    e.getMessage(), Toast.LENGTH_LONG);
+                            toast.show();
                         }
-                    });
-                }
+
+                    }
+                });
             });
             row.addView(RemoveButton);
             row.addView(Icon);
