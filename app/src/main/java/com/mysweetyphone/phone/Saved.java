@@ -65,13 +65,13 @@ public class Saved extends Fragment{
                 }
                 in.close();
 
-                JSONObject result = (JSONObject) JSONValue.parse(response.toString());
-                Long i = (Long) result.getOrDefault("code", 2);
-                if(i.equals(2L)){
+                JSONObject result = new JSONObject(response.toString());
+                int i = result.getInt("code");
+                if(i==2L){
                     throw new Exception("Ошибка приложения!");
-                }else if(i.equals(1L)){
+                }else if(i==1L){
                     throw new Exception("Неверные данные");
-                }else if(i.equals(0L)){
+                }else if(i==0L){
                     JSONArray messagesArray = new JSONArray(result.get("messages"));
                     for(int j = 0; j < messagesArray.length(); j++){
                         Object message = new Object();
@@ -80,7 +80,7 @@ public class Saved extends Fragment{
                                 (String)((JSONObject)message).get("sender"),
                                 (String)((JSONObject)message).get("type"));
                     }
-                }else if(i.equals(4L)){
+                }else if(i==4L){
                     throw new Exception("Ваше устройство не зарегистрировано");
                 }else{
                     throw new Exception("Ошибка приложения!");
@@ -143,7 +143,7 @@ public class Saved extends Fragment{
                     }else if(i.equals(1L)){
                         throw new Exception("Неверные данные");
                     }else if(i.equals(0L)){
-                        DrawMessage(MessageText.getText(), (Long) result.getOrDefault("time", 2), name, "Text", true);
+                        DrawMessage(MessageText.getText().toString(), result.getLong("time"), name, "Text", true);
                     }else if(i.equals(4L)){
                        throw new Exception("Ваше устройство не зарегистрировано!");
                     }else{
