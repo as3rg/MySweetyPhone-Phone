@@ -22,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -30,6 +29,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
@@ -40,10 +40,20 @@ public class Saved extends Fragment{
     private int id;
     private String name;
     private String login;
+    private LinearLayout MessagesList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
+        LoadMore();
+    }
+
+    void LoadMore(){
+        LoadMore(10);
+    }
+
+    void LoadMore(int Count){
         Runnable r = () -> {
             try {
                 regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
@@ -51,7 +61,10 @@ public class Saved extends Fragment{
                 login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
                 name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
 
-                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id);
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&From="+MessagesList.getChildCount()+"&Count="+Count);
+
+                Toast toast = Toast.makeText(getContext(), "NORM", Toast.LENGTH_LONG);
+                toast.show();
 
                 HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
                 connection.setRequestMethod("GET");
@@ -67,30 +80,28 @@ public class Saved extends Fragment{
 
                 JSONObject result = new JSONObject(response.toString());
                 int i = result.getInt("code");
-                if(i==2L){
+
+                if(i==2){
                     throw new Exception("Ошибка приложения!");
-                }else if(i==1L){
+                }else if(i==1){
                     throw new Exception("Неверные данные");
-                }else if(i==0L){
-                    JSONArray messagesArray = new JSONArray(result.get("messages"));
-                    for(int j = 0; j < messagesArray.length(); j++){
-                        Object message = new Object();
-                        DrawMessage(((String)((JSONObject)message).get("msg")).replace("\\n","\n"),
-                                (Long)((JSONObject)message).get("date"),
-                                (String)((JSONObject)message).get("sender"),
-                                (String)((JSONObject)message).get("type"));
+                }else if(i==0){
+                    ArrayList arr = (ArrayList) result.get("messages");
+                    Object[] messages = arr.toArray();
+                    for(int j = 0; j < Objects.requireNonNull(messages).length; j++){
+                        JSONObject message = (JSONObject)messages[j];
+                        DrawMessage(((String)(message).get("msg")).replace("\\n","\n"),(Long)(message).get("date"),(String)(message).get("sender"), ((String)(message).get("type")).equals("File"));
                     }
-                }else if(i==4L){
+                }else if(i==4){
                     throw new Exception("Ваше устройство не зарегистрировано");
                 }else{
                     throw new Exception("Ошибка приложения!");
                 }
             } catch (Exception e){
-                Toast toast = Toast.makeText(getContext(),
-                        "Ошибка", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
                 toast.show();
                 e.printStackTrace();
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
             }
         };
         Thread t = new Thread(r);
@@ -122,7 +133,7 @@ public class Saved extends Fragment{
         sendButton.setOnClickListener(v -> {
             Runnable r = () -> {
                 try {
-                    URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text&Msg="+MessageText.toString().replace(" ","%20").replace("\n","\\n"));
+                    URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text&Msg="+MessageText.getText().toString().replace(" ","%20").replace("\n","\\n"));
 
                     HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
                     connection.setRequestMethod("GET");
@@ -137,25 +148,29 @@ public class Saved extends Fragment{
                     in.close();
 
                     JSONObject result = new JSONObject(response.toString());
-                    Long i = (Long) result.getLong("code");
-                    if(i.equals(2L)){
+                    int i = (Integer) result.getInt("code");
+                    if(i == 2){
                         throw new Exception("Ошибка приложения!");
-                    }else if(i.equals(1L)){
+                    }else if(i == 1){
                         throw new Exception("Неверные данные");
-                    }else if(i.equals(0L)){
-                        DrawMessage(MessageText.getText().toString(), result.getLong("time"), name, "Text", true);
-                    }else if(i.equals(4L)){
+                    }else if(i == 0){
+                        DrawMessage(MessageText.getText().toString(), (Long) result.getLong("time"), name, false, true);
+                    }else if(i == 4){
                        throw new Exception("Ваше устройство не зарегистрировано!");
                     }else{
                         throw new Exception("Ошибка приложения!");
                     }
 
                 } catch (Exception e) {
+                    Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
+                    toast.show();
                     e.printStackTrace();
+                    getActivity().finish();
                 }
             };
             Thread t = new Thread(r);
             t.run();
+            MessageText.setText("");
         });
     }
 
@@ -164,7 +179,7 @@ public class Saved extends Fragment{
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             File file = new File(Objects.requireNonNull(data.getData()).getPath());
-            DrawMessage(file.getName(), 0L, name, "File", true);
+            DrawMessage(file.getName(), 0L, name, true, true);
         }
     }
 
@@ -183,16 +198,16 @@ public class Saved extends Fragment{
         }
     }
 
-    private void DrawMessage(String text, Long date, String sender, String type) {
-        DrawMessage(text, date, sender, type, false);
+    private void DrawMessage(String text, Long date, String sender, Boolean isFile) {
+        DrawMessage(text, date, sender, isFile, false);
     }
 
     @SuppressLint("SetTextI18n")
-    private void DrawMessage(String text, Long date, String sender, String type, Boolean needsAnim) {
+    private void DrawMessage(String text, Long date, String sender, Boolean isFile, Boolean needsAnim) {
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
-        if (type.equals("File")) {
+        if (isFile) {
             ImageView image = new ImageView(getActivity());
             image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_attack_file));
             layout.addView(image);
@@ -202,16 +217,16 @@ public class Saved extends Fragment{
             textBox.setText("Пустое сообщение");
             textBox.setTextColor(Color.parseColor("#cccccc"));
             textBox.setTypeface(null, Typeface.ITALIC);
-        }else
+        }else {
             textBox.setText(text);
+        }
         textBox.setTextSize(20);
         layout.addView(textBox);
         TextView dateBox = new TextView(getActivity());
         dateBox.setText(DateFormat.format("HH:mm dd.MM.yyyy",  date) + ", " +  sender);
         layout.addView(dateBox);
         layout.setPadding(35,35,35,35);
-        LinearLayout messages = getActivity().findViewById(R.id.MessagesSAVED);
-        messages.addView(layout,0);
+        MessagesList.addView(layout,0);
         if(needsAnim){
             Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
             layout.startAnimation(anim);
