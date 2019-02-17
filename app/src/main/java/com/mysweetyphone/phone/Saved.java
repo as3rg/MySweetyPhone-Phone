@@ -2,6 +2,7 @@ package com.mysweetyphone.phone;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -22,6 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -45,8 +51,10 @@ public class Saved extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
-        LoadMore();
+        id = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getInt("id",-1);
+        regdate = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getInt("regdate",-1);
+        login  = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login","");
+        name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
     }
 
     void LoadMore(){
@@ -54,58 +62,36 @@ public class Saved extends Fragment{
     }
 
     void LoadMore(int Count){
-        Runnable r = () -> {
-            try {
-                regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
-                id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
-                login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
-                name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&From="+MessagesList.getChildCount()+"&Count="+Count, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                try {
+                    int i = result.getInt("code");
 
-                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&From="+MessagesList.getChildCount()+"&Count="+Count);
-
-                Toast toast = Toast.makeText(getContext(), "NORM", Toast.LENGTH_LONG);
-                toast.show();
-
-                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-                connection.setRequestMethod("GET");
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject result = new JSONObject(response.toString());
-                int i = result.getInt("code");
-
-                if(i==2){
-                    throw new Exception("Ошибка приложения!");
-                }else if(i==1){
-                    throw new Exception("Неверные данные");
-                }else if(i==0){
-                    ArrayList arr = (ArrayList) result.get("messages");
-                    Object[] messages = arr.toArray();
-                    for(int j = 0; j < Objects.requireNonNull(messages).length; j++){
-                        JSONObject message = (JSONObject)messages[j];
-                        DrawMessage(((String)(message).get("msg")).replace("\\n","\n"),(Long)(message).get("date"),(String)(message).get("sender"), ((String)(message).get("type")).equals("File"));
+                    if(i==2){
+                        throw new Exception("Ошибка приложения!");
+                    }else if(i==1){
+                        throw new Exception("Неверные данные");
+                    }else if(i==0){
+                        JSONArray messages = (JSONArray)result.get("messages");
+                        for(int j = 0; j < Objects.requireNonNull(messages).length(); j++){
+                            JSONObject message = (JSONObject)messages.get(j);
+                            DrawMessage((message.getString("msg")).replace("\\n","\n"),message.getLong("date"),message.getString("sender"), (message.getString("type")).equals("File"));
+                        }
+                    }else if(i==4){
+                        throw new Exception("Ваше устройство не зарегистрировано");
+                    }else{
+                        throw new Exception("Ошибка приложения!");
                     }
-                }else if(i==4){
-                    throw new Exception("Ваше устройство не зарегистрировано");
-                }else{
-                    throw new Exception("Ошибка приложения!");
+                }catch (Exception e){
+                    Toast toast = Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                    e.printStackTrace();
+                    Objects.requireNonNull(getActivity()).finish();
                 }
-            } catch (Exception e){
-                Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
-                toast.show();
-                e.printStackTrace();
-                Objects.requireNonNull(getActivity()).finish();
             }
-        };
-        Thread t = new Thread(r);
-        t.run();
+        });
     }
 
     @Override
@@ -119,7 +105,7 @@ public class Saved extends Fragment{
         super.onActivityCreated(savedInstanceState);
         final TextView MessageText =  getActivity().findViewById(R.id.TextFieldSAVED);
         final ImageButton sendButton = getActivity().findViewById(R.id.SendButtonSAVED);
-
+        MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
         final ImageButton chooseFileButton = getActivity().findViewById(R.id.ChooseFileSAVED);
         chooseFileButton.setOnClickListener(v->{
             /*if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -130,48 +116,37 @@ public class Saved extends Fragment{
             startActivityForResult(intent,43);
         });
 
+
+
         sendButton.setOnClickListener(v -> {
-            Runnable r = () -> {
-                try {
-                    URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text&Msg="+MessageText.getText().toString().replace(" ","%20").replace("\n","\\n"));
-
-                    HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-                    connection.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String inputLine;
-                    StringBuffer response = new StringBuffer();
-
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text&Msg="+MessageText.getText().toString().replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                    try {
+                        int i = result.getInt("code");
+                        if(i == 2){
+                            throw new Exception("Ошибка приложения!");
+                        }else if(i == 1){
+                            throw new Exception("Неверные данные");
+                        }else if(i == 0){
+                            DrawMessage(MessageText.getText().toString(), result.getLong("time"), name, false, true);
+                        }else if(i == 4){
+                            throw new Exception("Ваше устройство не зарегистрировано!");
+                        }else{
+                            throw new Exception("Ошибка приложения!");
+                        }
+                    }catch (Exception e){
+                        Toast toast = Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+                        toast.show();
+                        e.printStackTrace();
+                        getActivity().finish();
                     }
-                    in.close();
-
-                    JSONObject result = new JSONObject(response.toString());
-                    int i = (Integer) result.getInt("code");
-                    if(i == 2){
-                        throw new Exception("Ошибка приложения!");
-                    }else if(i == 1){
-                        throw new Exception("Неверные данные");
-                    }else if(i == 0){
-                        DrawMessage(MessageText.getText().toString(), (Long) result.getLong("time"), name, false, true);
-                    }else if(i == 4){
-                       throw new Exception("Ваше устройство не зарегистрировано!");
-                    }else{
-                        throw new Exception("Ошибка приложения!");
-                    }
-
-                } catch (Exception e) {
-                    Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
-                    toast.show();
-                    e.printStackTrace();
-                    getActivity().finish();
                 }
-            };
-            Thread t = new Thread(r);
-            t.run();
+            });
             MessageText.setText("");
         });
+        LoadMore();
     }
 
     @Override
