@@ -35,7 +35,9 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
@@ -75,7 +77,7 @@ public class Saved extends Fragment{
                         throw new Exception("Неверные данные");
                     }else if(i==0){
                         JSONArray messages = (JSONArray)result.get("messages");
-                        for(int j = 0; j < Objects.requireNonNull(messages).length(); j++){
+                        for(int j = Objects.requireNonNull(messages).length() - 1; j >= 0; j--){
                             JSONObject message = (JSONObject)messages.get(j);
                             DrawMessage((message.getString("msg")).replace("\\n","\n"),message.getLong("date"),message.getString("sender"), (message.getString("type")).equals("File"));
                         }
@@ -131,6 +133,7 @@ public class Saved extends Fragment{
                             throw new Exception("Неверные данные");
                         }else if(i == 0){
                             DrawMessage(MessageText.getText().toString(), result.getLong("time"), name, false, true);
+                            MessageText.setText("");
                         }else if(i == 4){
                             throw new Exception("Ваше устройство не зарегистрировано!");
                         }else{
@@ -144,7 +147,6 @@ public class Saved extends Fragment{
                     }
                 }
             });
-            MessageText.setText("");
         });
         LoadMore();
     }
@@ -198,7 +200,9 @@ public class Saved extends Fragment{
         textBox.setTextSize(20);
         layout.addView(textBox);
         TextView dateBox = new TextView(getActivity());
-        dateBox.setText(DateFormat.format("HH:mm dd.MM.yyyy",  date) + ", " +  sender);
+        Date Date = new java.util.Date(date * 1000L);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
+        dateBox.setText(format.format(Date) + ", " +  sender);
         layout.addView(dateBox);
         layout.setPadding(35,35,35,35);
         MessagesList.addView(layout,0);
