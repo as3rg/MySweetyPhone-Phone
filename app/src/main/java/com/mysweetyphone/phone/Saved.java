@@ -2,7 +2,6 @@ package com.mysweetyphone.phone;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +29,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
@@ -140,7 +140,7 @@ public class Saved extends Fragment{
                             throw new Exception("Ошибка приложения!");
                         }
                     }catch (Exception e){
-                        Toast toast = Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
                         toast.show();
                         e.printStackTrace();
                         getActivity().finish();
@@ -156,7 +156,75 @@ public class Saved extends Fragment{
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             File file = new File(Objects.requireNonNull(data.getData()).getPath());
-            DrawMessage(file.getName(), 0L, name, true, true);
+            if(file.length() > 1024*1024){
+                Toast toast = Toast.makeText(getContext(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
+                toast.show();
+                return;
+            }
+            if(!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())){
+                Toast toast = Toast.makeText(getContext(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
+                toast.show();
+                return;
+            }
+
+            Runnable r = () -> {
+                try {
+                    String url = "http://mysweetyphone.herokuapp.com";
+                    String urlParameters = "?Type=UploadFile&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text";
+                    URL obj = new URL(url);
+                    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                    con.setRequestMethod("POST");
+                    con.setDoOutput(true);
+                    con.setDoInput(true);
+                    byte[] Data;
+
+                    con.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
+          /*ошибка*/DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                    wr.writeBytes(urlParameters);
+                    wr.flush();
+                    wr.close();
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+
+                    Toast toast = Toast.makeText(getContext(), "пока все хорошо", Toast.LENGTH_SHORT);
+                    toast.show();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    /*OutputStream os = con.getOutputStream();
+                    Data = urlParameters.getBytes("UTF-8");
+                    os.write(Data);
+                    con.connect();*/
+
+
+
+                    JSONObject result = new JSONObject(response.toString());
+                    int i = result.getInt("code");
+                    if(i == 2){
+                        throw new Exception("Ошибка приложения!");
+                    }else if(i == 1){
+                        throw new Exception("Неверные данные");
+                    }else if(i == 0){
+                        DrawMessage(file.getName(), result.getLong("time"), name, true, true);
+                    }else if(i == 4){
+                        throw new Exception("Ваше устройство не зарегистрировано!");
+                    }else{
+                        throw new Exception("Ошибка приложения!");
+                    }
+                }catch (Exception e){
+                    Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
+                    toast.show();
+                    e.printStackTrace();
+                    getActivity().finish();
+                }
+            };
+            Thread t = new Thread(r);
+            t.run();
         }
     }
 
