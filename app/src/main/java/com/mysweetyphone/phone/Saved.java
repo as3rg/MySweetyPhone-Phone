@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +27,22 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -101,7 +109,6 @@ public class Saved extends Fragment{
         return inflater.inflate(R.layout.fragment_saved, container, false);
     }
 
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
@@ -156,12 +163,12 @@ public class Saved extends Fragment{
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             File file = new File(Objects.requireNonNull(data.getData()).getPath());
-            if(file.length() > 1024*1024){
+            if (file.length() > 1024 * 1024) {
                 Toast toast = Toast.makeText(getContext(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
                 toast.show();
                 return;
             }
-            if(!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())){
+            if (!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())) {
                 Toast toast = Toast.makeText(getContext(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
                 toast.show();
                 return;
@@ -169,58 +176,41 @@ public class Saved extends Fragment{
 
             Runnable r = () -> {
                 try {
-                    String url = "http://mysweetyphone.herokuapp.com";
-                    String urlParameters = "?Type=UploadFile&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text";
-                    URL obj = new URL(url);
-                    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                    con.setRequestMethod("POST");
-                    con.setDoOutput(true);
-                    con.setDoInput(true);
-                    byte[] Data;
+                    HttpClient client = new DefaultHttpClient();
+                    HttpPost post = new HttpPost("http://mysweetyphone.herokuapp.com/?Type=UploadFile&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text");
 
-                    con.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
-          /*ошибка*/DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                    wr.writeBytes(urlParameters);
-                    wr.flush();
-                    wr.close();
+                    MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+                    entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                    entityBuilder.addTextBody("fileToUpload", String.valueOf(new FileBody(file)));
+                    entityBuilder.addTextBody("submit", "");
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer response = new StringBuffer();
+                    entityBuilder.addBinaryBody("fileToUpload",file);
 
-                    Toast toast = Toast.makeText(getContext(), "пока все хорошо", Toast.LENGTH_SHORT);
-                    toast.show();
+                    HttpEntity entity = entityBuilder.build();
+                    post.setEntity(entity);
+                    HttpResponse response = client.execute(post);
+                    HttpEntity httpEntity = response.getEntity();
+                    String resultStr = EntityUtils.toString(httpEntity);
+                    Log.v("result", resultStr);
 
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    in.close();
-
-                    /*OutputStream os = con.getOutputStream();
-                    Data = urlParameters.getBytes("UTF-8");
-                    os.write(Data);
-                    con.connect();*/
-
-
-
-                    JSONObject result = new JSONObject(response.toString());
+                    JSONObject result = new JSONObject(EntityUtils.toString(response.getEntity(), "UTF-8"));
                     int i = result.getInt("code");
-                    if(i == 2){
+                    if (i == 2) {
                         throw new Exception("Ошибка приложения!");
-                    }else if(i == 1){
+                    } else if (i == 1) {
                         throw new Exception("Неверные данные");
-                    }else if(i == 0){
-                        DrawMessage(file.getName(), result.getLong("time"), name, true, true);
-                    }else if(i == 4){
+                    } else if (i == 0) {
+                        DrawMessage(file.getName(), (Long) result.getLong("time"), name,true,true);
+                    } else if (i == 4) {
                         throw new Exception("Ваше устройство не зарегистрировано!");
-                    }else{
+                    } else {
                         throw new Exception("Ошибка приложения!");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
                     toast.show();
                     e.printStackTrace();
-                    getActivity().finish();
+                    Objects.requireNonNull(getActivity()).finish();
                 }
             };
             Thread t = new Thread(r);
@@ -279,4 +269,101 @@ public class Saved extends Fragment{
             layout.startAnimation(anim);
         }
     }
+
+
+    /*class SendFile extends AsyncTask<Void, Void, Void>{
+
+        String resultString = null;
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String myURL = "http://mysweetyphone.herokuapp.com/?Type=";
+                String parammetrs = "UploadFile&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&MsgType=Tex";
+                byte[] Data = null;
+                InputStream is = null;
+
+                try {
+                    URL url = new URL(myURL);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000);
+                    conn.setConnectTimeout(15000);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+
+                    // конвертируем передаваемую строку в UTF-8
+                    Data = parammetrs.getBytes("UTF-8");
+
+                    OutputStream os = conn.getOutputStream();
+                    Toast toast = Toast.makeText(getContext(), "РАБОТАЕТ", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    // передаем данные на сервер
+                    os.write(Data);
+                    os.flush();
+                    os.close();
+                    Data = null;
+                    conn.connect();
+                    int responseCode = conn.getResponseCode();
+
+                    // передаем ответ сервера
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    if (responseCode == 2) {
+                        conn.disconnect();
+                        throw new Exception("Ошибка приложения!");
+                    } else if (responseCode == 1) {
+                        conn.disconnect();
+                        throw new Exception("Неверные данные");
+                    } else if (responseCode == 0) {
+                        is = conn.getInputStream();
+
+                        byte[] buffer = new byte[8192]; // размер буфера
+
+                        // Далее так читаем ответ
+                        int bytesRead;
+                        while ((bytesRead = is.read(buffer)) != -1) {
+                            baos.write(buffer, 0, bytesRead);
+                        }
+
+                        Data = baos.toByteArray();
+                        resultString = new String(Data, "UTF-8");  // сохраняем в переменную ответ сервера, у нас "OK"
+                    } else if (responseCode == 4) {
+                        conn.disconnect();
+                        throw new Exception("Ваше устройство не зарегистрировано!");
+                    } else {
+                        conn.disconnect();
+                        throw new Exception("Ошибка приложения!");
+                    }
+                } catch (MalformedURLException e) {
+                    resultString = "MalformedURLException:" + e.getMessage();
+                } catch (IOException e) {
+                    resultString = "IOException:" + e.getMessage();
+                } catch (Exception e) {
+                    resultString = "Exception:" + e.getMessage();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            Toast toast = Toast.makeText(getContext(), "Данные переданы!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }*/
 }
+
