@@ -1,15 +1,25 @@
 package com.mysweetyphone.phone;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +35,19 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -110,12 +123,15 @@ public class Saved extends Fragment{
         MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
         final ImageButton chooseFileButton = getActivity().findViewById(R.id.ChooseFileSAVED);
         chooseFileButton.setOnClickListener(v->{
-            /*if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
-            }*/
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("*/*");
-            startActivityForResult(intent,43);
+            if(PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
+            }else {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(intent, 43);
+            }
         });
 
 
@@ -140,7 +156,8 @@ public class Saved extends Fragment{
                             throw new Exception("Ошибка приложения!");
                         }
                     }catch (Exception e){
-                        Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getContext(),
+                                e.getMessage(), Toast.LENGTH_LONG);
                         toast.show();
                         e.printStackTrace();
                         getActivity().finish();
@@ -153,79 +170,61 @@ public class Saved extends Fragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            File file = new File(Objects.requireNonNull(data.getData()).getPath());
-            if(file.length() > 1024*1024){
-                Toast toast = Toast.makeText(getContext(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
-                toast.show();
-                return;
-            }
-            if(!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())){
-                Toast toast = Toast.makeText(getContext(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
-                toast.show();
-                return;
-            }
-
-            Runnable r = () -> {
-                try {
-                    String url = "http://mysweetyphone.herokuapp.com";
-                    String urlParameters = "?Type=UploadFile&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&MsgType=Text";
-                    URL obj = new URL(url);
-                    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                    con.setRequestMethod("POST");
-                    con.setDoOutput(true);
-                    con.setDoInput(true);
-                    byte[] Data;
-
-                    con.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
-          /*ошибка*/DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                    wr.writeBytes(urlParameters);
-                    wr.flush();
-                    wr.close();
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer response = new StringBuffer();
-
-                    Toast toast = Toast.makeText(getContext(), "пока все хорошо", Toast.LENGTH_SHORT);
+            super.onActivityResult(requestCode, resultCode, data);
+            if (resultCode == RESULT_OK) {
+                File file = new File(ImageFilePath.getPath(getActivity(),data.getData()));
+                System.out.println(ImageFilePath.getPath(getActivity(),data.getData()));
+                //InputStream fin = getActivity().getContentResolver().openInputStream(data.getData());
+                if(file.length() > 1024*1024){
+                    Toast toast = Toast.makeText(getContext(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
                     toast.show();
-
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    in.close();
-
-                    /*OutputStream os = con.getOutputStream();
-                    Data = urlParameters.getBytes("UTF-8");
-                    os.write(Data);
-                    con.connect();*/
-
-
-
-                    JSONObject result = new JSONObject(response.toString());
-                    int i = result.getInt("code");
-                    if(i == 2){
-                        throw new Exception("Ошибка приложения!");
-                    }else if(i == 1){
-                        throw new Exception("Неверные данные");
-                    }else if(i == 0){
-                        DrawMessage(file.getName(), result.getLong("time"), name, true, true);
-                    }else if(i == 4){
-                        throw new Exception("Ваше устройство не зарегистрировано!");
-                    }else{
-                        throw new Exception("Ошибка приложения!");
-                    }
-                }catch (Exception e){
-                    Toast toast = Toast.makeText(getContext(), "Непредвиденная ошибка", Toast.LENGTH_LONG);
-                    toast.show();
-                    e.printStackTrace();
-                    getActivity().finish();
+                    return;
                 }
-            };
-            Thread t = new Thread(r);
-            t.run();
-        }
+                if(!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())){
+                    Toast toast = Toast.makeText(getContext(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
+                }
+
+                Runnable r = () -> {
+                    try {
+                        HttpClient client = new DefaultHttpClient();
+                        HttpPost post = new HttpPost("http://mysweetyphone.herokuapp.com/?Type=UploadFile&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id);
+                        MultipartEntity entity = new MultipartEntity();
+                        entity.addPart("fileToUpload", new FileBody(file));
+                        entity.addPart("submit", new StringBody(""));
+                        post.setEntity(entity);
+                        HttpResponse response = client.execute(post);
+
+                        JSONObject result = new JSONObject(EntityUtils.toString(response.getEntity()));
+                        int i = result.getInt("code");
+                        if(i == 2){
+                            throw new Exception("Ошибка приложения!");
+                        }else if(i == 1){
+                            throw new Exception("Неверные данные");
+                        }else if(i == 0){
+                            getActivity().runOnUiThread(()->{
+                                try {
+                                    DrawMessage(file.getName(), result.getLong("time"), name, true, true);
+                                }catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }else if(i == 4) {
+                            throw new Exception("Ваше устройство не зарегистрировано!");
+                        }else if(i == 3){
+                            throw new Exception("Файл не отправлен!");
+                        }else{
+                            throw new Exception("Ошибка приложения!");
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        getActivity().finish();
+                    }
+                };
+                Thread t = new Thread(r);
+                t.start();
+            }
     }
 
     @SuppressLint("ShowToast")
@@ -233,11 +232,11 @@ public class Saved extends Fragment{
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
             case  1001: {
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(getActivity(), "Permission granted.", Toast.LENGTH_SHORT).show();
+                if(grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(getActivity(), "Разрешения предоставлены", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Toast.makeText(getActivity(), "Permission NOT granted.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Разрешения не предоставлены", Toast.LENGTH_SHORT).show();
                 }
             }
         }

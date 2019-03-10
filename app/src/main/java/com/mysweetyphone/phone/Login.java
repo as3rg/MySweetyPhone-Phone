@@ -44,7 +44,9 @@ public class Login extends AppCompatActivity {
                     }else if (responseBody.getInt("result") == 2) {
                         ChangeActivity(RegDevice.class);
                     }
-                }catch (Exception e){}
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         });
     }
