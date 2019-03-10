@@ -114,7 +114,6 @@ public class Saved extends Fragment{
         return inflater.inflate(R.layout.fragment_saved, container, false);
     }
 
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
@@ -278,4 +277,101 @@ public class Saved extends Fragment{
             layout.startAnimation(anim);
         }
     }
+
+
+    /*class SendFile extends AsyncTask<Void, Void, Void>{
+
+        String resultString = null;
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String myURL = "http://mysweetyphone.herokuapp.com/?Type=";
+                String parammetrs = "UploadFile&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&MsgType=Tex";
+                byte[] Data = null;
+                InputStream is = null;
+
+                try {
+                    URL url = new URL(myURL);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000);
+                    conn.setConnectTimeout(15000);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+
+                    // конвертируем передаваемую строку в UTF-8
+                    Data = parammetrs.getBytes("UTF-8");
+
+                    OutputStream os = conn.getOutputStream();
+                    Toast toast = Toast.makeText(getContext(), "РАБОТАЕТ", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    // передаем данные на сервер
+                    os.write(Data);
+                    os.flush();
+                    os.close();
+                    Data = null;
+                    conn.connect();
+                    int responseCode = conn.getResponseCode();
+
+                    // передаем ответ сервера
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    if (responseCode == 2) {
+                        conn.disconnect();
+                        throw new Exception("Ошибка приложения!");
+                    } else if (responseCode == 1) {
+                        conn.disconnect();
+                        throw new Exception("Неверные данные");
+                    } else if (responseCode == 0) {
+                        is = conn.getInputStream();
+
+                        byte[] buffer = new byte[8192]; // размер буфера
+
+                        // Далее так читаем ответ
+                        int bytesRead;
+                        while ((bytesRead = is.read(buffer)) != -1) {
+                            baos.write(buffer, 0, bytesRead);
+                        }
+
+                        Data = baos.toByteArray();
+                        resultString = new String(Data, "UTF-8");  // сохраняем в переменную ответ сервера, у нас "OK"
+                    } else if (responseCode == 4) {
+                        conn.disconnect();
+                        throw new Exception("Ваше устройство не зарегистрировано!");
+                    } else {
+                        conn.disconnect();
+                        throw new Exception("Ошибка приложения!");
+                    }
+                } catch (MalformedURLException e) {
+                    resultString = "MalformedURLException:" + e.getMessage();
+                } catch (IOException e) {
+                    resultString = "IOException:" + e.getMessage();
+                } catch (Exception e) {
+                    resultString = "Exception:" + e.getMessage();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            Toast toast = Toast.makeText(getContext(), "Данные переданы!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }*/
 }
+
