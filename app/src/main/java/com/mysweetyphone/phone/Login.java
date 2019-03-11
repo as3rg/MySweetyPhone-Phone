@@ -18,24 +18,21 @@ import org.json.JSONObject;
 
 public class Login extends AppCompatActivity {
 
-    private int id;
-    private int regdate;
-    private String login;
-    private String name;
     private boolean RegOrLogin = false;     //Reg == true, Login == false
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        setTheme(R.style.AppTheme); //запуск главного стиля, после показа логотипа
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id",-1);
-        regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate",-1);
-        login  = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
-        name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name","");
+        int id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
+        int regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate", -1);
+        String login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
+        String name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
 
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login="+login+"&RegDate="+regdate+"&Id="+id+"&Name="+name, new JsonHttpResponseHandler() {
+        client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login="+ login +"&RegDate="+ regdate +"&Id="+ id +"&Name="+ name, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
