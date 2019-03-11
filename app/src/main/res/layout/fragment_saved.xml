@@ -8,6 +8,19 @@
     tools:context=".Saved"
     tools:layout_editor_absoluteY="81dp">
 
+    <ScrollView
+        android:id="@+id/ScrollBarSAVED"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/MessagesSAVED"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </ScrollView>
+
     <LinearLayout
         android:id="@+id/ButtonsBarSAVED"
         android:layout_width="match_parent"
@@ -16,26 +29,26 @@
         android:gravity="bottom"
         android:orientation="horizontal"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteY="511dp">
+        tools:layout_editor_absoluteY="511dp"
+        android:layout_marginTop="5dp">
 
         <EditText
             android:id="@+id/TextFieldSAVED"
-            android:maxHeight="140dp"
             android:layout_width="270dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:ems="10"
             android:hint="@string/writeMessage"
             android:inputType="textCapSentences"
-            />
+            android:maxHeight="140dp" />
 
         <ImageButton
             android:id="@+id/ChooseFileSAVED"
             android:layout_width="40dp"
             android:layout_height="45dp"
+            android:layout_gravity="top"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:layout_gravity="top"
             android:background="@drawable/ic_style_button_background"
             android:src="@drawable/ic_saved_attack_file"
             tools:ignore="NestedWeights" />
@@ -44,24 +57,12 @@
             android:id="@+id/SendButtonSAVED"
             android:layout_width="40dp"
             android:layout_height="45dp"
+            android:layout_gravity="top"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:layout_gravity="top"
             android:background="@drawable/ic_style_button_background"
             android:src="@drawable/ic_menu_send" />
 
     </LinearLayout>
-
-    <ScrollView
-        android:id="@+id/ScrollBarSAVED"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/MessagesSAVED"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
-    </ScrollView>
 
 </LinearLayout>
