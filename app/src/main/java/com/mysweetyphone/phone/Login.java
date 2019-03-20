@@ -20,10 +20,9 @@ public class Login extends AppCompatActivity {
 
     private boolean RegOrLogin = false;     //Reg == true, Login == false
     @Override
-    protected void onCreate(Bundle savedInstanceState){
-        setTheme(R.style.AppTheme); //запуск главного стиля, после показа логотипа
+    protected void onCreate(Bundle savedInstanceState){//запуск главного стиля, после показа логотипа
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        //setContentView(R.layout.activity_login);
 
         int id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
         int regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate", -1);
@@ -40,6 +39,9 @@ public class Login extends AppCompatActivity {
                         ChangeActivity(Main.class);
                     }else if (responseBody.getInt("result") == 2) {
                         ChangeActivity(RegDevice.class);
+                    }else{
+                        setTheme(R.style.AppTheme);
+                        setContentView(R.layout.activity_login);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
