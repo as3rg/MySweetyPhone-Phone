@@ -20,9 +20,8 @@ public class Login extends AppCompatActivity {
 
     private boolean RegOrLogin = false;     //Reg == true, Login == false
     @Override
-    protected void onCreate(Bundle savedInstanceState){//запуск главного стиля, после показа логотипа
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_login);
 
         int id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
         int regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate", -1);
