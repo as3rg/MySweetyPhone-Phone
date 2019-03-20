@@ -44,6 +44,8 @@ public class Login extends AppCompatActivity {
                     }
                 }catch (Exception e){
                     e.printStackTrace();
+                    setTheme(R.style.AppTheme);
+                    setContentView(R.layout.activity_login);
                 }
             }
         });
