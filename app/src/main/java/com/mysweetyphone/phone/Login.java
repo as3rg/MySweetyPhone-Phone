@@ -15,7 +15,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONObject;
 
-
 public class Login extends AppCompatActivity {
 
     private boolean RegOrLogin = false;     //Reg == true, Login == false
