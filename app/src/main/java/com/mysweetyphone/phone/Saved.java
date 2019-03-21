@@ -140,7 +140,7 @@ public class Saved extends Fragment {
                         JSONArray messages = (JSONArray) result.get("messages");
                         for (int j = Objects.requireNonNull(messages).length() - 1; j >= 0; j--) {
                             JSONObject message = (JSONObject) messages.get(j);
-                            Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), true);
+                            Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), false);
                         }
                     } else if (i == 4) {
                         throw new Exception("Ваше устройство не зарегистрировано");
@@ -191,10 +191,9 @@ public class Saved extends Fragment {
         layout.setOnLongClickListener(v -> {
             final String[] actions ={"Удалить сообщение", "Копировать текст"};
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Message");
             //кнопка для закрытия диалога
-            builder.setNeutralButton("Отмена",
-                    (dialog, id) -> dialog.cancel());
+            //builder.setNeutralButton("Отмена",
+            //        (dialog, id) -> dialog.cancel());
             builder.setItems(actions, (dialog, item) -> {
                 switch (actions[item]){
                     case "Удалить сообщение":
@@ -223,9 +222,9 @@ public class Saved extends Fragment {
                                             }
                                         });
                                         layout.startAnimation(animation);
-//                                        if(MessagesList.getChildCount() < 10)
-//                                            LoadMore(10 - MessagesList.getChildCount());
-                                        LoadMore();
+                                        if(MessagesList.getChildCount() < 10) {
+                                            LoadMore(10 - MessagesList.getChildCount());
+                                        }
                                     } else if (i == 4) {
                                         throw new Exception("Ваше устройство не зарегистрировано");
                                     } else {
@@ -241,13 +240,13 @@ public class Saved extends Fragment {
                         break;
                 }
             });
+
             AlertDialog alert = builder.create();
-            alert.setTitle("Message");
             alert.show();
             return false;
         });
 
-        MessagesList.addView(layout, 0);
+        MessagesList.addView(layout, MessagesList.getChildCount());
         if (needsAnim) {
             Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
             layout.startAnimation(anim);
