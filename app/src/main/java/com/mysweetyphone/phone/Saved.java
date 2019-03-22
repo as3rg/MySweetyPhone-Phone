@@ -3,12 +3,13 @@ package com.mysweetyphone.phone;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -43,6 +44,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -50,7 +52,6 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -222,9 +223,9 @@ public class Saved extends Fragment {
                                             }
                                         });
                                         layout.startAnimation(animation);
-                                        if(MessagesList.getChildCount() < 10) {
-                                            LoadMore(10 - MessagesList.getChildCount());
-                                        }
+//                                        if(MessagesList.getChildCount() < 10) {
+//                                            LoadMore(10 - MessagesList.getChildCount());
+//                                        }
                                     } else if (i == 4) {
                                         throw new Exception("Ваше устройство не зарегистрировано");
                                     } else {
@@ -236,7 +237,9 @@ public class Saved extends Fragment {
                             }
                         }); break;
                     case "Копировать текст":
-                        Toast.makeText(getContext(),"Не работает", Toast.LENGTH_SHORT).show();
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("", text);
+                        clipboard.setPrimaryClip(clip);
                         break;
                 }
             });
@@ -253,17 +256,121 @@ public class Saved extends Fragment {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void DrawFile(String text, Long date, String sender, Boolean needsAnim){
         if(getExtension(text.toLowerCase()).equals("jpg") || getExtension(text.toLowerCase()).equals("png") || getExtension(text.toLowerCase()).equals("jpeg") || getExtension(text.toLowerCase()).equals("bmp") || getExtension(text.toLowerCase()).equals("gif")){
             DrawImage(text, date, sender, needsAnim);
             return;
         }
 
-        if(getExtension(text.toLowerCase()).equals("mp4")){
+        if(getExtension(text.toLowerCase()).equals("mp4") || getExtension(text.toLowerCase()).equals("flv")){
             DrawVideo(text, date, sender, needsAnim);
             return;
         }
 
+        if(getExtension(text.toLowerCase()).equals("mp3") || getExtension(text.toLowerCase()).equals("wav")){
+            DrawAudio(text, date, sender, needsAnim);
+            return;
+        }
+
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.isClickable();
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
+
+        ImageView fileImg = new ImageView(getActivity());
+        fileImg.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_attack_file));
+        layout.addView(fileImg);
+
+        TextView textBox = new TextView(getActivity());
+        textBox.setText(text);
+        textBox.setTextSize(20);
+        layout.addView(textBox);
+        TextView dateBox = new TextView(getActivity());
+        Date Date = new java.util.Date(date * 1000L);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
+        dateBox.setText(format.format(Date) + ", " + sender);
+        layout.addView(dateBox);
+        layout.setPadding(35, 35, 35, 35);
+
+        layout.setOnLongClickListener(v -> {
+            final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            //кнопка для закрытия диалога
+            //builder.setNeutralButton("Отмена",
+            //        (dialog, id) -> dialog.cancel());
+            builder.setItems(actions, (dialog, item) -> {
+                switch (actions[item]){
+                    case "Удалить сообщение":
+                        AsyncHttpClient client = new AsyncHttpClient();
+                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                                try {
+                                    int i = result.getInt("code");
+
+                                    if (i == 2) {
+                                        throw new Exception("Ошибка приложения!");
+                                    } else if (i == 1) {
+                                        throw new Exception("Неверные данные");
+                                    } else if (i == 0) {
+                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        animation.setAnimationListener(new Animation.AnimationListener(){
+                                            @Override
+                                            public void onAnimationStart(Animation animation) { }
+                                            @Override
+                                            public void onAnimationRepeat(Animation animation) { }
+
+                                            @Override
+                                            public void onAnimationEnd(Animation animation) {
+                                                MessagesList.removeView(layout);
+                                            }
+                                        });
+                                        layout.startAnimation(animation);
+//                                        if(MessagesList.getChildCount() < 10) {
+//                                            LoadMore(10 - MessagesList.getChildCount());
+//                                        }
+                                    } else if (i == 4) {
+                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                    } else {
+                                        throw new Exception("Ошибка приложения!");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }); break;
+                    case "Копировать текст":
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("", text);
+                        clipboard.setPrimaryClip(clip);
+                        break;
+                    case "Скачать файл":
+                        File out = new File("//storage//emulated//0//Android//data//com.mysweetyphone");
+                        Runnable r = () -> {
+                            try{
+                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
+                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+                                File out2 = new File(out,"Files");
+                                out2.mkdirs();
+                                FileOutputStream fos = new FileOutputStream(new File(out2, text));
+                                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                                fos.close();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        };
+                        Thread t = new Thread(r);
+                        t.start();
+                }
+            });
+
+            AlertDialog alert = builder.create();
+            alert.show();
+            return false;
+        });
+        MessagesList.addView(layout);
         try{
             /*URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
@@ -295,6 +402,8 @@ public class Saved extends Fragment {
     private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
 
     }
+
+    private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){}
 
     //выбор файла
     @Override
