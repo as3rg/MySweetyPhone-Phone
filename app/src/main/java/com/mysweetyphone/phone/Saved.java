@@ -2,6 +2,7 @@ package com.mysweetyphone.phone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -73,6 +74,10 @@ public class Saved extends Fragment {
         regdate = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getInt("regdate", -1);
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
+        if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
+        }
     }
 
     @Override
@@ -83,15 +88,10 @@ public class Saved extends Fragment {
         MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
         final ImageButton chooseFileButton = getActivity().findViewById(R.id.ChooseFileSAVED);
         chooseFileButton.setOnClickListener(v -> {
-            if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
-            } else {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                startActivityForResult(intent, 43);
-            }
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, 43);
         });
 
         sendButton.setOnClickListener(v -> {
@@ -349,14 +349,15 @@ public class Saved extends Fragment {
                         clipboard.setPrimaryClip(clip);
                         break;
                     case "Скачать файл":
-                        File out = new File("//storage//emulated//0//Android//data//com.mysweetyphone");
+                        File out = new File("//storage//emulated//0//MySweetyPhone");
                         Runnable r = () -> {
                             try{
                                 URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
                                 ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                File out2 = new File(out,"Files");
-                                out2.mkdirs();
-                                FileOutputStream fos = new FileOutputStream(new File(out2, text));
+                                out.mkdirs();
+                                File out2 = new File(out, text);
+                                out2.createNewFile();
+                                FileOutputStream fos = new FileOutputStream(out2);
                                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                                 fos.close();
                             }
@@ -493,6 +494,7 @@ public class Saved extends Fragment {
                     Toast.makeText(getActivity(), "Разрешения предоставлены", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "Разрешения не предоставлены", Toast.LENGTH_SHORT).show();
+                    getActivity().finish();
                 }
             }
         }
