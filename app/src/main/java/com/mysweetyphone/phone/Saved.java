@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -126,7 +128,7 @@ public class Saved extends Fragment {
 
     void LoadMore(int Count) {
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&From=" + MessagesList.getChildCount() + "&Count=" + Count, new JsonHttpResponseHandler() {
+        client.get("http://mysweetyphone.herokuapp.com/?Type=GetMessages&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id  + "&Count=" + (MessagesList.getChildCount()-1+Count), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                 try {
@@ -138,6 +140,7 @@ public class Saved extends Fragment {
                         throw new Exception("Неверные данные");
                     } else if (i == 0) {
                         JSONArray messages = (JSONArray) result.get("messages");
+                        MessagesList.removeAllViews();
                         for (int j = Objects.requireNonNull(messages).length() - 1; j >= 0; j--) {
                             JSONObject message = (JSONObject) messages.get(j);
                             Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), false);
@@ -218,13 +221,11 @@ public class Saved extends Fragment {
 
                                             @Override
                                             public void onAnimationEnd(Animation animation) {
-                                                MessagesList.removeView(layout);
+                                                Handler h = new Handler();
+                                                h.postAtTime(()->MessagesList.removeView(layout), 100);
                                             }
                                         });
                                         layout.startAnimation(animation);
-                                        if(MessagesList.getChildCount() < 10) {
-                                            LoadMore(10 - MessagesList.getChildCount());
-                                        }
                                     } else if (i == 4) {
                                         throw new Exception("Ваше устройство не зарегистрировано");
                                     } else {
@@ -234,7 +235,8 @@ public class Saved extends Fragment {
                                     e.printStackTrace();
                                 }
                             }
-                        }); break;
+                        });
+                        break;
                     case "Копировать текст":
                         Toast.makeText(getContext(),"Не работает", Toast.LENGTH_SHORT).show();
                         break;
