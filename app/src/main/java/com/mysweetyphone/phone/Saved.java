@@ -28,8 +28,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -68,6 +71,7 @@ public class Saved extends Fragment {
     private String name;
     private String login;
     private LinearLayout MessagesList;
+    private ScrollView scrollView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +93,7 @@ public class Saved extends Fragment {
         final ImageButton sendButton = getActivity().findViewById(R.id.SendButtonSAVED);
         MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
         final ImageButton chooseFileButton = getActivity().findViewById(R.id.ChooseFileSAVED);
+        scrollView = getActivity().findViewById(R.id.ScrollBarSAVED);
         chooseFileButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -149,6 +154,7 @@ public class Saved extends Fragment {
                             JSONObject message = (JSONObject) messages.get(j);
                             Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), false);
                         }
+                        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                     } else if (i == 4) {
                         throw new Exception("Ваше устройство не зарегистрировано");
                     } else {
@@ -174,6 +180,7 @@ public class Saved extends Fragment {
     @SuppressLint("SetTextI18n")
     private void DrawText(String text, Long date, String sender, Boolean needsAnim) {
         LinearLayout layout = new LinearLayout(getActivity());
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
@@ -259,6 +266,7 @@ public class Saved extends Fragment {
             Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
             layout.startAnimation(anim);
         }
+        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
     @SuppressLint("SetTextI18n")
@@ -277,8 +285,9 @@ public class Saved extends Fragment {
             DrawAudio(text, date, sender, needsAnim);
             return;
         }
-
+        
         LinearLayout layout = new LinearLayout(getActivity());
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
@@ -377,22 +386,28 @@ public class Saved extends Fragment {
             return false;
         });
         MessagesList.addView(layout);
+        if (needsAnim) {
+            Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
+            layout.startAnimation(anim);
+        }
+        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
     private void DrawImage(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
-        TextView textBox = new TextView(getActivity());
-        textBox.setText(text);
-        textBox.setTextSize(20);
-        layout.addView(textBox);
 
         ImageView Image = new ImageView(getActivity());
         Picasso.get().load("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date).into(Image);
         layout.addView(Image);
 
+        TextView textBox = new TextView(getActivity());
+        textBox.setText(text);
+        textBox.setTextSize(20);
+        layout.addView(textBox);
         TextView dateBox = new TextView(getActivity());
         Date Date = new java.util.Date(date * 1000L);
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
@@ -403,9 +418,6 @@ public class Saved extends Fragment {
         layout.setOnLongClickListener(v -> {
             final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            //кнопка для закрытия диалога
-            //builder.setNeutralButton("Отмена",
-            //        (dialog, id) -> dialog.cancel());
             builder.setItems(actions, (dialog, item) -> {
                 switch (actions[item]){
                     case "Удалить сообщение":
@@ -479,10 +491,120 @@ public class Saved extends Fragment {
             return false;
         });
         MessagesList.addView(layout);
+        if (needsAnim) {
+            Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
+            layout.startAnimation(anim);
+        }
+        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
     private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.isClickable();
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
+        String videoUrl = "http://techslides.com/demos/sample-videos/small.mp4";
+        VideoView videoView = new VideoView(getActivity());
+        videoView.setVideoURI(Uri.parse(videoUrl));
+        videoView.setMediaController(new MediaController(getActivity()));
+        videoView.requestFocus(0);
+        videoView.start();
+        layout.addView(videoView);
+
+        TextView textBox = new TextView(getActivity());
+        textBox.setText(text);
+        textBox.setTextSize(20);
+        layout.addView(textBox);
+        TextView dateBox = new TextView(getActivity());
+        Date Date = new java.util.Date(date * 1000L);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
+        dateBox.setText(format.format(Date) + ", " + sender);
+        layout.addView(dateBox);
+        layout.setPadding(35, 35, 35, 35);
+
+        layout.setOnLongClickListener(v -> {
+            final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setItems(actions, (dialog, item) -> {
+                switch (actions[item]){
+                    case "Удалить сообщение":
+                        AsyncHttpClient client = new AsyncHttpClient();
+                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                                try {
+                                    int i = result.getInt("code");
+
+                                    if (i == 2) {
+                                        throw new Exception("Ошибка приложения!");
+                                    } else if (i == 1) {
+                                        throw new Exception("Неверные данные");
+                                    } else if (i == 0) {
+                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        animation.setAnimationListener(new Animation.AnimationListener(){
+                                            @Override
+                                            public void onAnimationStart(Animation animation) { }
+                                            @Override
+                                            public void onAnimationRepeat(Animation animation) { }
+
+                                            @Override
+                                            public void onAnimationEnd(Animation animation) {
+                                                Handler h = new Handler();
+                                                h.postAtTime(()->MessagesList.removeView(layout), 100);
+                                            }
+                                        });
+                                        layout.startAnimation(animation);
+                                    } else if (i == 4) {
+                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                    } else {
+                                        throw new Exception("Ошибка приложения!");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }); break;
+                    case "Копировать текст":
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("", text);
+                        clipboard.setPrimaryClip(clip);
+                        break;
+                    case "Скачать файл":
+                        File out = new File("//storage//emulated//0//MySweetyPhone");
+                        Runnable r = () -> {
+                            try{
+                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
+                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+                                out.mkdirs();
+                                File out2 = new File(out, text);
+                                out2.createNewFile();
+                                try(FileOutputStream fos = new FileOutputStream(out2)){
+                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                                } catch (IOException e){
+                                    throw new Exception(e.getMessage());
+                                }
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        };
+                        Thread t = new Thread(r);
+                        t.start();
+                }
+            });
+
+            AlertDialog alert = builder.create();
+            alert.show();
+            return false;
+        });
+        MessagesList.addView(layout);
+        if (needsAnim) {
+            Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
+            layout.startAnimation(anim);
+        }
+        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
     private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){}
