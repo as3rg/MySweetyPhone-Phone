@@ -2,7 +2,6 @@ package com.mysweetyphone.phone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -11,8 +10,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.tv.TvContract;
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,6 +37,8 @@ import android.widget.VideoView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.nbsp.materialfilepicker.utils.FileTypeUtils;
+import com.nbsp.materialfilepicker.utils.FileUtils;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
@@ -72,6 +75,8 @@ public class Saved extends Fragment {
     private String login;
     private LinearLayout MessagesList;
     private ScrollView scrollView;
+    private MediaPlayer mPlayer;
+    private Button startButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -285,7 +290,7 @@ public class Saved extends Fragment {
             DrawAudio(text, date, sender, needsAnim);
             return;
         }
-        
+
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
@@ -511,7 +516,7 @@ public class Saved extends Fragment {
         videoView.setMediaController(new MediaController(getActivity()));
         videoView.requestFocus(0);
         videoView.start();
-        layout.addView(videoView);
+        layout.addView(videoView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         TextView textBox = new TextView(getActivity());
         textBox.setText(text);
@@ -577,9 +582,7 @@ public class Saved extends Fragment {
                             try{
                                 URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
                                 ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                out.mkdirs();
                                 File out2 = new File(out, text);
-                                out2.createNewFile();
                                 try(FileOutputStream fos = new FileOutputStream(out2)){
                                     fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                                 } catch (IOException e){
@@ -607,7 +610,141 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
-    private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){}
+    private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.isClickable();
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
+
+        LinearLayout musicLayout = new LinearLayout(getActivity());
+        mPlayer = MediaPlayer.create(getContext(), R.raw.music);
+        mPlayer.setOnCompletionListener(mp -> stopPlay());
+        startButton = new Button(getActivity());
+        startButton.setOnClickListener(v -> {
+            if(mPlayer.isPlaying()){
+                stopPlay();
+            }
+            else{
+                mPlayer.start();
+            }
+    });
+        musicLayout.addView(startButton);
+
+        layout.addView(musicLayout);
+
+        TextView textBox = new TextView(getActivity());
+        textBox.setText(text);
+        textBox.setTextSize(20);
+        layout.addView(textBox);
+        TextView dateBox = new TextView(getActivity());
+        Date Date = new java.util.Date(date * 1000L);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
+        dateBox.setText(format.format(Date) + ", " + sender);
+        layout.addView(dateBox);
+        layout.setPadding(35, 35, 35, 35);
+
+        layout.setOnLongClickListener(v -> {
+            final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setItems(actions, (dialog, item) -> {
+                switch (actions[item]){
+                    case "Удалить сообщение":
+                        AsyncHttpClient client = new AsyncHttpClient();
+                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                                try {
+                                    int i = result.getInt("code");
+
+                                    if (i == 2) {
+                                        throw new Exception("Ошибка приложения!");
+                                    } else if (i == 1) {
+                                        throw new Exception("Неверные данные");
+                                    } else if (i == 0) {
+                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        animation.setAnimationListener(new Animation.AnimationListener(){
+                                            @Override
+                                            public void onAnimationStart(Animation animation) { }
+                                            @Override
+                                            public void onAnimationRepeat(Animation animation) { }
+
+                                            @Override
+                                            public void onAnimationEnd(Animation animation) {
+                                                Handler h = new Handler();
+                                                h.postAtTime(()->MessagesList.removeView(layout), 100);
+                                            }
+                                        });
+                                        layout.startAnimation(animation);
+                                    } else if (i == 4) {
+                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                    } else {
+                                        throw new Exception("Ошибка приложения!");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }); break;
+                    case "Копировать текст":
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("", text);
+                        clipboard.setPrimaryClip(clip);
+                        break;
+                    case "Скачать файл":
+                        File out = new File("//storage//emulated//0//MySweetyPhone");
+                        Runnable r = () -> {
+                            try{
+                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
+                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+                                File out2 = new File(out, text);
+                                try(FileOutputStream fos = new FileOutputStream(out2)){
+                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                                } catch (IOException e){
+                                    throw new Exception(e.getMessage());
+                                }
+                                rbc.close();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        };
+                        Thread t = new Thread(r);
+                        t.start();
+                }
+            });
+
+            AlertDialog alert = builder.create();
+            alert.show();
+            return false;
+        });
+        MessagesList.addView(layout);
+        if (needsAnim) {
+            Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
+            layout.startAnimation(anim);
+        }
+        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+    }
+
+    private  void stopPlay(){
+        mPlayer.stop();
+        try {
+            mPlayer.prepare();
+            mPlayer.seekTo(0);
+            startButton.setEnabled(true);
+        }
+        catch (Throwable t) {
+            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mPlayer.isPlaying()) {
+            stopPlay();
+        }
+    }
 
     //выбор файла
     @Override
@@ -703,5 +840,53 @@ public class Saved extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_saved, container, false);
+    }
+
+    public interface FileLoadingListener {
+        void onBegin();
+        void onSuccess();
+        void onFailure(Throwable cause);
+        void onEnd();
+    }
+
+    public class FileLoadingTask extends AsyncTask<Void, Void, Void> {
+
+        private String url;
+        private File destination;
+        private FileLoadingListener fileLoadingListener;
+        private Throwable throwable;
+
+        public FileLoadingTask(String url, File destination, FileLoadingListener fileLoadingListener) {
+            this.url = url;
+            this.destination = destination;
+            this.fileLoadingListener = fileLoadingListener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            fileLoadingListener.onBegin();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                FileUtils.(new URL(url), destination);
+            } catch (IOException e) {
+                throwable = e;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            fileLoadingListener.onEnd();
+            if (throwable != null) {
+                fileLoadingListener.onFailure(throwable);
+            } else {
+                fileLoadingListener.onSuccess();
+            }
+        }
     }
 }
