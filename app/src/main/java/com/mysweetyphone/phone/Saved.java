@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -37,10 +38,10 @@ import android.widget.VideoView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.nbsp.materialfilepicker.utils.FileTypeUtils;
-import com.nbsp.materialfilepicker.utils.FileUtils;
+
 import com.squareup.picasso.Picasso;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -55,11 +56,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -363,26 +361,7 @@ public class Saved extends Fragment {
                         clipboard.setPrimaryClip(clip);
                         break;
                     case "Скачать файл":
-                        File out = new File("//storage//emulated//0//MySweetyPhone");
-                        Runnable r = () -> {
-                            try{
-                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
-                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                out.mkdirs();
-                                File out2 = new File(out, text);
-                                out2.createNewFile();
-                                try(FileOutputStream fos = new FileOutputStream(out2)){
-                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-                                } catch (IOException e){
-                                    throw new Exception(e.getMessage());
-                                }
-                            }
-                            catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        };
-                        Thread t = new Thread(r);
-                        t.start();
+                        Download(text,date);
                 }
             });
 
@@ -468,26 +447,7 @@ public class Saved extends Fragment {
                         clipboard.setPrimaryClip(clip);
                         break;
                     case "Скачать файл":
-                        File out = new File("//storage//emulated//0//MySweetyPhone");
-                        Runnable r = () -> {
-                            try{
-                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
-                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                out.mkdirs();
-                                File out2 = new File(out, text);
-                                out2.createNewFile();
-                                try(FileOutputStream fos = new FileOutputStream(out2)){
-                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-                                } catch (IOException e){
-                                    throw new Exception(e.getMessage());
-                                }
-                            }
-                            catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        };
-                        Thread t = new Thread(r);
-                        t.start();
+                        Download(text,date);
                 }
             });
 
@@ -577,24 +537,7 @@ public class Saved extends Fragment {
                         clipboard.setPrimaryClip(clip);
                         break;
                     case "Скачать файл":
-                        File out = new File("//storage//emulated//0//MySweetyPhone");
-                        Runnable r = () -> {
-                            try{
-                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
-                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                File out2 = new File(out, text);
-                                try(FileOutputStream fos = new FileOutputStream(out2)){
-                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-                                } catch (IOException e){
-                                    throw new Exception(e.getMessage());
-                                }
-                            }
-                            catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        };
-                        Thread t = new Thread(r);
-                        t.start();
+                        Download(text,date);
                 }
             });
 
@@ -628,7 +571,7 @@ public class Saved extends Fragment {
             else{
                 mPlayer.start();
             }
-    });
+        });
         musicLayout.addView(startButton);
 
         layout.addView(musicLayout);
@@ -692,25 +635,7 @@ public class Saved extends Fragment {
                         clipboard.setPrimaryClip(clip);
                         break;
                     case "Скачать файл":
-                        File out = new File("//storage//emulated//0//MySweetyPhone");
-                        Runnable r = () -> {
-                            try{
-                                URL website = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date);
-                                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-                                File out2 = new File(out, text);
-                                try(FileOutputStream fos = new FileOutputStream(out2)){
-                                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-                                } catch (IOException e){
-                                    throw new Exception(e.getMessage());
-                                }
-                                rbc.close();
-                            }
-                            catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        };
-                        Thread t = new Thread(r);
-                        t.start();
+                        Download(text,date);
                 }
             });
 
@@ -849,14 +774,14 @@ public class Saved extends Fragment {
         void onEnd();
     }
 
-    public class FileLoadingTask extends AsyncTask<Void, Void, Void> {
+    public static class FileLoadingTask extends AsyncTask<Void, Void, Void> {
 
         private String url;
         private File destination;
         private FileLoadingListener fileLoadingListener;
         private Throwable throwable;
 
-        public FileLoadingTask(String url, File destination, FileLoadingListener fileLoadingListener) {
+        private FileLoadingTask(String url, File destination, FileLoadingListener fileLoadingListener) {
             this.url = url;
             this.destination = destination;
             this.fileLoadingListener = fileLoadingListener;
@@ -871,7 +796,7 @@ public class Saved extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                FileUtils.(new URL(url), destination);
+                FileUtils.copyURLToFile(new URL(url), destination);
             } catch (IOException e) {
                 throwable = e;
             }
@@ -888,5 +813,28 @@ public class Saved extends Fragment {
                 fileLoadingListener.onSuccess();
             }
         }
+    }
+
+    public void Download(String text, Long date){
+        new FileLoadingTask(
+                "http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date,
+                new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone/" + text),
+                new FileLoadingListener() {
+                    @Override
+                    public void onBegin() { }
+
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(getActivity(), "Скачано в /storage/emulated/0/MySweetyPhone", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable cause) {
+                        Toast.makeText(getActivity(), "Не удалось скачать, попробуйте ещё раз", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onEnd() { }
+                }).execute();
     }
 }
