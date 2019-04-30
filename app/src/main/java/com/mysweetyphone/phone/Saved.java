@@ -92,6 +92,11 @@ public class Saved extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        final Button LoadMoreButton= getActivity().findViewById(R.id.LoadMoreSAVED);
+        LoadMoreButton.setOnClickListener(v -> {
+            LoadMore(10);
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+        });
         final TextView MessageText = getActivity().findViewById(R.id.TextFieldSAVED);
         final ImageButton sendButton = getActivity().findViewById(R.id.SendButtonSAVED);
         MessagesList = getActivity().findViewById(R.id.MessagesSAVED);
@@ -815,7 +820,7 @@ public class Saved extends Fragment {
         }
     }
 
-    public void Download(String text, Long date){
+    private void Download(String text, Long date){
         new FileLoadingTask(
                 "http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date,
                 new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone/" + text),
