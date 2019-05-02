@@ -550,21 +550,13 @@ public class Saved extends Fragment {
     }
 
     private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
+        System.out.println("start");
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
-        VideoView videoView = new VideoView(getActivity());
-        MediaController mediaController = new MediaController(getActivity());
-        mediaController.setMediaPlayer(videoView);
-        videoView.setMediaController(mediaController);
-        videoView.setVisibility(View.VISIBLE);
-        videoView.setMinimumHeight(100);
-        videoView.setMinimumWidth(100);
-        videoView.requestFocus(0);
-        layout.addView(videoView);
         new Thread(() -> {
             try {
                 URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
@@ -583,14 +575,25 @@ public class Saved extends Fragment {
                 JSONObject result = new JSONObject(response.toString());
                 String filebody = (String)result.get("filebody");
 
-                File out = File.createTempFile(text, ".tmp");
+                File out = File.createTempFile(text, ".mp4");
                 tempfiles.add(out);
                 FileOutputStream fos = new FileOutputStream(out);
                 fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
                 fos.close();
                 getActivity().runOnUiThread(() -> {
-                    videoView.setVideoURI(android.net.Uri.parse(out.toURI().toString()));
+                    VideoView videoView = new VideoView(getActivity());
+                    MediaController mediaController = new MediaController(getActivity());
+                    mediaController.setAnchorView(videoView);
+                    mediaController.setMediaPlayer(videoView);
+                    videoView.setMediaController(mediaController);
+                    videoView.setVisibility(View.VISIBLE);
+                    videoView.setMinimumHeight(100);
+                    videoView.setMinimumWidth(100);
+                    videoView.requestFocus(0);
+                    videoView.setVideoPath(out.getPath());
                     videoView.start();
+                    layout.addView(videoView);
+
                 });
 
             } catch (IOException | DecoderException e) {
