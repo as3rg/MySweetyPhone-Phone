@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,8 +96,6 @@ public class Saved extends Fragment {
     private String login;
     private LinearLayout MessagesList;
     private ScrollView scrollView;
-    private MediaPlayer mPlayer;
-    private Button startButton;
 
     ArrayList<File> tempfiles;
 
@@ -591,6 +590,8 @@ public class Saved extends Fragment {
                     videoView.setMinimumWidth(100);
                     videoView.requestFocus(0);
                     videoView.setVideoPath(out.getPath());
+                    videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                            ActionBar.LayoutParams.FILL_PARENT));
                     videoView.start();
                     layout.addView(videoView);
 
@@ -688,9 +689,17 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
         LinearLayout musicLayout = new LinearLayout(getActivity());
-        mPlayer = new MediaPlayer();
-        mPlayer.setOnCompletionListener(mp -> stopPlay());
-        startButton = new Button(getActivity());
+        MediaPlayer mPlayer = new MediaPlayer();
+        mPlayer.setOnCompletionListener(mp -> {
+            try {
+                mPlayer.stop();
+                mPlayer.prepare();
+                mPlayer.seekTo(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Button startButton = new Button(getActivity());
         musicLayout.addView(startButton);
 
         new Thread(() -> {
@@ -824,24 +833,9 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
-    private  void stopPlay(){
-        mPlayer.stop();
-        try {
-            mPlayer.prepare();
-            mPlayer.seekTo(0);
-            startButton.setEnabled(true);
-        }
-        catch (Throwable t) {
-            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            stopPlay();
-        }
         for(File f : tempfiles)
             f.deleteOnExit();
     }
