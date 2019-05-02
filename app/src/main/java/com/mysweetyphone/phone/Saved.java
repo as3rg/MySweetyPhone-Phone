@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -144,8 +146,14 @@ public class Saved extends Fragment {
                         } else if (i == 1) {
                             throw new Exception("Неверные данные");
                         } else if (i == 0) {
-                            Draw(MessageText.getText().toString(), result.getLong("time"), name, false, true);
-                            MessageText.setText("");
+                            getActivity().runOnUiThread(() -> {
+                                try {
+                                    Draw(MessageText.getText().toString(), result.getLong("time"), name, false, true);
+                                    MessageText.setText("");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            });
                         } else if (i == 4) {
                             Toast toast = Toast.makeText(getContext(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
@@ -185,7 +193,13 @@ public class Saved extends Fragment {
                         MessagesList.removeAllViews();
                         for (int j = Objects.requireNonNull(messages).length() - 1; j >= 0; j--) {
                             JSONObject message = (JSONObject) messages.get(j);
-                            Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), false);
+                            getActivity().runOnUiThread(() -> {
+                                try {
+                                    Draw((message.getString("msg")).replace("\\n", "\n"), message.getLong("date"), message.getString("sender"), (message.getString("type")).equals("File"), false);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            });
                         }
                         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                     } else if (i == 4) {
@@ -543,7 +557,12 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
         VideoView videoView = new VideoView(getActivity());
-        videoView.setMediaController(new MediaController(getActivity()));
+        MediaController mediaController = new MediaController(getActivity());
+        mediaController.setMediaPlayer(videoView);
+        videoView.setMediaController(mediaController);
+        videoView.setVisibility(View.VISIBLE);
+        videoView.setMinimumHeight(100);
+        videoView.setMinimumWidth(100);
         videoView.requestFocus(0);
         layout.addView(videoView);
         new Thread(() -> {
@@ -570,7 +589,7 @@ public class Saved extends Fragment {
                 fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
                 fos.close();
                 getActivity().runOnUiThread(() -> {
-                    videoView.setVideoPath(out.getPath());
+                    videoView.setVideoURI(android.net.Uri.parse(out.toURI().toString()));
                     videoView.start();
                 });
 
@@ -666,18 +685,62 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
         LinearLayout musicLayout = new LinearLayout(getActivity());
-        mPlayer = MediaPlayer.create(getContext(), R.raw.music);
+        mPlayer = new MediaPlayer();
         mPlayer.setOnCompletionListener(mp -> stopPlay());
         startButton = new Button(getActivity());
-        startButton.setOnClickListener(v -> {
-            if(mPlayer.isPlaying()){
-                stopPlay();
-            }
-            else{
-                mPlayer.start();
-            }
-        });
         musicLayout.addView(startButton);
+
+        new Thread(() -> {
+            try {
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject result = new JSONObject(response.toString());
+                String filebody = (String)result.get("filebody");
+
+                File out = File.createTempFile(text, ".tmp");
+                tempfiles.add(out);
+                FileOutputStream fos = new FileOutputStream(out);
+                fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
+                fos.close();
+                getActivity().runOnUiThread(() -> {
+                    try {
+                        mPlayer.setDataSource(out.getPath());
+                        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        mPlayer.prepare();
+                        mPlayer.setOnPreparedListener((a)->{
+                            startButton.setOnClickListener(v -> {
+                                if(mPlayer.isPlaying()){
+                                    mPlayer.pause();
+                                }
+                                else{
+                                    mPlayer.start();
+                                }
+                            });
+                            mPlayer.setOnPreparedListener((b)->{});
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            } catch (IOException | DecoderException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
 
         layout.addView(musicLayout);
 
@@ -819,7 +882,13 @@ public class Saved extends Fragment {
                     } else if (i == 1) {
                         throw new RuntimeException("Неверные данные");
                     } else if (i == 0) {
-                        Draw(file.getName(), result.getLong("time"), name, true, true);
+                        getActivity().runOnUiThread(() -> {
+                            try {
+                                Draw(file.getName(), result.getLong("time"), name, true, true);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
                     } else if (i == 4) {
                         Toast toast = Toast.makeText(getContext(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
