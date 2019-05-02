@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
@@ -41,27 +42,46 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import com.squareup.picasso.Picasso;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+
+import okhttp3.internal.platform.Platform;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -76,6 +96,8 @@ public class Saved extends Fragment {
     private MediaPlayer mPlayer;
     private Button startButton;
 
+    ArrayList<File> tempfiles;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +105,7 @@ public class Saved extends Fragment {
         regdate = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getInt("regdate", -1);
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
+        tempfiles = new ArrayList<>();
         if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
@@ -124,7 +147,9 @@ public class Saved extends Fragment {
                             Draw(MessageText.getText().toString(), result.getLong("time"), name, false, true);
                             MessageText.setText("");
                         } else if (i == 4) {
-                            throw new Exception("Ваше устройство не зарегистрировано!");
+                            Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                         } else {
                             throw new Exception("Ошибка приложения!");
                         }
@@ -164,7 +189,9 @@ public class Saved extends Fragment {
                         }
                         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                     } else if (i == 4) {
-                        throw new Exception("Ваше устройство не зарегистрировано");
+                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                     } else {
                         throw new Exception("Ошибка приложения!");
                     }
@@ -220,7 +247,7 @@ public class Saved extends Fragment {
                 switch (actions[item]){
                     case "Удалить сообщение":
                         AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                                 try {
@@ -246,7 +273,9 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                                     } else {
                                         throw new Exception("Ошибка приложения!");
                                     }
@@ -325,7 +354,7 @@ public class Saved extends Fragment {
                 switch (actions[item]){
                     case "Удалить сообщение":
                         AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                                 try {
@@ -351,7 +380,9 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                                     } else {
                                         throw new Exception("Ошибка приложения!");
                                     }
@@ -390,8 +421,42 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
         ImageView Image = new ImageView(getActivity());
-        Picasso.get().load("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date).into(Image);
         layout.addView(Image);
+
+        (new Thread(() -> {
+            try {
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject result = (JSONObject) new JSONObject(response.toString());
+                String filebody = (String)result.get("filebody");
+
+                getActivity().runOnUiThread(() -> {
+                    try {
+                        Image.setImageBitmap(BitmapFactory.decodeStream(new ByteArrayInputStream(Hex.decodeHex(filebody.substring(2).toCharArray()))));
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        })).start();
+
 
         TextView textBox = new TextView(getActivity());
         textBox.setText(text);
@@ -411,7 +476,7 @@ public class Saved extends Fragment {
                 switch (actions[item]){
                     case "Удалить сообщение":
                         AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                                 try {
@@ -437,7 +502,9 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                                     } else {
                                         throw new Exception("Ошибка приложения!");
                                     }
@@ -475,13 +542,44 @@ public class Saved extends Fragment {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
-        String videoUrl = "http://techslides.com/demos/sample-videos/small.mp4";
         VideoView videoView = new VideoView(getActivity());
-        videoView.setVideoURI(Uri.parse(videoUrl));
         videoView.setMediaController(new MediaController(getActivity()));
         videoView.requestFocus(0);
-        videoView.start();
-        layout.addView(videoView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        layout.addView(videoView);
+        new Thread(() -> {
+            try {
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject result = new JSONObject(response.toString());
+                String filebody = (String)result.get("filebody");
+
+                File out = File.createTempFile(text, ".tmp");
+                tempfiles.add(out);
+                FileOutputStream fos = new FileOutputStream(out);
+                fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
+                fos.close();
+                getActivity().runOnUiThread(() -> {
+                    videoView.setVideoPath(out.getPath());
+                    videoView.start();
+                });
+
+            } catch (IOException | DecoderException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
         TextView textBox = new TextView(getActivity());
         textBox.setText(text);
@@ -501,7 +599,7 @@ public class Saved extends Fragment {
                 switch (actions[item]){
                     case "Удалить сообщение":
                         AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                                 try {
@@ -527,7 +625,9 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                                     } else {
                                         throw new Exception("Ошибка приложения!");
                                     }
@@ -599,7 +699,7 @@ public class Saved extends Fragment {
                 switch (actions[item]){
                     case "Удалить сообщение":
                         AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("https://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
+                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
                                 try {
@@ -625,7 +725,9 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        throw new Exception("Ваше устройство не зарегистрировано");
+                                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                                     } else {
                                         throw new Exception("Ошибка приложения!");
                                     }
@@ -671,9 +773,11 @@ public class Saved extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mPlayer.isPlaying()) {
+        if (mPlayer != null && mPlayer.isPlaying()) {
             stopPlay();
         }
+        for(File f : tempfiles)
+            f.deleteOnExit();
     }
 
     //выбор файла
@@ -699,42 +803,40 @@ public class Saved extends Fragment {
                 try {
                     HttpClient client = new DefaultHttpClient();
                     HttpPost post = new HttpPost("http://mysweetyphone.herokuapp.com/?Type=UploadFile&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id);
-                    MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-                    entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-                    entityBuilder.addTextBody("submit", "");
-                    entityBuilder.addBinaryBody("fileToUpload", file);
-                    HttpEntity entity = entityBuilder.build();
+                    MultipartEntity entity = new MultipartEntity();
+                    entity.addPart("fileToUpload", new FileBody(file));
                     post.setEntity(entity);
                     HttpResponse response = client.execute(post);
 
-                    JSONObject result = new JSONObject(EntityUtils.toString(response.getEntity()));
+                    String body = IOUtils.toString(response.getEntity().getContent());
+                    System.out.println(body);
+                    JSONObject result = new JSONObject(body);
+
+
                     int i = result.getInt("code");
                     if (i == 2) {
-                        throw new Exception("Ошибка приложения!");
+                        throw new RuntimeException("Ошибка приложения!");
                     } else if (i == 1) {
-                        throw new Exception("Неверные данные");
+                        throw new RuntimeException("Неверные данные");
                     } else if (i == 0) {
-                        getActivity().runOnUiThread(() -> {
-                            try {
-                                try {
-                                    Draw(file.getName(), result.getLong("time"), name, true, true);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        Draw(file.getName(), result.getLong("time"), name, true, true);
                     } else if (i == 4) {
-                        throw new Exception("Ваше устройство не зарегистрировано!");
+                        Toast toast = Toast.makeText(getContext(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
                     } else if (i == 3) {
-                        throw new Exception("Файл не отправлен!");
+                        throw new RuntimeException("Файл не отправлен!");
                     } else {
-                        throw new Exception("Ошибка приложения!");
+                        throw new RuntimeException("Ошибка приложения!");
                     }
-                } catch (Exception e) {
+                } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
-                    getActivity().finish();
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             };
             Thread t = new Thread(r);
@@ -821,25 +923,41 @@ public class Saved extends Fragment {
     }
 
     private void Download(String text, Long date){
-        new FileLoadingTask(
-                "http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text + "&Date=" + date,
-                new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone/" + text),
-                new FileLoadingListener() {
-                    @Override
-                    public void onBegin() { }
+        Runnable r = () -> {
+            try {
+                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("GET");
 
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(getActivity(), "Скачано в /storage/emulated/0/MySweetyPhone", Toast.LENGTH_LONG).show();
-                    }
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
 
-                    @Override
-                    public void onFailure(Throwable cause) {
-                        Toast.makeText(getActivity(), "Не удалось скачать, попробуйте ещё раз", Toast.LENGTH_LONG).show();
-                    }
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
 
-                    @Override
-                    public void onEnd() { }
-                }).execute();
+                JSONObject result = new JSONObject(response.toString());
+                String filebody = (String)result.get("filebody");
+                File out2 = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
+                out2.mkdirs();
+                FileOutputStream fos = new FileOutputStream(new File(out2, text));
+                fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (DecoderException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
     }
 }
