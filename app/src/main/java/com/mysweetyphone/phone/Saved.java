@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -25,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.ActionBar;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -83,6 +86,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.internal.platform.Platform;
 
@@ -236,7 +241,6 @@ public class Saved extends Fragment {
             DrawText(text, date, sender, needsAnim);
     }
 
-    //отображение текста
     @SuppressLint("SetTextI18n")
     private void DrawText(String text, Long date, String sender, Boolean needsAnim) {
         LinearLayout layout = new LinearLayout(getActivity());
@@ -353,6 +357,7 @@ public class Saved extends Fragment {
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
+        layout.setGravity(Gravity.CENTER);
 
         ImageView fileImg = new ImageView(getActivity());
         fileImg.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_attack_file));
@@ -444,6 +449,7 @@ public class Saved extends Fragment {
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
+        layout.setGravity(Gravity.CENTER);
 
         ImageView Image = new ImageView(getActivity());
         layout.addView(Image);
@@ -561,8 +567,8 @@ public class Saved extends Fragment {
     }
 
     private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
-        System.out.println("start");
         LinearLayout layout = new LinearLayout(getActivity());
+        layout.setGravity(Gravity.CENTER);
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -706,20 +712,28 @@ public class Saved extends Fragment {
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
+        layout.setGravity(Gravity.CENTER);
 
-        LinearLayout musicLayout = new LinearLayout(getActivity());
+        SeekBar sb = new SeekBar(getActivity());
+        sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         MediaPlayer mPlayer = new MediaPlayer();
+        Button startButton = new Button(getActivity());
+        startButton.setBackgroundResource(R.drawable.ic_saved_play);
+        startButton.setHeight(startButton.getWidth());
+        Timer timer = new Timer();
         mPlayer.setOnCompletionListener(mp -> {
             try {
                 mPlayer.stop();
                 mPlayer.prepare();
                 mPlayer.seekTo(0);
+                startButton.setBackgroundResource(R.drawable.ic_saved_play);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
-        Button startButton = new Button(getActivity());
-        musicLayout.addView(startButton);
+        layout.addView(startButton);
+        layout.addView(sb);
 
         new Thread(() -> {
             try {
@@ -749,6 +763,7 @@ public class Saved extends Fragment {
                         mPlayer.setDataSource(out.getPath());
                         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         mPlayer.prepare();
+                        sb.setMax(mPlayer.getDuration());
                         mPlayer.setOnPreparedListener((a)->{
                             startButton.setOnClickListener(v -> {
                                 if(mPlayer.isPlaying()){
@@ -757,7 +772,32 @@ public class Saved extends Fragment {
                                 else{
                                     mPlayer.start();
                                 }
+                                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                                        if(sb.isPressed())
+                                            mPlayer.seekTo(i);
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                    }
+
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                    }
+                                });
+                                startButton.setBackgroundResource(mPlayer.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
                             });
+                            timer.scheduleAtFixedRate(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if(!sb.isPressed())
+                                        sb.setProgress(mPlayer.getCurrentPosition());
+                                }
+                            },0,100);
                             mPlayer.setOnPreparedListener((b)->{});
                         });
                     } catch (IOException e) {
@@ -771,9 +811,6 @@ public class Saved extends Fragment {
                 e.printStackTrace();
             }
         }).start();
-
-
-        layout.addView(musicLayout);
 
         TextView textBox = new TextView(getActivity());
         textBox.setText(text);
