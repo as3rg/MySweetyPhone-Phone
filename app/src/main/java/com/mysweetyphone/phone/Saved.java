@@ -797,7 +797,7 @@ public class Saved extends Fragment {
                                     if(!sb.isPressed())
                                         sb.setProgress(mPlayer.getCurrentPosition());
                                 }
-                            },0,100);
+                            },0,1);
                             mPlayer.setOnPreparedListener((b)->{});
                         });
                     } catch (IOException e) {
