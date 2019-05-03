@@ -1,31 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".RegDevice"
     tools:layout_editor_absoluteY="81dp">
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/ErrorADDPHONE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:layout_marginTop="95dp"
+        android:layout_marginEnd="2dp"
+        android:textAlignment="center"
+        android:textColor="#FF0000"
+        android:textStyle="bold|italic"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/textViewADDPHONE"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:layout_marginStart="14dp"
         android:layout_marginTop="57dp"
         android:layout_marginEnd="14dp"
         android:text="@string/UniqueNameADDPHONE"
         android:textAlignment="center"
         android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/PhoneNameADDPHONE"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:layout_marginTop="32dp"
         android:autoText="true"
         android:clickable="true"
@@ -36,35 +51,15 @@
         android:freezesText="false"
         android:hint="@string/DeviceNameADDPHONE"
         android:inputType="textPersonName"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewADDPHONE" />
+        android:padding="10dp" />
 
     <Button
         android:id="@+id/nextADDPHONE"
         android:layout_width="227dp"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:layout_marginTop="20dp"
         android:onClick="onAddPhoneClick"
-        android:text="@string/Next"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/PhoneNameADDPHONE" />
+        android:text="@string/Next" />
 
-    <TextView
-        android:id="@+id/ErrorADDPHONE"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="95dp"
-        android:layout_marginEnd="2dp"
-        android:textAlignment="center"
-        android:textColor="#FF0000"
-        android:textStyle="bold|italic"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

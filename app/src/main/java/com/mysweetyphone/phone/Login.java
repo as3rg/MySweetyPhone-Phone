@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,8 +52,19 @@ public class Login extends AppCompatActivity {
         });
     }
 
+    public void onModeChanged(View view){
+        Button LoginButton = findViewById(R.id.LoginLOGIN);
+        switch (view.getId()){
+            case R.id.RegRatioLOGIN:
+                LoginButton.setText(R.string.RegLOGIN);
+                break;
+            case R.id.LoginRatioLOGIN:
+                LoginButton.setText(R.string.log_inLOGIN);
+        }
+    }
+
     public void onLoginClick(View view){
-        RegOrLogin = view == findViewById(R.id.RegLOGIN);
+        RegOrLogin = ((RadioButton)findViewById(R.id.RegRatioLOGIN)).isChecked();
 
         TextView Nick = findViewById(R.id.NickLOGIN);
         TextView Pass = findViewById(R.id.PasswordLOGIN);

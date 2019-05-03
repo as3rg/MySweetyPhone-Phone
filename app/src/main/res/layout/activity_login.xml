@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,68 +7,85 @@
     android:background="#202020"
     android:theme="@style/AppTheme"
     tools:context=".Login"
-    tools:layout_editor_absoluteY="81dp">
+    tools:layout_editor_absoluteY="81dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/ErrorLOGIN"
+        android:layout_width="411dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#FF0000"
+        android:textStyle="bold|italic"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/NickLOGIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
         android:autofillHints=""
         android:drawableLeft="@drawable/ic_login_login"
         android:ems="10"
         android:hint="@string/nickLOGIN"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ErrorLOGIN" />
+        android:inputType="textPersonName" />
 
     <EditText
         android:id="@+id/PasswordLOGIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_margin="5dp"
         android:autofillHints=""
         android:drawableLeft="@drawable/ic_login_pass"
         android:ems="10"
         android:hint="@string/passwordLOGIN"
-        android:inputType="textPassword"
-        android:padding="10dp"
-        app:layout_constraintStart_toStartOf="@+id/NickLOGIN"
-        app:layout_constraintTop_toBottomOf="@+id/NickLOGIN" />
+        android:inputType="textPassword" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="left|center_vertical"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/LoginRatioLOGIN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:buttonTint="@color/white"
+            android:checked="true"
+            android:onClick="onModeChanged"
+            android:text="Войти"
+            android:textColor="@color/white"
+            android:textColorLink="#00963636"
+            android:textSize="18sp" />
+
+        <RadioButton
+            android:id="@+id/RegRatioLOGIN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:buttonTint="@color/white"
+            android:onClick="onModeChanged"
+            android:text="Зарегистрироваться"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/LoginLOGIN"
         android:layout_width="227dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_margin="5dp"
         android:onClick="onLoginClick"
-        android:text="@string/log_inLOGIN"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RegLOGIN" />
+        android:text="@string/log_inLOGIN" />
 
-    <TextView
-        android:id="@+id/ErrorLOGIN"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textColor="#FF0000"
-        android:textStyle="bold|italic"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/RegLOGIN"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:onClick="onLoginClick"
-        android:text="@string/RegLOGIN"
-        app:layout_constraintStart_toStartOf="@+id/LoginLOGIN"
-        app:layout_constraintTop_toBottomOf="@+id/PasswordLOGIN" />
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
