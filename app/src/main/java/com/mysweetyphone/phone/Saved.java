@@ -107,9 +107,16 @@ public class Saved extends Fragment {
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
         tempfiles = new ArrayList<>();
-        if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (PermissionChecker.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || PermissionChecker.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
+        }
+        Intent intent = getActivity().getIntent();
+        if(intent.getAction() == Intent.ACTION_SEND){
+            if(intent.getParcelableExtra(Intent.EXTRA_STREAM) != null)
+                SendFile(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+            else if(intent.getStringExtra(Intent.EXTRA_TEXT) != null)
+                SendMessage(intent.getStringExtra(Intent.EXTRA_TEXT));
         }
     }
 
@@ -134,41 +141,46 @@ public class Saved extends Fragment {
         });
 
         sendButton.setOnClickListener(v -> {
-            AsyncHttpClient client = new AsyncHttpClient();
-            client.get("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&MsgType=Text&Msg=" + MessageText.getText().toString().replace(" ", "%20").replace("\n", "\\n"), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
-                    try {
-                        int i = result.getInt("code");
-                        if (i == 2) {
-                            throw new Exception("Ошибка приложения!");
-                        } else if (i == 1) {
-                            throw new Exception("Неверные данные");
-                        } else if (i == 0) {
-                            getActivity().runOnUiThread(() -> {
-                                try {
-                                    Draw(MessageText.getText().toString(), result.getLong("time"), name, false, true);
-                                    MessageText.setText("");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                        } else if (i == 4) {
-                            Toast toast = Toast.makeText(getContext(),
-                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                        toast.show();
-                        } else {
-                            throw new Exception("Ошибка приложения!");
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                        getActivity().finish();
-                    }
-                }
-            });
+            SendMessage(MessageText.getText().toString());
+            MessageText.setText("");
         });
         LoadMore();
+    }
+
+    void SendMessage(String text){
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://mysweetyphone.herokuapp.com/?Type=SendMessage&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&MsgType=Text&Msg=" + text.replace(" ", "%20").replace("\n", "\\n"), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                try {
+                    int i = result.getInt("code");
+                    if (i == 2) {
+                        throw new Exception("Ошибка приложения!");
+                    } else if (i == 1) {
+                        throw new Exception("Неверные данные");
+                    } else if (i == 0) {
+                        getActivity().runOnUiThread(() -> {
+                            try {
+                                Draw(text, result.getLong("time"), name, false, true);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else if (i == 4) {
+                        Toast toast = Toast.makeText(getActivity(),
+                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                        toast.show();
+                    } else {
+                        throw new Exception("Ошибка приложения!");
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                    getActivity().finish();
+                }
+            }
+        });
     }
 
     void LoadMore() {
@@ -202,14 +214,14 @@ public class Saved extends Fragment {
                         }
                         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                     } else if (i == 4) {
-                        Toast toast = Toast.makeText(getContext(),
+                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                     } else {
                         throw new Exception("Ошибка приложения!");
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                     Objects.requireNonNull(getActivity()).finish();
                 }
@@ -271,7 +283,7 @@ public class Saved extends Fragment {
                                     } else if (i == 1) {
                                         throw new Exception("Неверные данные");
                                     } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                         animation.setAnimationListener(new Animation.AnimationListener(){
                                             @Override
                                             public void onAnimationStart(Animation animation) { }
@@ -286,7 +298,7 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getContext(),
+                                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                                     } else {
@@ -299,7 +311,7 @@ public class Saved extends Fragment {
                         });
                         break;
                     case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
                         break;
@@ -378,7 +390,7 @@ public class Saved extends Fragment {
                                     } else if (i == 1) {
                                         throw new Exception("Неверные данные");
                                     } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                         animation.setAnimationListener(new Animation.AnimationListener(){
                                             @Override
                                             public void onAnimationStart(Animation animation) { }
@@ -393,7 +405,7 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getContext(),
+                                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                                     } else {
@@ -405,7 +417,7 @@ public class Saved extends Fragment {
                             }
                         }); break;
                     case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
                         break;
@@ -500,7 +512,7 @@ public class Saved extends Fragment {
                                     } else if (i == 1) {
                                         throw new Exception("Неверные данные");
                                     } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                         animation.setAnimationListener(new Animation.AnimationListener(){
                                             @Override
                                             public void onAnimationStart(Animation animation) { }
@@ -515,7 +527,7 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getContext(),
+                                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                                     } else {
@@ -527,7 +539,7 @@ public class Saved extends Fragment {
                             }
                         }); break;
                     case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
                         break;
@@ -640,7 +652,7 @@ public class Saved extends Fragment {
                                     } else if (i == 1) {
                                         throw new Exception("Неверные данные");
                                     } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                         animation.setAnimationListener(new Animation.AnimationListener(){
                                             @Override
                                             public void onAnimationStart(Animation animation) { }
@@ -655,7 +667,7 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getContext(),
+                                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                                     } else {
@@ -667,7 +679,7 @@ public class Saved extends Fragment {
                             }
                         }); break;
                     case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
                         break;
@@ -792,7 +804,7 @@ public class Saved extends Fragment {
                                     } else if (i == 1) {
                                         throw new Exception("Неверные данные");
                                     } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.delete_anim);
+                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                         animation.setAnimationListener(new Animation.AnimationListener(){
                                             @Override
                                             public void onAnimationStart(Animation animation) { }
@@ -807,7 +819,7 @@ public class Saved extends Fragment {
                                         });
                                         layout.startAnimation(animation);
                                     } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getContext(),
+                                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                                     } else {
@@ -819,7 +831,7 @@ public class Saved extends Fragment {
                             }
                         }); break;
                     case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
                         break;
@@ -847,73 +859,77 @@ public class Saved extends Fragment {
             f.deleteOnExit();
     }
 
+    private void SendFile(Uri uri){
+        File file = new File(ImageFilePath.getPath(getActivity(), uri));
+        if (file.length() > 1024 * 1024) {
+            Toast toast = Toast.makeText(getActivity(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
+            toast.show();
+            return;
+        }
+        if (!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())) {
+            Toast toast = Toast.makeText(getActivity(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
+            toast.show();
+            return;
+        }
+
+        Runnable r = () -> {
+            try {
+                HttpClient client = new DefaultHttpClient();
+                HttpPost post = new HttpPost("http://mysweetyphone.herokuapp.com/?Type=UploadFile&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id);
+                MultipartEntity entity = new MultipartEntity();
+                entity.addPart("fileToUpload", new FileBody(file));
+                post.setEntity(entity);
+                HttpResponse response = client.execute(post);
+
+                String body = IOUtils.toString(response.getEntity().getContent());
+                System.out.println(body);
+                JSONObject result = new JSONObject(body);
+
+
+                int i = result.getInt("code");
+                if (i == 2) {
+                    throw new RuntimeException("Ошибка приложения!");
+                } else if (i == 1) {
+                    throw new RuntimeException("Неверные данные");
+                } else if (i == 0) {
+                    getActivity().runOnUiThread(() -> {
+                        try {
+                            Draw(file.getName(), result.getLong("time"), name, true, true);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else if (i == 4) {
+                    Toast toast = Toast.makeText(getActivity(),
+                            "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                    toast.show();
+                } else if (i == 3) {
+                    throw new RuntimeException("Файл не отправлен!");
+                } else {
+                    throw new RuntimeException("Ошибка приложения!");
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+    }
+
     //выбор файла
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println(requestCode+" "+resultCode);
         if (resultCode == RESULT_OK) {
             File file = new File(ImageFilePath.getPath(getActivity(), data.getData()));
-            System.out.println(ImageFilePath.getPath(getActivity(), data.getData()));
-            //InputStream fin = getActivity().getContentResolver().openInputStream(data.getData());
-            if (file.length() > 1024 * 1024) {
-                Toast toast = Toast.makeText(getContext(), "Размер файла превышает допустимые размеры", Toast.LENGTH_LONG);
-                toast.show();
-                return;
-            }
-            if (!Charset.forName("US-ASCII").newEncoder().canEncode(file.getName())) {
-                Toast toast = Toast.makeText(getContext(), "Имя файла содержит недопустимые символы", Toast.LENGTH_LONG);
-                toast.show();
-                return;
-            }
-
-            Runnable r = () -> {
-                try {
-                    HttpClient client = new DefaultHttpClient();
-                    HttpPost post = new HttpPost("http://mysweetyphone.herokuapp.com/?Type=UploadFile&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id);
-                    MultipartEntity entity = new MultipartEntity();
-                    entity.addPart("fileToUpload", new FileBody(file));
-                    post.setEntity(entity);
-                    HttpResponse response = client.execute(post);
-
-                    String body = IOUtils.toString(response.getEntity().getContent());
-                    System.out.println(body);
-                    JSONObject result = new JSONObject(body);
-
-
-                    int i = result.getInt("code");
-                    if (i == 2) {
-                        throw new RuntimeException("Ошибка приложения!");
-                    } else if (i == 1) {
-                        throw new RuntimeException("Неверные данные");
-                    } else if (i == 0) {
-                        getActivity().runOnUiThread(() -> {
-                            try {
-                                Draw(file.getName(), result.getLong("time"), name, true, true);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } else if (i == 4) {
-                        Toast toast = Toast.makeText(getContext(),
-                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                        toast.show();
-                    } else if (i == 3) {
-                        throw new RuntimeException("Файл не отправлен!");
-                    } else {
-                        throw new RuntimeException("Ошибка приложения!");
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            };
-            Thread t = new Thread(r);
-            t.start();
+            SendFile(data.getData());
         }
     }
 
@@ -952,47 +968,6 @@ public class Saved extends Fragment {
         void onSuccess();
         void onFailure(Throwable cause);
         void onEnd();
-    }
-
-    public static class FileLoadingTask extends AsyncTask<Void, Void, Void> {
-
-        private String url;
-        private File destination;
-        private FileLoadingListener fileLoadingListener;
-        private Throwable throwable;
-
-        private FileLoadingTask(String url, File destination, FileLoadingListener fileLoadingListener) {
-            this.url = url;
-            this.destination = destination;
-            this.fileLoadingListener = fileLoadingListener;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            fileLoadingListener.onBegin();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                FileUtils.copyURLToFile(new URL(url), destination);
-            } catch (IOException e) {
-                throwable = e;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            fileLoadingListener.onEnd();
-            if (throwable != null) {
-                fileLoadingListener.onFailure(throwable);
-            } else {
-                fileLoadingListener.onSuccess();
-            }
-        }
     }
 
     private void Download(String text, Long date){

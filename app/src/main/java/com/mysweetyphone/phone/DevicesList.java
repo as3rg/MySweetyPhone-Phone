@@ -50,14 +50,14 @@ public class DevicesList extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
                     if (responseBody.getInt("code") == 4){
-                        Toast toast = Toast.makeText(getContext(),
+                        Toast toast = Toast.makeText(getActivity(),
                                 "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                         toast.show();
                         getActivity().finish();
                     }else
                         printDevices(responseBody.getJSONArray("PCs"),false, printDevices(responseBody.getJSONArray("Phones"),true, 0 ) );
                 }catch (Exception e){
-                    Toast toast = Toast.makeText(getContext(),
+                    Toast toast = Toast.makeText(getActivity(),
                             e.getMessage(), Toast.LENGTH_LONG);
                     toast.show();
                 }
@@ -74,10 +74,10 @@ public class DevicesList extends Fragment {
         final TableLayout table = getView().findViewById(R.id.tableDEVICESLIST);
         int i = 0;
         for (; i < arr.length(); i++){
-            final TableRow row = new TableRow(getContext());
-            final TextView DeviceName = new TextView(getContext());
-            final Button RemoveButton = new Button(getContext());
-            ImageView Icon = new ImageView(getContext());
+            final TableRow row = new TableRow(getActivity());
+            final TextView DeviceName = new TextView(getActivity());
+            final Button RemoveButton = new Button(getActivity());
+            ImageView Icon = new ImageView(getActivity());
             Icon.setImageResource(isPhone ? R.drawable.ic_devices_list_phone : R.drawable.ic_devices_list_pc);
             Icon.setPadding(150,30,0,0);
             Icon.setImageTintList(ColorStateList.valueOf(0xFFFFFFFF));
@@ -97,7 +97,7 @@ public class DevicesList extends Fragment {
                     public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                         try {
                             if (responseBody.getInt("code") == 4 || DeviceName1.getText().equals(name)){
-                                Toast toast = Toast.makeText(getContext(),
+                                Toast toast = Toast.makeText(getActivity(),
                                         "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                 toast.show();
                                 getActivity().finish();
@@ -107,7 +107,7 @@ public class DevicesList extends Fragment {
                                 table.getChildAt(i1).setBackgroundColor((i1 % 2 == 0) ? 0xFF252525 : 0xFF202020);
 
                         }catch (Exception e){
-                            Toast toast = Toast.makeText(getContext(),
+                            Toast toast = Toast.makeText(getActivity(),
                                     e.getMessage(), Toast.LENGTH_LONG);
                             toast.show();
                         }

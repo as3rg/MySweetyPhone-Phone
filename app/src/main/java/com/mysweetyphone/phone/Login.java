@@ -78,6 +78,8 @@ public class Login extends AppCompatActivity {
                             editor.putString("login", Nick.getText().toString());
                             editor.commit();
                             Intent intent = new Intent(getApplicationContext(), RegDevice.class);
+                            intent.putExtras(getIntent());
+                            intent.setAction(getIntent().getAction());
                             startActivity(intent);
                             finish();
                             break;

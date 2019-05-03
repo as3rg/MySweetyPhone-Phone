@@ -1,6 +1,7 @@
 package com.mysweetyphone.phone;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -34,10 +35,16 @@ public class Main extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        if (fm.getFragments().isEmpty())
-            ft.replace(R.id.MainFragment, new DevicesList());
+        if(getIntent().getAction() == Intent.ACTION_SEND){
+            fm.getFragments().clear();
+            ft.replace(R.id.MainFragment,new Saved());
+        }else {
+            if (fm.getFragments().isEmpty())
+                ft.replace(R.id.MainFragment, new DevicesList());
+        }
         ft.commit();
 
         setContentView(R.layout.activity_main);

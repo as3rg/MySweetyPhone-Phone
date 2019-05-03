@@ -28,8 +28,10 @@ public class Starting extends AppCompatActivity {
                 try {
                     if (responseBody.getInt("result") == 1) {
                         ChangeActivity(Main.class);
-                    }else if (responseBody.getInt("result") == 2) {
+                    } else if (responseBody.getInt("result") == 2) {
                         ChangeActivity(RegDevice.class);
+                    }else if(getIntent().getAction() == Intent.ACTION_SEND){
+                        ChangeActivity(Main.class);
                     }else{
                         ChangeActivity(Login.class);
                     }
@@ -43,6 +45,8 @@ public class Starting extends AppCompatActivity {
 
     private void ChangeActivity(Class<?> cls){
         Intent intent = new Intent(this, cls);
+        intent.putExtras(getIntent());
+        intent.setAction(getIntent().getAction());
         startActivity(intent);
         finish();
     }
