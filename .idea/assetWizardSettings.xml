@@ -84,7 +84,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_insert_drive_file_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Users/Xiaomi/AppData/Local/JetBrains/Toolbox/apps/AndroidStudio/ch-0/183.5452501/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_autorenew_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -94,7 +94,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_saved_attack_file" />
+                            <entry key="outputName" value="ic_main_refresh" />
                             <entry key="sourceFile" value="C:\Users\Alex" />
                           </map>
                         </option>

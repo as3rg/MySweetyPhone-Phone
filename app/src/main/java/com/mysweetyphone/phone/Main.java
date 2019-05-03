@@ -16,7 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -67,13 +69,24 @@ public class Main extends AppCompatActivity
         TextView name = findViewById(R.id.NameNav);
         login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
         name.setText(login);
+        getMenuInflater().inflate(R.menu.action_bar_reload_button, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
+        ft.detach(currentFragment);
+        ft.attach(currentFragment);
+        ft.commit();
         return true;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int itemId = item.getItemId();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();

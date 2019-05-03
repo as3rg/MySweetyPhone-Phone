@@ -27,4 +27,5 @@
     <string name="savedNAV">Сохраненное</string>
     <string name="writeMessage">Введите сообщение</string>
     <string name="msgWillBeHereTextSAVED">Здесь будут видны ваши сохраненные файлы и сообщения</string>
+    <string name="Refresh">Перезагрузить</string>
 </resources>

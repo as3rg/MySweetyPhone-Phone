@@ -589,10 +589,17 @@ public class Saved extends Fragment {
                     videoView.setMinimumHeight(100);
                     videoView.setMinimumWidth(100);
                     videoView.requestFocus(0);
-                    videoView.setVideoPath(out.getPath());
+                    videoView.setVideoURI(Uri.fromFile(out));
                     videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                             ActionBar.LayoutParams.FILL_PARENT));
                     videoView.start();
+                    videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                        @Override
+                        public boolean onError(MediaPlayer mp, int what, int extra) {
+                            System.err.println(what+" "+extra);
+                            return false;
+                        }
+                    });
                     layout.addView(videoView);
 
                 });

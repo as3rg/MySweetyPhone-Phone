@@ -3,8 +3,11 @@ package com.mysweetyphone.phone;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +30,6 @@ public class Login extends AppCompatActivity {
         String login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
         String name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
 
-
         AsyncHttpClient client = new AsyncHttpClient();
         client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login="+ login +"&RegDate="+ regdate +"&Id="+ id +"&Name="+ name, new JsonHttpResponseHandler() {
             @Override
@@ -37,15 +39,12 @@ public class Login extends AppCompatActivity {
                         ChangeActivity(Main.class);
                     }else if (responseBody.getInt("result") == 2) {
                         ChangeActivity(RegDevice.class);
-                    }else{
-                        setTheme(R.style.AppTheme);
-                        setContentView(R.layout.activity_login);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
-                    setTheme(R.style.AppTheme);
-                    setContentView(R.layout.activity_login);
                 }
+                setTheme(R.style.AppTheme);
+                setContentView(R.layout.activity_login);
             }
         });
     }

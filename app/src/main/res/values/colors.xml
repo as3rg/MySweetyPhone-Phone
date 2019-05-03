@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="chatColor">#202020</color>
     <color name="textFieldColor">#303030</color>
+    <color name="white">#ffffff</color>
 </resources>
