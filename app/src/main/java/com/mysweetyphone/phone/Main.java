@@ -97,6 +97,8 @@ public class Main extends AppCompatActivity
         int itemId = item.getItemId();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+        Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
+        currentFragment.onDestroy();
         Fragment FragmentToReplace = null;
         switch (itemId){
             case R.id.nav_exit:
