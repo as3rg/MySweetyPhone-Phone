@@ -573,10 +573,10 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
-    /*private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
+    private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setGravity(Gravity.CENTER);
-        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
@@ -615,17 +615,15 @@ public class Saved extends Fragment {
                     videoView.setMinimumWidth(100);
                     videoView.requestFocus(0);
                     videoView.setVideoURI(Uri.fromFile(out));
-                    videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                            ActionBar.LayoutParams.FILL_PARENT));
+                    videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,1));
+                    videoView.setOnPreparedListener(mp -> videoView.setLayoutParams(new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)));
                     videoView.start();
-                    videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                        @Override
-                        public boolean onError(MediaPlayer mp, int what, int extra) {
-                            System.err.println(what+" "+extra);
-                            return false;
-                        }
+                    videoView.setOnErrorListener((mp, what, extra) -> {
+                        System.err.println(what+" "+extra);
+                        return false;
                     });
-                    layout.addView(videoView);
+                    layout.addView(videoView, 0);
 
                 });
 
@@ -711,11 +709,11 @@ public class Saved extends Fragment {
             layout.startAnimation(anim);
         }
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-    }*/
+    }
 
-    private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
+    /*private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
-        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(1000, 1000));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
@@ -912,7 +910,7 @@ public class Saved extends Fragment {
             layout.startAnimation(anim);
         }
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-    }
+    }*/
 
     private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
