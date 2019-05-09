@@ -17,6 +17,7 @@ import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -97,6 +99,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+import io.vov.vitamio.Vitamio;
+import io.vov.vitamio.widget.CenterLayout;
 import okhttp3.internal.platform.Platform;
 
 import static android.app.Activity.RESULT_OK;
@@ -464,8 +468,17 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
         layout.setGravity(Gravity.CENTER);
 
-        ImageView Image = new ImageView(getActivity());
-        layout.addView(Image);
+        ImageView imageView = new ImageView(getActivity());
+        layout.addView(imageView);
+
+        /*WebView webView = new WebView(getActivity());
+        webView.setBackgroundColor(Color.BLACK);
+        webView.getSettings().setSupportZoom(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.setPadding(0, 0, 0, 0);
+        webView.setScrollbarFadingEnabled(true);
+        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        */
 
         (new Thread(() -> {
             try {
@@ -482,12 +495,12 @@ public class Saved extends Fragment {
                 }
                 in.close();
 
-                JSONObject result = (JSONObject) new JSONObject(response.toString());
+                JSONObject result = new JSONObject(response.toString());
                 String filebody = (String)result.get("filebody");
 
                 getActivity().runOnUiThread(() -> {
                     try {
-                        Image.setImageBitmap(BitmapFactory.decodeStream(new ByteArrayInputStream(Hex.decodeHex(filebody.substring(2).toCharArray()))));
+                        imageView.setImageBitmap(BitmapFactory.decodeStream(new ByteArrayInputStream(Hex.decodeHex(filebody.substring(2).toCharArray()))));
                     } catch (DecoderException e) {
                         e.printStackTrace();
                     }
@@ -587,6 +600,34 @@ public class Saved extends Fragment {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
+        SeekBar sb = new SeekBar(getActivity());
+        sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        VideoView videoView = new VideoView(getActivity());
+        Button startButton = new Button(getActivity());
+        startButton.setBackgroundResource(R.drawable.ic_saved_play);
+        startButton.setWidth(100);
+        startButton.setHeight(startButton.getWidth());
+        startButton.setLayoutParams(new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.WRAP_CONTENT));
+        Timer timer = new Timer();
+        videoView.setOnCompletionListener(mp -> {
+            try {
+                videoView.pause();
+                videoView.seekTo(0);
+                startButton.setBackgroundResource(R.drawable.ic_saved_play);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        LinearLayout bar = new LinearLayout(getActivity());
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        bar.addView(startButton);
+        bar.addView(sb);
+        layout.addView(bar);
+
         new Thread(() -> {
             try {
                 URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + name + "&Login=" + login + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
@@ -595,7 +636,7 @@ public class Saved extends Fragment {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
-                StringBuffer response = new StringBuffer();
+                StringBuilder response = new StringBuilder();
 
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
@@ -611,26 +652,54 @@ public class Saved extends Fragment {
                 fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
                 fos.close();
                 getActivity().runOnUiThread(() -> {
-                    VideoView videoView = new VideoView(getActivity());
-                    MediaController mediaController = new MediaController(getActivity());
-                    mediaController.setAnchorView(videoView);
-                    mediaController.setMediaPlayer(videoView);
-                    videoView.setMediaController(mediaController);
+//                    MediaController mediaController = new MediaController(getActivity());
+//                    mediaController.setAnchorView(videoView);
+//                    mediaController.setMediaPlayer(videoView);
+//                    videoView.setMediaController(mediaController);
                     videoView.setVisibility(View.VISIBLE);
                     videoView.setMinimumHeight(100);
                     videoView.setMinimumWidth(100);
                     videoView.requestFocus(0);
                     videoView.setVideoURI(Uri.fromFile(out));
-                    videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,1));
-                    videoView.setOnPreparedListener(mp -> videoView.setLayoutParams(new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)));
-                    videoView.start();
+                    videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                    videoView.setOnPreparedListener(mp ->{
+                            videoView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            startButton.setOnClickListener(v -> {
+                                if(videoView.isPlaying()){
+                                    videoView.pause();
+                                } else {
+                                    videoView.start();
+                                }
+
+                                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                                        if(sb.isPressed())
+                                            videoView.seekTo(i);
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) { }
+
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) { }
+                                });
+
+                                startButton.setBackgroundResource(videoView.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
+                            });
+                            timer.scheduleAtFixedRate(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (!sb.isPressed())
+                                        sb.setProgress((int) videoView.getCurrentPosition());
+                                }},0,1);
+                            //videoView.setOnPreparedListener((b)->{});
+                    });
                     videoView.setOnErrorListener((mp, what, extra) -> {
                         System.err.println(what+" "+extra);
                         return false;
                     });
                     layout.addView(videoView, 0);
-
                 });
 
             } catch (IOException | DecoderException e) {
@@ -920,7 +989,7 @@ public class Saved extends Fragment {
 
     private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
-        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
@@ -929,10 +998,13 @@ public class Saved extends Fragment {
         SeekBar sb = new SeekBar(getActivity());
         sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         MediaPlayer mPlayer = new MediaPlayer();
         Button startButton = new Button(getActivity());
         startButton.setBackgroundResource(R.drawable.ic_saved_play);
+        startButton.setWidth(startButton.getHeight());
         startButton.setHeight(startButton.getWidth());
+        startButton.setLayoutParams(new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.WRAP_CONTENT));
         Timer timer = new Timer();
         mPlayer.setOnCompletionListener(mp -> {
             try {
@@ -944,8 +1016,13 @@ public class Saved extends Fragment {
                 e.printStackTrace();
             }
         });
-        layout.addView(startButton);
-        layout.addView(sb);
+        LinearLayout bar = new LinearLayout(getActivity());
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        bar.addView(startButton);
+        bar.addView(sb);
+        layout.addView(bar);
 
         new Thread(() -> {
             try {

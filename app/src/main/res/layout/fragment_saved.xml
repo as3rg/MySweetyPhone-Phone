@@ -39,12 +39,11 @@
         android:id="@+id/ButtonsBarSAVED"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:background="@color/chatColor"
         android:gravity="bottom"
-        android:orientation="horizontal"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteY="511dp"
-        android:layout_marginTop="5dp">
+        tools:layout_editor_absoluteY="511dp">
 
         <EditText
             android:id="@+id/TextFieldSAVED"
