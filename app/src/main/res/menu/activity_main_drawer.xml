@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_menu_devices_list"
             android:title="@string/deviceslistNAV" />
         <item
+            android:id="@+id/nav_SCLIENT"
+            android:icon="@drawable/ic_menu_connect"
+            android:title="@string/sclientNAV" />
+        <item
             android:id="@+id/nav_exit"
             android:icon="@drawable/ic_menu_exit"
             android:title="@string/exitNAV" />

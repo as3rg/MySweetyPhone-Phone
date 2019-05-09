@@ -1,23 +1,11 @@
 package com.mysweetyphone.phone;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -26,25 +14,20 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Date;
+import java.net.URL;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
-import okhttp3.internal.platform.Platform;
+import Utils.Message;
 
 public class ChooseWayToSend extends AppCompatActivity {
 
@@ -69,7 +52,7 @@ public class ChooseWayToSend extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_way_to_send);
         RadioGroup rg = findViewById(R.id.wayToSendCHOOSEWAY);
-        if(!Pattern.matches("https?://([0-9a-zA-Z]+\\.){1,2}[0-9a-zA-Z]+(/.*)*", getIntent().getStringExtra(Intent.EXTRA_TEXT))){
+        if(!isURL(getIntent().getStringExtra(Intent.EXTRA_TEXT))){
             RadioButton rb = findViewById(R.id.openSiteCHOOSEWAY);
             rg.removeView(rb);
         }
@@ -99,7 +82,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                 try{
                     byte[] buf = new byte[BROADCASTINGSIZE];
                     DatagramPacket p = new DatagramPacket(buf, buf.length);
-                    while (System.currentTimeMillis() - time <= 60000) {
+                    while (true) {
                         socket.receive(p);
                         JSONObject ans = new JSONObject(new String(p.getData()));
                         Button b = new Button(this);
@@ -168,4 +151,12 @@ public class ChooseWayToSend extends AppCompatActivity {
         finish();
     }
 
+    boolean isURL(String s){
+        try {
+            URL uri = new URL(s);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
+    }
 }

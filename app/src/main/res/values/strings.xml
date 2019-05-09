@@ -34,4 +34,7 @@
     <string name="copy_to_pcCHOOSEWAY">Отправить в буфер обмена компьютера</string>
     <string name="doCHOOSEWAY">Выполнить</string>
     <string name="title_activity_choose_way_to_send">MySweetyPhone</string>
+    <string name="sclientNAV">Подключиться</string>
+    <string name="searchSCLIENT">Поиск...</string>
+    <string name="stop_searchingSCLIENT">Остановить поиск</string>
 </resources>

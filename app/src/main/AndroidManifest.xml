@@ -17,6 +17,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ChooseWayToSend"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_choose_way_to_send"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity

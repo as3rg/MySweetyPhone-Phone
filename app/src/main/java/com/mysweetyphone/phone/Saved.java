@@ -1,51 +1,34 @@
 package com.mysweetyphone.phone;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.AudioManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.PermissionChecker;
-import android.support.v4.content.res.TypedArrayUtils;
-import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -55,25 +38,17 @@ import android.widget.VideoView;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import com.squareup.picasso.Picasso;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,7 +60,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -97,11 +71,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Pattern;
 
-import io.vov.vitamio.Vitamio;
-import io.vov.vitamio.widget.CenterLayout;
-import okhttp3.internal.platform.Platform;
+import Utils.ImageFilePath;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -277,7 +248,7 @@ public class Saved extends Fragment {
         //удаление сообщения
         layout.setOnLongClickListener(v -> {
             String[] actions;
-            if(Pattern.matches("https?://([0-9a-zA-Z]+\\.){1,2}[0-9a-zA-Z]+(/.*)*", text))
+            if(isURL(text))
                 actions = new String[]{"Удалить сообщение", "Копировать текст", "Открыть ссылку"};
             else
                 actions = new String[]{"Удалить сообщение", "Копировать текст"};
@@ -496,7 +467,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.get("filebody");
+                String filebody = result.getString("filebody");
 
                 getActivity().runOnUiThread(() -> {
                     try {
@@ -644,7 +615,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.get("filebody");
+                String filebody = result.getString("filebody");
 
                 File out = File.createTempFile(text, ".mp4");
                 tempfiles.add(out);
@@ -833,7 +804,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.get("filebody");
+                String filebody = result.getString("filebody");
 
                 File out = File.createTempFile(text, ".tmp");
                 tempfiles.add(out);
@@ -1040,7 +1011,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.get("filebody");
+                String filebody = result.getString("filebody");
 
                 File out = File.createTempFile(text, ".tmp");
                 tempfiles.add(out);
@@ -1185,6 +1156,15 @@ public class Saved extends Fragment {
             f.deleteOnExit();
     }
 
+    boolean isURL(String s){
+        try {
+            URL uri = new URL(s);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
+    }
+
     private void SendFile(Uri uri){
         File file = new File(ImageFilePath.getPath(getActivity(), uri));
         if (file.length() > 1024 * 1024) {
@@ -1298,7 +1278,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.get("filebody");
+                String filebody = (String)result.getString("filebody");
                 File out2 = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
                 out2.mkdirs();
                 FileOutputStream fos = new FileOutputStream(new File(out2, text));
