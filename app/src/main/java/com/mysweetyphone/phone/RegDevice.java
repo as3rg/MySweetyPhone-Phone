@@ -59,7 +59,10 @@ public class RegDevice extends AppCompatActivity {
                             editor.putString("name", Name.getText().toString());
                             editor.putInt("regdate", responseBody.getInt("regdate"));
                             editor.commit();
-                            Intent intent = new Intent(getApplicationContext(), Main.class);
+                            Intent intent;
+                            if(getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                                intent = new Intent(getApplicationContext(), ChooseWayToSend.class);
+                            else intent = new Intent(getApplicationContext(), Main.class);
                             intent.putExtras(getIntent());
                             intent.setAction(getIntent().getAction());
                             startActivity(intent);

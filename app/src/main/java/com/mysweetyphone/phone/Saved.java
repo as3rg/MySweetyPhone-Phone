@@ -29,6 +29,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -94,6 +95,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import okhttp3.internal.platform.Platform;
 
@@ -119,10 +121,6 @@ public class Saved extends Fragment {
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
         tempfiles = new ArrayList<>();
-        if (PermissionChecker.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || PermissionChecker.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001);
-        }
         Intent intent = getActivity().getIntent();
         if(intent.getAction() == Intent.ACTION_SEND){
             if(intent.getParcelableExtra(Intent.EXTRA_STREAM) != null)
@@ -274,7 +272,11 @@ public class Saved extends Fragment {
 
         //удаление сообщения
         layout.setOnLongClickListener(v -> {
-            final String[] actions ={"Удалить сообщение", "Копировать текст"};
+            String[] actions;
+            if(Pattern.matches("https?://([0-9a-zA-Z]+\\.){1,2}[0-9a-zA-Z]+(/.*)*", text))
+                actions = new String[]{"Удалить сообщение", "Копировать текст", "Открыть ссылку"};
+            else
+                actions = new String[]{"Удалить сообщение", "Копировать текст"};
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             //кнопка для закрытия диалога
             //builder.setNeutralButton("Отмена",
@@ -325,6 +327,10 @@ public class Saved extends Fragment {
                         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("", text);
                         clipboard.setPrimaryClip(clip);
+                        break;
+                    case "Открыть ссылку":
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(text));
+                        startActivity(browserIntent);
                         break;
                 }
             });
@@ -1184,21 +1190,6 @@ public class Saved extends Fragment {
             return text.substring(text.lastIndexOf(".")+1);
             // в противном случае возвращаем заглушку, то есть расширение не найдено
         else return "";
-    }
-
-    @SuppressLint("ShowToast")
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1001: {
-                if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(), "Разрешения предоставлены", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), "Разрешения не предоставлены", Toast.LENGTH_SHORT).show();
-                    getActivity().finish();
-                }
-            }
-        }
     }
 
     @Override

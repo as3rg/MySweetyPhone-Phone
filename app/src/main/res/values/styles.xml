@@ -55,7 +55,7 @@
     </style>
 
     <style name="AppTheme.SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/start_logo</item>
+        <item name="android:windowBackground">@drawable/ic_starting_logo</item>
     </style>
 
 </resources>

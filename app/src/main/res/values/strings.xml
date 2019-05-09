@@ -28,4 +28,10 @@
     <string name="writeMessage">Введите сообщение</string>
     <string name="msgWillBeHereTextSAVED">Здесь будут видны ваши сохраненные файлы и сообщения</string>
     <string name="Refresh">Перезагрузить</string>
+    <string name="send_to_savedCHOOSEWAY">Отправить в Сохраненные</string>
+    <string name="choose_wayCHOOSEWAY">Выберите, что сделать с данными</string>
+    <string name="open_siteCHOOSEWAY">Открыть на компьютере</string>
+    <string name="copy_to_pcCHOOSEWAY">Отправить в буфер обмена компьютера</string>
+    <string name="doCHOOSEWAY">Выполнить</string>
+    <string name="title_activity_choose_way_to_send">MySweetyPhone</string>
 </resources>
