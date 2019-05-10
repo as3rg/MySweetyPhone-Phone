@@ -2,6 +2,7 @@ package com.mysweetyphone.phone;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -19,6 +20,7 @@ public class MouseTracker extends Activity implements View.OnTouchListener {
 
     static public SessionClient sc;
     static final int MESSAGESIZE = 100;
+    static String name;
 
 //    public void mousePressed(MouseEvent e)
 //    {
@@ -129,7 +131,16 @@ public class MouseTracker extends Activity implements View.OnTouchListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        name = PreferenceManager.getDefaultSharedPreferences(this).getString("name", "");
         View content = findViewById(android.R.id.content);
+        JSONObject msg2 = new JSONObject();
+        try {
+            msg2.put("Type", "start");
+            msg2.put("Name", name);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Send(msg2.toString().getBytes());
         content.setOnTouchListener((v,event)->{
             try {
                 switch (event.getAction()) {
@@ -140,6 +151,7 @@ public class MouseTracker extends Activity implements View.OnTouchListener {
                     case MotionEvent.ACTION_MOVE:
                         JSONObject msg = new JSONObject();
                         msg.put("Type", "mouseMoved");
+                        msg.put("Name", name);
                         msg.put("X", (int) event.getX() - x);
                         msg.put("Y", (int) event.getY() - y);
                         Send(msg.toString().getBytes());
@@ -203,6 +215,7 @@ public class MouseTracker extends Activity implements View.OnTouchListener {
                             y = (int) event.getY() - y;
                             JSONObject msg = new JSONObject();
                             msg.put("Type", "mouseMoved");
+                            msg.put("Name", name);
                             msg.put("X", x);
                             msg.put("Y", y);
                             Send(msg.toString().getBytes());

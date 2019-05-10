@@ -79,12 +79,12 @@ public class SessionClient extends Session{
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     if (!ips.containsKey(p.getAddress().getHostAddress())) {
                         servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), Type.values()[ans.getInt("type")], activity));
-                        Server s = new Server(null);
-                        ips.put(p.getAddress().getHostAddress(),s);
+                        Server server = new Server(null);
+                        ips.put(p.getAddress().getHostAddress(),server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
                             ip.setText(p.getAddress().getHostAddress());
-                            s.b = ip;
+                            server.b = ip;
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
                                 servers.get(v.indexOfChild(ip)).Start();
@@ -97,6 +97,7 @@ public class SessionClient extends Session{
                         ips.get(p.getAddress().getHostAddress()).value=5;
                 }
             } catch (SocketException ignored){
+                ignored.printStackTrace();
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
@@ -122,8 +123,8 @@ public class SessionClient extends Session{
         socket.setBroadcast(true);
         switch (type) {
             case MOUSE:
-                if(searching != null) StopSearching();
                 t = new Thread(()->{
+                    if(searching != null) StopSearching();
                     activity.runOnUiThread(()->{
                         MouseTracker.sc = this;
                         Intent intent = new Intent(activity, MouseTracker.class);

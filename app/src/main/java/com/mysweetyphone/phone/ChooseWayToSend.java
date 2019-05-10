@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
@@ -106,6 +107,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                                 });
                                 sendsocket.setBroadcast(true);
                                 JSONObject messages = new JSONObject();
+                                messages.put("Name", PreferenceManager.getDefaultSharedPreferences(this).getString("name", ""));
                                 if (rg.getCheckedRadioButtonId() == R.id.openSiteCHOOSEWAY) {
                                     messages.put("type", "openSite");
                                     messages.put("site", getIntent().getStringExtra(Intent.EXTRA_TEXT));
