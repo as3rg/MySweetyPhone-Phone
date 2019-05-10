@@ -85,9 +85,7 @@ public class Login extends AppCompatActivity {
                             break;
                     }
                 }catch (Exception e){
-                    Toast toast = Toast.makeText(getBaseContext(),
-                            e.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    e.printStackTrace();
                 }
             }
         });

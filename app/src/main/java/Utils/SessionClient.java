@@ -1,9 +1,12 @@
 package Utils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import com.mysweetyphone.phone.MouseTracker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +78,7 @@ public class SessionClient extends Session{
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), Type.values()[ans.getInt("type")]));
+                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), Type.values()[ans.getInt("type")], activity));
                         Server s = new Server(null);
                         ips.put(p.getAddress().getHostAddress(),s);
                         activity.runOnUiThread(() -> {
@@ -111,16 +114,26 @@ public class SessionClient extends Session{
         s.close();
     }
 
-    public SessionClient(InetAddress address, int Port, Type type) throws SocketException {
+    public SessionClient(InetAddress address, int Port, Type type, Activity activity) throws SocketException {
         this.address = address;
         this.port = Port;
         this.type = type;
         socket = new DatagramSocket();
         socket.setBroadcast(true);
-//        switch (type) {
-//            default:
-//                throw new RuntimeException("Неизвестный тип сессии");
-//        }
+        switch (type) {
+            case MOUSE:
+                if(searching != null) StopSearching();
+                t = new Thread(()->{
+                    activity.runOnUiThread(()->{
+                        MouseTracker.sc = this;
+                        Intent intent = new Intent(activity, MouseTracker.class);
+                        activity.startActivity(intent);
+                    });
+                });
+                break;
+            default:
+                throw new RuntimeException("Неизвестный тип сессии");
+        }
     }
 
     public boolean isServer(){

@@ -57,9 +57,7 @@ public class DevicesList extends Fragment {
                     }else
                         printDevices(responseBody.getJSONArray("PCs"),false, printDevices(responseBody.getJSONArray("Phones"),true, 0 ) );
                 }catch (Exception e){
-                    Toast toast = Toast.makeText(getActivity(),
-                            e.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                   e.printStackTrace();
                 }
             }
         });
@@ -107,9 +105,7 @@ public class DevicesList extends Fragment {
                                 table.getChildAt(i1).setBackgroundColor((i1 % 2 == 0) ? 0xFF252525 : 0xFF202020);
 
                         }catch (Exception e){
-                            Toast toast = Toast.makeText(getActivity(),
-                                    e.getMessage(), Toast.LENGTH_LONG);
-                            toast.show();
+                            e.printStackTrace();
                         }
 
                     }

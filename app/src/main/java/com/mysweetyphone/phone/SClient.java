@@ -44,7 +44,7 @@ public class SClient extends Fragment {
             SearchSessions.setText(R.string.stop_searchingSCLIENT);
             SessionClient.Search(ConnectToSession, new Thread(() -> {
                 SearchSessions.setOnClickListener(this::Search);
-                SearchSessions.setText("Поиск...");
+                SearchSessions.setText(R.string.searchSCLIENT);
             }), getActivity());
         } catch (SocketException e) {
             e.printStackTrace();

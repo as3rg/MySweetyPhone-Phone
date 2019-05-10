@@ -161,7 +161,6 @@ public class Saved extends Fragment {
                         throw new Exception("Ошибка приложения!");
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                     getActivity().finish();
                 }
@@ -207,7 +206,6 @@ public class Saved extends Fragment {
                         throw new Exception("Ошибка приложения!");
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                     Objects.requireNonNull(getActivity()).finish();
                 }
