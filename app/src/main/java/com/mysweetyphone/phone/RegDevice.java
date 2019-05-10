@@ -15,6 +15,8 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONObject;
 
+import java.util.regex.Pattern;
+
 public class RegDevice extends AppCompatActivity {
     private int id;
     private String login;
@@ -30,13 +32,18 @@ public class RegDevice extends AppCompatActivity {
         id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id",-1);
         login  = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
         TextView PhoneName = findViewById(R.id.PhoneNameADDPHONE);
+        TextView ErrorText = findViewById(R.id.ErrorADDPHONE);
 
+        if(!Pattern.matches("\\w+",PhoneName.getText().toString())){
+            ErrorText.setText(R.string.invalid_nameADDPHONE);
+            ErrorText.setVisibility(View.VISIBLE);
+            return;
+        }
         AsyncHttpClient client = new AsyncHttpClient();
         client.get("http://mysweetyphone.herokuapp.com/?Type=AddDevice&DeviceType=Phone&Id="+id+"&Login="+login+"&Name="+PhoneName.getText(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
-                    TextView ErrorText = findViewById(R.id.ErrorADDPHONE);
                     switch (responseBody.getInt("code")) {
                         case 3:
                             ErrorText.setText(R.string.FillNameADDPHONE);

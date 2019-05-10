@@ -18,6 +18,7 @@
     <string name="FillNameAndPassLOGIN">Имя и Пароль должны быть заполнены!</string>
     <string name="NameExistADDPHONE">Вы уже используете это имя!</string>
     <string name="FillNameADDPHONE">Вы должны указать имя!!</string>
+    <string name="invalid_nameADDPHONE">Имя содержит недопустимые символы!</string>
     <string name="titleDEVICESLIST">Список Устройств</string>
     <string name="PhoneNameADDPHONE">Вы должны указать имя устройства!</string>
     <string name="title_activity_devices_list">Список Устройств</string>
