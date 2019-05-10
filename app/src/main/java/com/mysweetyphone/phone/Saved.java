@@ -63,6 +63,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -257,56 +258,63 @@ public class Saved extends Fragment {
             //builder.setNeutralButton("Отмена",
             //        (dialog, id) -> dialog.cancel());
             builder.setItems(actions, (dialog, item) -> {
-                switch (actions[item]){
-                    case "Удалить сообщение":
-                        AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+name+"&Login="+login+"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
-                                try {
-                                    int i = result.getInt("code");
+                try {
+                    switch (actions[item]) {
+                        case "Удалить сообщение":
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate=" + regdate + "&MyName=" + name + "&Login=" + login + "&Id=" + id + "&Date=" + date + "&Msg=" + text.replace(" ", "%20").replace("\n", "\\n"), new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
+                                    try {
+                                        int i = result.getInt("code");
 
-                                    if (i == 2) {
-                                        throw new Exception("Ошибка приложения!");
-                                    } else if (i == 1) {
-                                        throw new Exception("Неверные данные");
-                                    } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
-                                        animation.setAnimationListener(new Animation.AnimationListener(){
-                                            @Override
-                                            public void onAnimationStart(Animation animation) { }
-                                            @Override
-                                            public void onAnimationRepeat(Animation animation) { }
+                                        if (i == 2) {
+                                            throw new Exception("Ошибка приложения!");
+                                        } else if (i == 1) {
+                                            throw new Exception("Неверные данные");
+                                        } else if (i == 0) {
+                                            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
+                                            animation.setAnimationListener(new Animation.AnimationListener() {
+                                                @Override
+                                                public void onAnimationStart(Animation animation) {
+                                                }
 
-                                            @Override
-                                            public void onAnimationEnd(Animation animation) {
-                                                Handler h = new Handler();
-                                                h.postAtTime(()->MessagesList.removeView(layout), 100);
-                                            }
-                                        });
-                                        layout.startAnimation(animation);
-                                    } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getActivity(),
-                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                        toast.show();
-                                    } else {
-                                        throw new Exception("Ошибка приложения!");
+                                                @Override
+                                                public void onAnimationRepeat(Animation animation) {
+                                                }
+
+                                                @Override
+                                                public void onAnimationEnd(Animation animation) {
+                                                    Handler h = new Handler();
+                                                    h.postAtTime(() -> MessagesList.removeView(layout), 100);
+                                                }
+                                            });
+                                            layout.startAnimation(animation);
+                                        } else if (i == 4) {
+                                            Toast toast = Toast.makeText(getActivity(),
+                                                    "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                                            toast.show();
+                                        } else {
+                                            throw new Exception("Ошибка приложения!");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
                                 }
-                            }
-                        });
-                        break;
-                    case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("", text);
-                        clipboard.setPrimaryClip(clip);
-                        break;
-                    case "Открыть ссылку":
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(text));
-                        startActivity(browserIntent);
-                        break;
+                            });
+                            break;
+                        case "Копировать текст":
+                            ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                            ClipData clip = ClipData.newPlainText("", text);
+                            clipboard.setPrimaryClip(clip);
+                            break;
+                        case "Открыть ссылку":
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(new URL(text).toURI().toString()));
+                            startActivity(browserIntent);
+                            break;
+                    }
+                } catch (MalformedURLException | URISyntaxException e) {
+                    e.printStackTrace();
                 }
             });
 
