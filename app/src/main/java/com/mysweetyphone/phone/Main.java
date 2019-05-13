@@ -68,7 +68,6 @@ public class Main extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         TextView name = findViewById(R.id.NameNav);
         login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
         name.setText(login);
