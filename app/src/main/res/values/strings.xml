@@ -43,4 +43,5 @@
     <string name="gamepadMOUSETRACKER">Геймпад</string>
     <string name="keyboardMOUSETRACKER">Клавиатура</string>
     <string name="pen_tabletMOUSETRACKER">Гр. Планшет</string>
+    <string name="title_activity_file_viewer">FileViewer</string>
 </resources>

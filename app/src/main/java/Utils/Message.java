@@ -100,6 +100,13 @@ public class Message {
         return next;
     }
 
+    public void setNext(int value) {
+        byte[] byteNext = ByteBuffer.allocate(idSize).putInt(value).array();
+        for(int i = idSize+1; i < idSize*2+1; i++){
+            arr[i] = byteNext[i-idSize-1];
+        }
+    }
+
     public int getLen() {
         return len;
     }
@@ -134,7 +141,7 @@ public class Message {
         Message[] out = result.toArray(new Message[result.size()]);
         out[0].setHead(true);
         for(int i = 0; i < out.length - 1; i++)
-            out[i].next = out[i+1].id;
+            out[i].setNext(out[i+1].id);
         return out;
     }
 

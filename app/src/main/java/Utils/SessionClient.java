@@ -6,11 +6,13 @@ import android.graphics.Color;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.mysweetyphone.phone.FileViewer;
 import com.mysweetyphone.phone.MouseTracker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -128,6 +130,16 @@ public class SessionClient extends Session{
                     activity.runOnUiThread(()->{
                         MouseTracker.sc = this;
                         Intent intent = new Intent(activity, MouseTracker.class);
+                        activity.startActivity(intent);
+                    });
+                });
+                break;
+            case FILEVIEW:
+                t = new Thread(()->{
+                    if(searching != null) StopSearching();
+                    activity.runOnUiThread(()->{
+                        FileViewer.sc = this;
+                        Intent intent = new Intent(activity, FileViewer.class);
                         activity.startActivity(intent);
                     });
                 });

@@ -34,4 +34,8 @@ public class MessageParser {
         Message m = messageMap.get(i);
         return m.getLen()+getLen(m.getNext());
     }
+
+    public boolean isFullGot(int i){
+         return messageMap.containsKey(i) & isFullGot(messageMap.get(i).getNext());
+    }
 }
