@@ -34,7 +34,7 @@ public class SessionServer extends Session{
     MessageParser messageParser;
     ServerSocket ss;
 
-    public SessionServer(Type type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
+    public SessionServer(int type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         messageParser = new MessageParser();
         JSONObject message = new JSONObject();
@@ -44,7 +44,7 @@ public class SessionServer extends Session{
                 port = ss.getLocalPort();
         }
         message.put("port", port);
-        message.put("type", type.ordinal());
+        message.put("type", type);
         byte[] buf2 = String.format("%-30s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
@@ -68,17 +68,17 @@ public class SessionServer extends Session{
                 t = new Thread(()->{
                     try {
                         Ssocket = ss.accept();
-                        broadcasting.cancel();
-                        if(onStop != null){
-
-                            thisActivity.runOnUiThread(onStop);
-                            onStop = null;
-                        }
+                        System.out.println(getAddress()+":"+getPort());
                         PrintWriter writer = new PrintWriter(Ssocket.getOutputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(Ssocket.getInputStream()));
                         SimpleIntegerProperty gotAccess = new SimpleIntegerProperty(0);
                         while (true) {
                             String line = reader.readLine();
+                            broadcasting.cancel();
+                            if(onStop != null){
+                                thisActivity.runOnUiThread(onStop);
+                                onStop = null;
+                            }
                             System.out.println(line);
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get() == 0)

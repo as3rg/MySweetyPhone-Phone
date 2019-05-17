@@ -81,7 +81,7 @@ public class SessionClient extends Session{
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), Type.values()[ans.getInt("type")], activity));
+                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity));
                         Server server = new Server(null);
                         ips.put(p.getAddress().getHostAddress(),server);
                         activity.runOnUiThread(() -> {
@@ -116,16 +116,10 @@ public class SessionClient extends Session{
         s.close();
     }
 
-    public SessionClient(InetAddress address, int Port, Type type, Activity activity) throws IOException {
+    public SessionClient(InetAddress address, int Port, int type, Activity activity) throws IOException {
         this.address = address;
         this.port = Port;
         this.type = type;
-        switch (type){
-            case MOUSE:
-                break;
-            case FILEVIEW:
-
-        }
 
         switch (type) {
             case MOUSE:

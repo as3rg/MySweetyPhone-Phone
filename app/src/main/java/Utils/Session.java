@@ -13,16 +13,17 @@ public abstract class Session{
     protected DatagramSocket Dsocket;
     protected Socket Ssocket;
     protected int port;
-    protected Type type;
+    protected int type;
     protected Thread t;
     protected Timer broadcasting;
     protected DatagramSocket broadcastingSocket;
     static int BroadCastingPort = 9000;
 
-    public enum Type{
-        MOUSE,
-        FILEVIEW
-    }
+
+    public static final int
+            NONE = 0,
+            MOUSE = 1,
+            FILEVIEW = 2;
 
     public static ArrayList<Session> sessions;
 
@@ -50,7 +51,7 @@ public abstract class Session{
         return port;
     }
 
-    public Type getType() {
+    public int getType() {
         return type;
     }
 

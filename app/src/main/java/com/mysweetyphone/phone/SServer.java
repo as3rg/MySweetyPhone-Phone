@@ -20,6 +20,9 @@ public class SServer extends Fragment {
 
     Button NewSession;
     Spinner SessionType;
+    public static final String
+            MOUSE = "Эмуляция мыши",
+            FILEVIEW = "Просмотр Файлов";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,10 +62,15 @@ public class SServer extends Fragment {
         }
     }
 
-    public Session.Type GetType(String s){
-        if(s.equals("Просмотр Файлов"))
-            return Session.Type.FILEVIEW;
-        return Session.Type.MOUSE;
+    public int GetType(String s){
+        switch (s){
+            case MOUSE:
+                return Session.MOUSE;
+            case FILEVIEW:
+                return Session.FILEVIEW;
+            default:
+                return Session.NONE;
+        }
     }
 
     public void CloseSession(View e) {
