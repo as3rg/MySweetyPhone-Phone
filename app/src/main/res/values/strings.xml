@@ -36,6 +36,7 @@
     <string name="doCHOOSEWAY">Выполнить</string>
     <string name="title_activity_choose_way_to_send">MySweetyPhone</string>
     <string name="sclientNAV">Подключиться</string>
+    <string name="sserverNAV">Новая Сессия</string>
     <string name="searchSCLIENT">Поиск...</string>
     <string name="stop_searchingSCLIENT">Остановить поиск</string>
     <string name="title_activity_mouse_tracker">MySweetyPhone</string>
@@ -43,5 +44,5 @@
     <string name="gamepadMOUSETRACKER">Геймпад</string>
     <string name="keyboardMOUSETRACKER">Клавиатура</string>
     <string name="pen_tabletMOUSETRACKER">Гр. Планшет</string>
-    <string name="title_activity_file_viewer">FileViewer</string>
+    <string name="new_sessionSSERVER">Начать сессию</string>
 </resources>

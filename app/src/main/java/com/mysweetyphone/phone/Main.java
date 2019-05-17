@@ -70,7 +70,7 @@ public class Main extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         TextView name = findViewById(R.id.NameNav);
         login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
-        name.setText(login);
+        if(name != null) name.setText(login);
         getMenuInflater().inflate(R.menu.action_bar_reload_button, menu);
         return true;
     }
@@ -115,14 +115,17 @@ public class Main extends AppCompatActivity
             case R.id.nav_saved:
                 FragmentToReplace = new Saved();
                 break;
-            case R.id.nav_SCLIENT:
+            case R.id.nav_sclient:
                 FragmentToReplace = new SClient();
+                break;
+            case R.id.nav_sserver:
+                FragmentToReplace = new SServer();
                 break;
         }
         fm.getFragments().clear();
         ft.replace(R.id.MainFragment,FragmentToReplace);
         ft.commit();
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
