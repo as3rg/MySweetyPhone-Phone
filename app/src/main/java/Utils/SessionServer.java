@@ -7,21 +7,29 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
+import java.net.ServerSocket;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SessionServer extends Session{
     Thread onStop;
     MessageParser messageParser;
+    ServerSocket ss;
 
     public SessionServer(Type type, int Port, Runnable doOnStopSession) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         messageParser = new MessageParser();
         JSONObject message = new JSONObject();
-        socket = new DatagramSocket();
-        port = socket.getLocalPort();
-        if(Port == -1)
-            port = Port;
+        switch (type){
+            case MOUSE:
+                Dsocket = new DatagramSocket(Port);
+                Dsocket.setBroadcast(true);
+                port = Dsocket.getLocalPort();
+                break;
+            case FILEVIEW:
+                ss = new ServerSocket(Port);
+                port = ss.getLocalPort();
+        }
         message.put("port", port);
         message.put("type", type.ordinal());
         byte[] buf2 = String.format("%-30s", message.toString()).getBytes();
@@ -123,5 +131,12 @@ public class SessionServer extends Session{
 
     public boolean isServer(){
         return true;
+    }
+
+    @Override
+    public void Stop() throws IOException {
+        super.Stop();
+        if(ss!=null)
+            ss.close();
     }
 }

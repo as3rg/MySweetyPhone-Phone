@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -98,8 +99,6 @@ public class SessionClient extends Session{
                     }else
                         ips.get(p.getAddress().getHostAddress()).value=5;
                 }
-            } catch (SocketException ignored){
-                ignored.printStackTrace();
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
@@ -117,21 +116,32 @@ public class SessionClient extends Session{
         s.close();
     }
 
-    public SessionClient(InetAddress address, int Port, Type type, Activity activity) throws SocketException {
+    public SessionClient(InetAddress address, int Port, Type type, Activity activity) throws IOException {
         this.address = address;
         this.port = Port;
         this.type = type;
-        socket = new DatagramSocket();
-        socket.setBroadcast(true);
+        switch (type){
+            case MOUSE:
+                break;
+            case FILEVIEW:
+
+        }
+
         switch (type) {
             case MOUSE:
                 t = new Thread(()->{
-                    if(searching != null) StopSearching();
-                    activity.runOnUiThread(()->{
-                        MouseTracker.sc = this;
-                        Intent intent = new Intent(activity, MouseTracker.class);
-                        activity.startActivity(intent);
-                    });
+                    try {
+                        Dsocket = new DatagramSocket();
+                        Dsocket.setBroadcast(true);
+                        if (searching != null) StopSearching();
+                        activity.runOnUiThread(() -> {
+                            MouseTracker.sc = this;
+                            Intent intent = new Intent(activity, MouseTracker.class);
+                            activity.startActivity(intent);
+                        });
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
                 });
                 break;
             case FILEVIEW:

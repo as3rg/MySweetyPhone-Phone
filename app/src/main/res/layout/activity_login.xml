@@ -29,6 +29,7 @@
         android:layout_margin="5dp"
         android:autofillHints=""
         android:drawableLeft="@drawable/ic_login_login"
+        android:drawableTint="@color/white"
         android:ems="10"
         android:hint="@string/nickLOGIN"
         android:inputType="textPersonName" />
@@ -40,6 +41,7 @@
         android:layout_margin="5dp"
         android:autofillHints=""
         android:drawableLeft="@drawable/ic_login_pass"
+        android:drawableTint="@color/white"
         android:ems="10"
         android:hint="@string/passwordLOGIN"
         android:inputType="textPassword" />

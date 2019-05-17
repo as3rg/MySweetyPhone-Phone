@@ -214,7 +214,7 @@ public class MouseTracker extends AppCompatActivity {
             try {
                 Message[] messages = Message.getMessages(b, MESSAGESIZE);
                 for (Message m : messages) {
-                    sc.getSocket().send(new DatagramPacket(m.getArr(), m.getArr().length, sc.getAddress(), sc.getPort()));
+                    sc.getDatagramSocket().send(new DatagramPacket(m.getArr(), m.getArr().length, sc.getAddress(), sc.getPort()));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

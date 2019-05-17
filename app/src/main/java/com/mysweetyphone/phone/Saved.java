@@ -1260,13 +1260,6 @@ public class Saved extends Fragment {
         return inflater.inflate(R.layout.fragment_saved, container, false);
     }
 
-    public interface FileLoadingListener {
-        void onBegin();
-        void onSuccess();
-        void onFailure(Throwable cause);
-        void onEnd();
-    }
-
     private void Download(String text, Long date){
         Runnable r = () -> {
             try {

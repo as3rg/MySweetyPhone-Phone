@@ -3,16 +3,20 @@ package Utils;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
 
 public abstract class Session{
     protected InetAddress address;
-    protected DatagramSocket socket;
+    protected DatagramSocket Dsocket;
+    protected Socket Ssocket;
     protected int port;
     protected Type type;
     protected Thread t;
     protected Timer broadcasting;
+    protected DatagramSocket broadcastingSocket;
     static int BroadCastingPort = 9000;
 
     public enum Type{
@@ -37,7 +41,9 @@ public abstract class Session{
     public void Stop() throws IOException {
         broadcasting.cancel();
         t.interrupt();
-        if(socket!=null && !socket.isClosed()) socket.close();
+        if(Dsocket!=null && !Dsocket.isClosed()) Dsocket.close();
+        if(Ssocket!=null && !Ssocket.isClosed()) Ssocket.close();
+        if(broadcastingSocket!=null && !broadcastingSocket.isClosed()) broadcastingSocket.close();
     }
 
     public int getPort() {
@@ -54,7 +60,15 @@ public abstract class Session{
 
     public abstract boolean isServer();
 
-    public DatagramSocket getSocket() {
-        return socket;
+    public DatagramSocket getDatagramSocket() {
+        return Dsocket;
+    }
+
+    public Socket getSocket() {
+        return Ssocket;
+    }
+
+    public void setSocket(Socket ssocket) {
+        Ssocket = ssocket;
     }
 }
