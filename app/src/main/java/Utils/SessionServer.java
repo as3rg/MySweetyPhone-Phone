@@ -68,7 +68,6 @@ public class SessionServer extends Session{
                 t = new Thread(()->{
                     try {
                         Ssocket = ss.accept();
-                        System.out.println(getAddress()+":"+getPort());
                         PrintWriter writer = new PrintWriter(Ssocket.getOutputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(Ssocket.getInputStream()));
                         SimpleIntegerProperty gotAccess = new SimpleIntegerProperty(0);
@@ -79,7 +78,6 @@ public class SessionServer extends Session{
                                 thisActivity.runOnUiThread(onStop);
                                 onStop = null;
                             }
-                            System.out.println(line);
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get() == 0)
                                 thisActivity.runOnUiThread(()-> {

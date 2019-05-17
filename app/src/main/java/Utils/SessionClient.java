@@ -111,7 +111,7 @@ public class SessionClient extends Session{
     }
 
     public static void StopSearching() {
-        searching.interrupt();
+        if(searching == null) searching.interrupt();
         isSearching=false;
         s.close();
     }

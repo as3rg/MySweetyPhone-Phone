@@ -1194,7 +1194,6 @@ public class Saved extends Fragment {
                 HttpResponse response = client.execute(post);
 
                 String body = IOUtils.toString(response.getEntity().getContent());
-                System.out.println(body);
                 JSONObject result = new JSONObject(body);
 
 

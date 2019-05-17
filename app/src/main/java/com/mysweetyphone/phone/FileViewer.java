@@ -45,7 +45,6 @@ public class FileViewer extends AppCompatActivity {
 
     static public SessionClient sc;
     Thread receiving;
-    static final int MESSAGESIZE = 100;
     PrintWriter writer;
     BufferedReader reader;
     String name;
@@ -84,7 +83,6 @@ public class FileViewer extends AppCompatActivity {
                 while (true) {
                     String line = reader.readLine();
                     t.cancel();
-                    System.out.println(line);
                     JSONObject msg = new JSONObject(line);
                     switch ((String) msg.get("Type")) {
                         case "showDir":
@@ -153,7 +151,7 @@ public class FileViewer extends AppCompatActivity {
                                                 socket.close();
                                                 runOnUiThread(()->{
                                                     Toast toast = Toast.makeText(this,
-                                                            "Файл "+out2.getName()+" скачен", Toast.LENGTH_LONG);
+                                                            "Файл \""+out2.getName()+"\" загружен", Toast.LENGTH_LONG);
                                                     toast.show();
                                                 });
                                             } catch (JSONException | IOException e) {
@@ -333,6 +331,11 @@ public class FileViewer extends AppCompatActivity {
                     fileout.flush();
                     filein.close();
                     socket.close();
+                    runOnUiThread(()->{
+                        Toast toast = Toast.makeText(this,
+                                "Файл \""+file.getName()+"\" отправлен", Toast.LENGTH_LONG);
+                        toast.show();
+                    });
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
