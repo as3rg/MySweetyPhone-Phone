@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.Calendar;
 
 import Utils.Message;
 import Utils.SessionClient;
@@ -231,23 +232,65 @@ public class MouseTracker extends AppCompatActivity {
         try {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    x = (int)event.getX();
-                    y = (int)event.getY();
+                    lastDownTime = Calendar.getInstance().getTimeInMillis();
+                    DownX = (int)event.getX();
+                    DownY = (int)event.getY();
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    JSONObject msg = new JSONObject();
-                    msg.put("Type", "mouseMoved");
-                    msg.put("Name", name);
-                    msg.put("X", (int) event.getX() - x);
-                    msg.put("Y", (int) event.getY() - y);
-                    Send(msg.toString().getBytes());
-                    x = (int)event.getX();
-                    y = (int)event.getY();
+                    if(event.getPointerCount() == 1){
+                        if(!LPressed && Calendar.getInstance().getTimeInMillis() - lastUpTime < 400L){
+                            LPressed = true;
+                            JSONObject msg = new JSONObject();
+                            msg.put("Type", "mousePressed");
+                            msg.put("Name", name);
+                            msg.put("Key", 1);
+                            Send(msg.toString().getBytes());
+                        }
+                        x = (int)event.getX();
+                        y = (int)event.getY();
+                        JSONObject msg = new JSONObject();
+                        msg.put("Type", "mouseMoved");
+                        msg.put("Name", name);
+                        msg.put("X", (int) x - DownX);
+                        msg.put("Y", (int) y - DownY);
+                        Send(msg.toString().getBytes());
+                    }
+                    if(event.getPointerCount() == 2){
+                        x = (int)event.getX();
+                        JSONObject msg = new JSONObject();
+                        msg.put("Type", "mouseWheel");
+                        msg.put("Name", name);
+                        msg.put("value", (int) x - DownX);
+                        Send(msg.toString().getBytes());
+                    }
                     break;
                 case MotionEvent.ACTION_UP:
+                    if(event.getPointerCount() == 1 && DownX == event.getX() && DownY == event.getY()){
+                        if(event.getPointerCount() == 1) {
+                            if (Calendar.getInstance().getTimeInMillis() - lastDownTime < 700L) {
+                                JSONObject msg = new JSONObject();
+                                msg.put("Type", "mouseReleased");
+                                msg.put("Name", name);
+                                msg.put("Key", 1);
+                                Send(msg.toString().getBytes());
+                            } else if (Calendar.getInstance().getTimeInMillis() - lastDownTime < 2000L) {
+                                JSONObject msg = new JSONObject();
+                                msg.put("Type", "mouseReleased");
+                                msg.put("Name", name);
+                                msg.put("Key", 3);
+                                Send(msg.toString().getBytes());
+                            }
+                        }
+                        lastUpTime = Calendar.getInstance().getTimeInMillis();
+                    } else {
+                        if(LPressed){
+                            LPressed = false;
+                        }
+                    }
+                    x = 0;
+                    y = 0;
                     break;
-                default:
-                    break;
+                    default: break;
             }
         } catch (JSONException e) {
             e.printStackTrace();
