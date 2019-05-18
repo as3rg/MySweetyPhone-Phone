@@ -41,6 +41,11 @@ public class SessionClient extends Session{
     static boolean isSearching;
     static Thread searching;
     static DatagramSocket s;
+    String os;
+
+    public String getOS(){
+        return os;
+    }
 
     static{
         isSearching = false;
@@ -58,7 +63,7 @@ public class SessionClient extends Session{
         s = new DatagramSocket(BroadCastingPort);
         s.setBroadcast(true);
         s.setSoTimeout(60000);
-        byte[] buf = new byte[30];
+        byte[] buf = new byte[100];
         DatagramPacket p = new DatagramPacket(buf, buf.length);
         long time = System.currentTimeMillis();
         Timer t = new Timer();
@@ -81,7 +86,7 @@ public class SessionClient extends Session{
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity));
+                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.getString("os"), activity));
                         Server server = new Server(null);
                         ips.put(p.getAddress().getHostAddress(),server);
                         activity.runOnUiThread(() -> {
@@ -116,10 +121,11 @@ public class SessionClient extends Session{
         s.close();
     }
 
-    public SessionClient(InetAddress address, int Port, int type, Activity activity) throws IOException {
+    public SessionClient(InetAddress address, int Port, int type, String os, Activity activity) throws IOException {
         this.address = address;
         this.port = Port;
         this.type = type;
+        this.os = os;
 
         switch (type) {
             case MOUSE:

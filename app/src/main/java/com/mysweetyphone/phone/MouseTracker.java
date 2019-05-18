@@ -77,6 +77,7 @@ public class MouseTracker extends AppCompatActivity {
         ImageButton keyboardButton = findViewById(R.id.keyboardMOUSETRACKER);
         HorizontalScrollView extraButtons = findViewById(R.id.extra1MOUSETRACKER);
         HorizontalScrollView extra2Buttons = findViewById(R.id.extra2MOUSETRACKER);
+        HorizontalScrollView extra3Buttons = findViewById(R.id.extra3MOUSETRACKER);
         inputView = findViewById(R.id.inputMOUSETRACKER);
         inputView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -170,35 +171,39 @@ public class MouseTracker extends AppCompatActivity {
                 TableLayout tl = findViewById(R.id.extraButtonsMOUSETRACKER);
                 String value = parent.getSelectedItem().toString();
                 if(value == mouse) {
-                    inputView.setVisibility(View.INVISIBLE);
-                    extraButtons.setVisibility(View.INVISIBLE);
-                    extra2Buttons.setVisibility(View.INVISIBLE);
-                    tl.setVisibility(View.INVISIBLE);
-                    keyboardButton.setVisibility(View.INVISIBLE);
+                    inputView.setVisibility(View.GONE);
+                    extraButtons.setVisibility(View.GONE);
+                    extra2Buttons.setVisibility(View.GONE);
+                    tl.setVisibility(View.GONE);
+                    keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchMOUSE);
+                    extra3Buttons.setVisibility(View.GONE);
                 }else if(value == keyboard) {
                     inputView.setVisibility(View.VISIBLE);
                     tl.setVisibility(View.VISIBLE);
                     extraButtons.setVisibility(View.VISIBLE);
                     extra2Buttons.setVisibility(View.VISIBLE);
                     keyboardButton.setVisibility(View.VISIBLE);
+                    if(sc.getOS().startsWith("Windows")) extra3Buttons.setVisibility(View.VISIBLE);
                     thisActivity.openKeyboard(null);
                     content.setOnTouchListener((v,e)->false);
                 }else if(value == gamepad) {
-                    inputView.setVisibility(View.INVISIBLE);
-                    extraButtons.setVisibility(View.INVISIBLE);
-                    extra2Buttons.setVisibility(View.INVISIBLE);
-                    tl.setVisibility(View.INVISIBLE);
-                    keyboardButton.setVisibility(View.INVISIBLE);
+                    inputView.setVisibility(View.GONE);
+                    extraButtons.setVisibility(View.GONE);
+                    extra2Buttons.setVisibility(View.GONE);
+                    tl.setVisibility(View.GONE);
+                    keyboardButton.setVisibility(View.GONE);
                     System.out.println("Gamepad");
                     content.setOnTouchListener((v,e)->false);
+                    extra3Buttons.setVisibility(View.GONE);
                 }else if(value == pen_tablet) {
-                    inputView.setVisibility(View.INVISIBLE);
-                    tl.setVisibility(View.INVISIBLE);
-                    keyboardButton.setVisibility(View.INVISIBLE);
+                    inputView.setVisibility(View.GONE);
+                    tl.setVisibility(View.GONE);
+                    keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchPENTABLET);
-                    extraButtons.setVisibility(View.INVISIBLE);
-                    extra2Buttons.setVisibility(View.INVISIBLE);
+                    extraButtons.setVisibility(View.GONE);
+                    extra2Buttons.setVisibility(View.GONE);
+                    extra3Buttons.setVisibility(View.GONE);
                 }
             }
 
@@ -375,6 +380,20 @@ public class MouseTracker extends AppCompatActivity {
                 return 122;
             case R.id.F12MOUSETRACKER:
                 return 123;
+            case R.id.volumeMuteMOUSETRACKER:
+                return 173;
+            case R.id.volumeDownMOUSETRACKER:
+                return 174;
+            case R.id.volumeUpMOUSETRACKER:
+                return 175;
+            case R.id.nextTrackMOUSETRACKER:
+                return 176;
+            case R.id.prevTrackMOUSETRACKER:
+                return 177;
+            case R.id.stopMOUSETRACKER:
+                return 178;
+            case R.id.pauseMOUSETRACKER:
+                return 179;
             default:
                 return -1;
         }
@@ -385,6 +404,14 @@ public class MouseTracker extends AppCompatActivity {
         msg.put("Name", name);
         msg.put("value", ViewToButtonId(v));
         msg.put("Type", "keyClicked");
+        Send(msg.toString().getBytes());
+    }
+
+    public void sendMediaButton(View v) throws JSONException {
+        JSONObject msg = new JSONObject();
+        msg.put("Name", name);
+        msg.put("value", ViewToButtonId(v));
+        msg.put("Type", "winApiClicked");
         Send(msg.toString().getBytes());
     }
 
