@@ -54,8 +54,7 @@ public class SessionClient extends Session{
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
         if(isSearching) {
-            System.err.println("Поиск уже запущен");
-            return;
+            StopSearching();
         }
         servers = new ArrayList<>();
         ips = new TreeMap<>();
@@ -116,9 +115,13 @@ public class SessionClient extends Session{
     }
 
     public static void StopSearching() {
-        if(searching == null) searching.interrupt();
+        try {
+            searching.interrupt();
+        }catch (NullPointerException ignored){}
         isSearching=false;
-        s.close();
+        try{
+            s.close();
+        }catch (NullPointerException ignored){}
     }
 
     public SessionClient(InetAddress address, int Port, int type, String os, Activity activity) throws IOException {

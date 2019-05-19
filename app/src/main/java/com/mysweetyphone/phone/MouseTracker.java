@@ -156,7 +156,6 @@ public class MouseTracker extends AppCompatActivity {
         type.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_item, new String[]{
                 getResources().getString(R.string.mouseMOUSETRACKER),
                 getResources().getString(R.string.keyboardMOUSETRACKER),
-                getResources().getString(R.string.gamepadMOUSETRACKER),
                 getResources().getString(R.string.pen_tabletMOUSETRACKER)
         }));
 
@@ -164,7 +163,6 @@ public class MouseTracker extends AppCompatActivity {
         type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             final String mouse = getResources().getString(R.string.mouseMOUSETRACKER);
             final String keyboard = getResources().getString(R.string.keyboardMOUSETRACKER);
-            final String gamepad = getResources().getString(R.string.gamepadMOUSETRACKER);
             final String pen_tablet = getResources().getString(R.string.pen_tabletMOUSETRACKER);
 
             @Override
@@ -188,15 +186,6 @@ public class MouseTracker extends AppCompatActivity {
                     if(sc.getOS().startsWith("Windows")) extra3Buttons.setVisibility(View.VISIBLE);
                     thisActivity.openKeyboard(null);
                     content.setOnTouchListener((v,e)->false);
-                }else if(value == gamepad) {
-                    inputView.setVisibility(View.GONE);
-                    extraButtons.setVisibility(View.GONE);
-                    extra2Buttons.setVisibility(View.GONE);
-                    tl.setVisibility(View.GONE);
-                    keyboardButton.setVisibility(View.GONE);
-                    System.out.println("Gamepad");
-                    content.setOnTouchListener((v,e)->false);
-                    extra3Buttons.setVisibility(View.GONE);
                 }else if(value == pen_tablet) {
                     inputView.setVisibility(View.GONE);
                     tl.setVisibility(View.GONE);

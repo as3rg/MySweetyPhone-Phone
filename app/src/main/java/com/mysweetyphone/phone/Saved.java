@@ -311,7 +311,7 @@ public class Saved extends Fragment {
                             startActivity(browserIntent);
                             break;
                     }
-                } catch (MalformedURLException | URISyntaxException e) {
+                } catch (MalformedURLException | URISyntaxException | NullPointerException e) {
                     e.printStackTrace();
                 }
             });
@@ -679,9 +679,7 @@ public class Saved extends Fragment {
                     layout.addView(videoView, 0);
                 });
 
-            } catch (IOException | DecoderException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | DecoderException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -1071,9 +1069,7 @@ public class Saved extends Fragment {
                     }
                 });
 
-            } catch (IOException | DecoderException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | DecoderException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -1219,13 +1215,7 @@ public class Saved extends Fragment {
                 } else {
                     throw new RuntimeException("Ошибка приложения!");
                 }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         };
