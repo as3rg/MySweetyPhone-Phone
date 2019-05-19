@@ -41,7 +41,6 @@
     <string name="stop_searchingSCLIENT">Остановить поиск</string>
     <string name="title_activity_mouse_tracker">MySweetyPhone</string>
     <string name="mouseMOUSETRACKER">Мышь</string>
-    <string name="gamepadMOUSETRACKER">Геймпад</string>
     <string name="keyboardMOUSETRACKER">Клавиатура</string>
     <string name="pen_tabletMOUSETRACKER">Гр. Планшет</string>
     <string name="new_sessionSSERVER">Начать сессию</string>

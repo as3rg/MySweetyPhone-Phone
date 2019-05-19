@@ -54,8 +54,7 @@ public class SessionClient extends Session{
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
         if(isSearching) {
-            System.err.println("Поиск уже запущен");
-            return;
+            StopSearching();
         }
         servers = new ArrayList<>();
         ips = new TreeMap<>();
