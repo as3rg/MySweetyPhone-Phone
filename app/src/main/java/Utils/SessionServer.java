@@ -45,7 +45,7 @@ public class SessionServer extends Session{
         }
         message.put("port", port);
         message.put("type", type);
-        byte[] buf2 = String.format("%-30s", message.toString()).getBytes();
+        byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
         DatagramPacket packet = new DatagramPacket(buf2, buf2.length, Inet4Address.getByName("255.255.255.255"), BroadCastingPort);
