@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.Stack;
 import java.util.Timer;
 
 public abstract class Session{
@@ -25,10 +27,10 @@ public abstract class Session{
             MOUSE = 1,
             FILEVIEW = 2;
 
-    public static ArrayList<Session> sessions;
+    public static Stack<Session> sessions;
 
     static {
-        sessions=new ArrayList<>(10);
+        sessions=new Stack<>();
     }
 
     public Session(){

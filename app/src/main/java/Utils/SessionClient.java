@@ -116,9 +116,13 @@ public class SessionClient extends Session{
     }
 
     public static void StopSearching() {
-        if(searching == null) searching.interrupt();
+        try {
+            searching.interrupt();
+        }catch (NullPointerException ignored){}
         isSearching=false;
-        s.close();
+        try{
+            s.close();
+        }catch (NullPointerException ignored){}
     }
 
     public SessionClient(InetAddress address, int Port, int type, String os, Activity activity) throws IOException {
