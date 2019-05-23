@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -79,7 +80,7 @@ public class FileViewer extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                },0,2000);
+                }, 0, 2000);
                 while (true) {
                     String line = reader.readLine();
                     t.cancel();
@@ -114,7 +115,7 @@ public class FileViewer extends AppCompatActivity {
                                         folder.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
                                         folders.addView(folder);
                                         final int i2 = i;
-                                        if(values.getJSONObject(i2).getString("Type").equals("Folder"))
+                                        if (values.getJSONObject(i2).getString("Type").equals("Folder"))
                                             folder.setOnClickListener(v -> new Thread(() -> {
                                                 try {
                                                     JSONObject msg3 = new JSONObject();
@@ -149,9 +150,9 @@ public class FileViewer extends AppCompatActivity {
                                                 IOUtils.copy(filein, fileout);
                                                 fileout.close();
                                                 socket.close();
-                                                runOnUiThread(()->{
+                                                runOnUiThread(() -> {
                                                     Toast toast = Toast.makeText(this,
-                                                            "Файл \""+out2.getName()+"\" загружен", Toast.LENGTH_LONG);
+                                                            "Файл \"" + out2.getName() + "\" загружен", Toast.LENGTH_LONG);
                                                     toast.show();
                                                 });
                                             } catch (JSONException | IOException e) {
@@ -165,7 +166,7 @@ public class FileViewer extends AppCompatActivity {
                             });
                             break;
                         case "newDirAnswer":
-                            runOnUiThread(()-> {
+                            runOnUiThread(() -> {
                                 try {
                                     TextView folder = new TextView(this);
                                     folder.setText(msg.getString("DirName"));
@@ -198,6 +199,10 @@ public class FileViewer extends AppCompatActivity {
                             break;
                     }
                 }
+            } catch (ConnectException e){
+                Toast toast = Toast.makeText(this,
+                        "Сессия закрыта", Toast.LENGTH_LONG);
+                toast.show();
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }

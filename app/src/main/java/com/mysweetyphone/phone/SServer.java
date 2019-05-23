@@ -21,8 +21,8 @@ public class SServer extends Fragment {
     Button NewSession;
     Spinner SessionType;
     public static final String
-            MOUSE = "Эмуляция мыши",
-            FILEVIEW = "Просмотр Файлов";
+            FILEVIEW = "Просмотр Файлов",
+            SMSVIEW = "Просмотр SMS";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class SServer extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         SessionType = getActivity().findViewById(R.id.typeSSERVER);
-        SessionType.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.spinner_item, new String[]{"Просмотр Файлов"}));
+        SessionType.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.spinner_item, new String[]{FILEVIEW, SMSVIEW}));
         NewSession = getActivity().findViewById(R.id.newSessionSSERVER);
         NewSession.setOnClickListener(this::OpenSession);
     }
@@ -64,8 +64,8 @@ public class SServer extends Fragment {
 
     public int GetType(String s){
         switch (s){
-            case MOUSE:
-                return Session.MOUSE;
+            case SMSVIEW:
+                return Session.SMSVIEWER;
             case FILEVIEW:
                 return Session.FILEVIEW;
             default:

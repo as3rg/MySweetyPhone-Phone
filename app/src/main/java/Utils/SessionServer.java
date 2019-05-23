@@ -3,6 +3,12 @@ package Utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.provider.Telephony;
+import android.telephony.SmsManager;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -24,6 +30,10 @@ import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,12 +43,15 @@ public class SessionServer extends Session{
     Thread onStop;
     MessageParser messageParser;
     ServerSocket ss;
+    SimpleProperty<Long> lastSync = new SimpleProperty<>(0L);
+    SimpleProperty<String> currentNumber = new SimpleProperty<>("");
 
     public SessionServer(int type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         messageParser = new MessageParser();
         JSONObject message = new JSONObject();
         switch (type){
+            case SMSVIEWER:
             case FILEVIEW:
                 ss = new ServerSocket(Port);
                 port = ss.getLocalPort();
@@ -70,7 +83,7 @@ public class SessionServer extends Session{
                         Ssocket = ss.accept();
                         PrintWriter writer = new PrintWriter(Ssocket.getOutputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(Ssocket.getInputStream()));
-                        SimpleIntegerProperty gotAccess = new SimpleIntegerProperty(0);
+                        SimpleProperty<Integer> gotAccess = new SimpleProperty(0);
                         while (true) {
                             String line = reader.readLine();
                             broadcasting.cancel();
@@ -105,10 +118,10 @@ public class SessionServer extends Session{
                                 JSONObject ans = new JSONObject();
                                 if(msg.getString("Type").equals("showDir") && msg.getString("Dir").isEmpty())
                                     msg.put("Type", "start");
-                                switch ((String)msg.get("Type")){
+                                switch (msg.getString("Type")){
                                     case "back":
                                         if(msg.getString("Dir") != "/storage/emulated/0/") {
-                                            String parentDir = new File((String) msg.get("Dir")).getParent();
+                                            String parentDir = new File(msg.getString("Dir")).getParent();
                                             msg.put("Dir", parentDir);
                                         }
                                     case "start":
@@ -182,6 +195,175 @@ public class SessionServer extends Session{
                             }
                         }
                     } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
+            case SMSVIEWER:
+                t = new Thread(()->{
+                    try {
+                        Ssocket = ss.accept();
+                        PrintWriter writer = new PrintWriter(Ssocket.getOutputStream());
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(Ssocket.getInputStream()));
+                        SimpleProperty<Integer> gotAccess = new SimpleProperty<>(0);
+                        while (true) {
+                            String line = reader.readLine();
+                            broadcasting.cancel();
+                            if(onStop != null){
+                                thisActivity.runOnUiThread(onStop);
+                                onStop = null;
+                            }
+                            JSONObject msg = new JSONObject(line);
+                            if(gotAccess.get() == 0)
+                                thisActivity.runOnUiThread(()-> {
+                                    try {
+                                        gotAccess.set(1);
+                                        new AlertDialog.Builder(thisActivity)
+                                                .setTitle("Выполнить действие?")
+                                                .setMessage("Вы действительно хотите предоставить доступ к сообщениям \"" + msg.getString("Name") + "\"?")
+                                                .setPositiveButton("Да", (dialog, which) -> {
+                                                    gotAccess.set(2);
+                                                    new Thread(()-> {
+                                                        try {
+                                                            JSONObject msg2 = new JSONObject();
+                                                            msg2.put("Type", "accepted");
+                                                            writer.println(msg2.toString());
+                                                            writer.flush();
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }).start();
+                                                })
+                                                .setNegativeButton("Нет",  (dialog, which) -> {
+                                                    try {
+                                                        Stop();
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                })
+                                                .show();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+
+                            if(gotAccess.get() == 2){
+                                Timer t = new Timer();
+                                JSONObject ans = new JSONObject();
+                                switch (msg.getString("Type")){
+                                    case "start":
+                                        t.scheduleAtFixedRate(new TimerTask() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
+                                                    JSONObject ans = new JSONObject();
+                                                    JSONArray sms = new JSONArray();
+                                                    Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                                    while (cur != null && cur.moveToNext()) {
+                                                        String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
+                                                        if (number == null || !(number.replaceAll("[ \\-()]", "").equals(currentNumber.get()) || number.equals(currentNumber.get()))
+                                                        ) {
+                                                            continue;
+                                                        }
+                                                        JSONObject a = new JSONObject();
+                                                        a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
+                                                        a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
+                                                        a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                                        sms.put(a);
+                                                    }
+                                                    if(sms.length() == 0) return;
+                                                    ans.put("SMS", sms);
+                                                    ans.put("Type", "newSMSs");
+                                                    writer.println(ans.toString());
+                                                    writer.flush();
+                                                    lastSync.set(System.currentTimeMillis() / 1000);
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }, 0, 45000);
+                                    case "getContacts":
+                                        Set<String> contacts = new HashSet<>();
+                                        Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.ADDRESS}, null, null, null);
+                                        while (cur != null && cur.moveToNext()) {
+                                            String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
+                                            if(number == null) continue;
+                                            Cursor cur2 = thisActivity
+                                                    .getContentResolver()
+                                                    .query(
+                                                            Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                                                                    Uri.encode(number)),
+                                                            new String[]{ContactsContract.Data.DISPLAY_NAME},
+                                                            null,
+                                                            null,
+                                                            null
+                                                    );
+                                            cur2.moveToFirst();
+                                            if(number.replaceAll("[ \\-()]","").matches("\\+\\d{7,13}"))
+                                                number = number.replaceAll("[ \\-()]","");
+                                            if(cur2.getCount() > 0) contacts.add(cur2.getString(0)+"("+number+")");
+                                            else contacts.add(number);
+                                        }
+                                        ans.put("Type", "getContacts");
+                                        ans.put("Contacts", new JSONArray(contacts));
+                                        System.out.println(ans.toString());
+                                        writer.println(ans.toString());
+                                        writer.flush();
+                                        break;
+                                    case "showSMSs":
+                                        currentNumber.set(msg.getString("Number"));
+                                        JSONArray sms = new JSONArray();
+                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, null, null, Telephony.Sms.DATE + " ASC");
+                                        while (cur != null && cur.moveToNext()) {
+                                            String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
+                                            if(number == null || !(number.replaceAll("[ \\-()]","").equals(msg.getString("Number")) || number.equals(msg.getString("Number")))
+                                            ) {
+                                                continue;
+                                            }
+                                            JSONObject a = new JSONObject();
+                                            a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
+                                            a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE)))/1000);
+                                            a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                            sms.put(a);
+                                        }
+                                        ans.put("SMS", sms);
+                                        ans.put("Type", "showSMSs");
+                                        writer.println(ans.toString());
+                                        writer.flush();
+                                        lastSync.set(System.currentTimeMillis()/1000);
+                                        break;
+                                    case "sendSMS":
+                                        SmsManager smgr = SmsManager.getSmsManagerForSubscriptionId(0);
+                                        smgr.sendTextMessage(msg.getString("Number"), null, msg.getString("Text"), null, null);
+                                        Thread.sleep(2000);
+                                        ans = new JSONObject();
+                                        sms = new JSONArray();
+                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                        while (cur != null && cur.moveToNext()) {
+                                            String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
+                                            if (number == null || !(number.replaceAll("[ \\-()]", "").equals(currentNumber.get()) || number.equals(currentNumber.get()))
+                                            ) {
+                                                continue;
+                                            }
+                                            JSONObject a = new JSONObject();
+                                            a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
+                                            a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
+                                            a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                            sms.put(a);
+                                        }
+                                        if(sms.length() == 0) break;
+                                        ans.put("SMS", sms);
+                                        ans.put("Type", "newSMSs");
+                                        writer.println(ans.toString());
+                                        writer.flush();
+                                        lastSync.set(System.currentTimeMillis() / 1000);
+                                        break;
+                                }
+                            }
+                        }
+                    } catch (IOException | JSONException | InterruptedException e) {
                         e.printStackTrace();
                     }
                 });
