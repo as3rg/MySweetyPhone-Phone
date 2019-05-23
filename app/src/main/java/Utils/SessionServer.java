@@ -2,6 +2,7 @@ package Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -253,6 +255,15 @@ public class SessionServer extends Session{
                                 JSONObject ans = new JSONObject();
                                 switch (msg.getString("Type")){
                                     case "start":
+                                        TelephonyManager tt = (TelephonyManager) thisActivity.getSystemService(Context.TELEPHONY_SERVICE);
+                                        ans.put("Sim1", tt.createForSubscriptionId(1).getNetworkOperatorName());
+                                        ans.put("Sim2", tt.createForSubscriptionId(2).getNetworkOperatorName());
+                                        if(ans.getString("Sim1").equals(ans.getString("Sim2")))
+                                            ans.put("Sim2","");
+                                        ans.put("Type", "start");
+                                        writer.println(ans.toString());
+                                        writer.flush();
+                                        ans = new JSONObject();
                                         t.scheduleAtFixedRate(new TimerTask() {
                                             @Override
                                             public void run() {
@@ -260,7 +271,7 @@ public class SessionServer extends Session{
                                                     if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
                                                     JSONObject ans = new JSONObject();
                                                     JSONArray sms = new JSONArray();
-                                                    Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                                    Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
                                                     while (cur != null && cur.moveToNext()) {
                                                         String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                                         if (number == null || !(number.replaceAll("[ \\-()]", "").equals(currentNumber.get()) || number.equals(currentNumber.get()))
@@ -271,6 +282,7 @@ public class SessionServer extends Session{
                                                         a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
                                                         a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
                                                         a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                                        a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
                                                         sms.put(a);
                                                     }
                                                     if(sms.length() == 0) return;
@@ -315,7 +327,7 @@ public class SessionServer extends Session{
                                     case "showSMSs":
                                         currentNumber.set(msg.getString("Number"));
                                         JSONArray sms = new JSONArray();
-                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, null, null, Telephony.Sms.DATE + " ASC");
+                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, null, null, Telephony.Sms.DATE + " ASC");
                                         while (cur != null && cur.moveToNext()) {
                                             String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                             if(number == null || !(number.replaceAll("[ \\-()]","").equals(msg.getString("Number")) || number.equals(msg.getString("Number")))
@@ -326,6 +338,7 @@ public class SessionServer extends Session{
                                             a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
                                             a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE)))/1000);
                                             a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                            a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
                                             sms.put(a);
                                         }
                                         ans.put("SMS", sms);
@@ -335,12 +348,12 @@ public class SessionServer extends Session{
                                         lastSync.set(System.currentTimeMillis()/1000);
                                         break;
                                     case "sendSMS":
-                                        SmsManager smgr = SmsManager.getSmsManagerForSubscriptionId(0);
+                                        SmsManager smgr = SmsManager.getSmsManagerForSubscriptionId(msg.getInt("Sim"));
                                         smgr.sendTextMessage(msg.getString("Number"), null, msg.getString("Text"), null, null);
                                         Thread.sleep(2000);
                                         ans = new JSONObject();
                                         sms = new JSONArray();
-                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
                                         while (cur != null && cur.moveToNext()) {
                                             String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                             if (number == null || !(number.replaceAll("[ \\-()]", "").equals(currentNumber.get()) || number.equals(currentNumber.get()))
@@ -351,6 +364,7 @@ public class SessionServer extends Session{
                                             a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
                                             a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
                                             a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+                                            a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
                                             sms.put(a);
                                         }
                                         if(sms.length() == 0) break;
