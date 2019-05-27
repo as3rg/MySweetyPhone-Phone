@@ -23,6 +23,9 @@ import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class DevicesList extends Fragment {
     int regdate;
     int id;
@@ -39,28 +42,32 @@ public class DevicesList extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
-        id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
-        login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
-        name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name","");
+        try {
+            regdate = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("regdate", -1);
+            id = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("id", -1);
+            login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
+            name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
 
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://mysweetyphone.herokuapp.com/?Type=ShowDevices&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&MyName=" + name, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                try {
-                    if (responseBody.getInt("code") == 4){
-                        Toast toast = Toast.makeText(getActivity(),
-                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                        toast.show();
-                        getActivity().finish();
-                    }else
-                        printDevices(responseBody.getJSONArray("PCs"),false, printDevices(responseBody.getJSONArray("Phones"),true, 0 ) );
-                }catch (Exception e){
-                   e.printStackTrace();
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get("http://mysweetyphone.herokuapp.com/?Type=ShowDevices&RegDate=" + regdate + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&MyName=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                    try {
+                        if (responseBody.getInt("code") == 4) {
+                            Toast toast = Toast.makeText(getActivity(),
+                                    "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                            toast.show();
+                            getActivity().finish();
+                        } else
+                            printDevices(responseBody.getJSONArray("PCs"), false, printDevices(responseBody.getJSONArray("Phones"), true, 0));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -87,29 +94,33 @@ public class DevicesList extends Fragment {
             RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_style_button_background));
             RemoveButton.setText("Удалить");
             RemoveButton.setOnClickListener(v -> {
-                final TableRow parent = (TableRow) v.getParent();
-                final TextView DeviceName1 = (TextView)parent.getChildAt(2);
-                AsyncHttpClient client = new AsyncHttpClient();
-                client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&RegDate="+regdate+"&Login=" + login + "&Id=" + id + "&Name=" + DeviceName1.getText() + "&MyName=" + name, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                        try {
-                            if (responseBody.getInt("code") == 4 || DeviceName1.getText().equals(name)){
-                                Toast toast = Toast.makeText(getActivity(),
-                                        "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                                toast.show();
-                                getActivity().finish();
+                try {
+                    final TableRow parent = (TableRow) v.getParent();
+                    final TextView DeviceName1 = (TextView) parent.getChildAt(2);
+                    AsyncHttpClient client = new AsyncHttpClient();
+                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&RegDate=" + regdate + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&Name=" + URLEncoder.encode(DeviceName1.getText().toString(), "UTF-8") + "&MyName=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                            try {
+                                if (responseBody.getInt("code") == 4 || DeviceName1.getText().equals(name)) {
+                                    Toast toast = Toast.makeText(getActivity(),
+                                            "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    getActivity().finish();
+                                }
+                                table.removeView(parent);
+                                for (int i1 = 0; i1 < table.getChildCount(); i1++)
+                                    table.getChildAt(i1).setBackgroundColor((i1 % 2 == 0) ? 0xFF252525 : 0xFF202020);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            table.removeView(parent);
-                            for (int i1 = 0; i1 < table.getChildCount(); i1++)
-                                table.getChildAt(i1).setBackgroundColor((i1 % 2 == 0) ? 0xFF252525 : 0xFF202020);
 
-                        }catch (Exception e){
-                            e.printStackTrace();
                         }
-
-                    }
-                });
+                    });
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             });
             row.addView(RemoveButton);
             row.addView(Icon);

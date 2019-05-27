@@ -19,6 +19,14 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
+                android:onClick="Stop"
+                android:tint="#FFFFFF"
+                app:srcCompat="@drawable/ic_menu_exit" />
+
             <Spinner
                 android:id="@+id/typeMOUSETRACKER"
                 android:layout_width="wrap_content"

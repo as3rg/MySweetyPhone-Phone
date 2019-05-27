@@ -84,6 +84,9 @@ public class FileViewer extends AppCompatActivity {
                 while (true) {
                     String line = reader.readLine();
                     t.cancel();
+                    if(line == null){
+                        finish();
+                    }
                     JSONObject msg = new JSONObject(line);
                     switch ((String) msg.get("Type")) {
                         case "showDir":
@@ -164,6 +167,9 @@ public class FileViewer extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             });
+                            break;
+                        case "finish":
+                            finish();
                             break;
                         case "newDirAnswer":
                             runOnUiThread(() -> {
@@ -307,7 +313,8 @@ public class FileViewer extends AppCompatActivity {
                 msg3.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText());
                 writer.println(msg3.toString());
                 writer.flush();
-            } catch (JSONException e) {
+                sc.Stop();
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -346,5 +353,9 @@ public class FileViewer extends AppCompatActivity {
                 }
             }).start();
         }
+    }
+
+    public void Stop(View v){
+        finish();
     }
 }

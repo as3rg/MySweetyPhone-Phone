@@ -20,6 +20,9 @@ import android.widget.TextView;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class Main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -89,44 +92,48 @@ public class Main extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
-        currentFragment.onDestroy();
-        Fragment FragmentToReplace = null;
-        switch (itemId){
-            case R.id.nav_exit:
-                final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                final SharedPreferences.Editor editor = sharedPreferences.edit();
-                id = PreferenceManager.getDefaultSharedPreferences(this).getInt("id", -1);
-                name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name","");
-                AsyncHttpClient client = new AsyncHttpClient();
-                client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + login + "&Id=" + id + "&Name=" + name, new JsonHttpResponseHandler());
-                editor.remove("id");
-                editor.remove("name");
-                editor.remove("login");
-                editor.commit();
-                finish();
-                return false;
-            case R.id.nav_devices_list:
-                FragmentToReplace = new DevicesList();
-                break;
-            case R.id.nav_saved:
-                FragmentToReplace = new Saved();
-                break;
-            case R.id.nav_sclient:
-                FragmentToReplace = new SClient();
-                break;
-            case R.id.nav_sserver:
-                FragmentToReplace = new SServer();
-                break;
+        try {
+            int itemId = item.getItemId();
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
+            currentFragment.onDestroy();
+            Fragment FragmentToReplace = null;
+            switch (itemId) {
+                case R.id.nav_exit:
+                    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    final SharedPreferences.Editor editor = sharedPreferences.edit();
+                    id = PreferenceManager.getDefaultSharedPreferences(this).getInt("id", -1);
+                    name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
+                    AsyncHttpClient client = new AsyncHttpClient();
+                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler());
+                    editor.remove("id");
+                    editor.remove("name");
+                    editor.remove("login");
+                    editor.commit();
+                    finish();
+                    return false;
+                case R.id.nav_devices_list:
+                    FragmentToReplace = new DevicesList();
+                    break;
+                case R.id.nav_saved:
+                    FragmentToReplace = new Saved();
+                    break;
+                case R.id.nav_sclient:
+                    FragmentToReplace = new SClient();
+                    break;
+                case R.id.nav_sserver:
+                    FragmentToReplace = new SServer();
+                    break;
+            }
+            fm.getFragments().clear();
+            ft.replace(R.id.MainFragment, FragmentToReplace);
+            ft.commit();
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        fm.getFragments().clear();
-        ft.replace(R.id.MainFragment,FragmentToReplace);
-        ft.commit();
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 }

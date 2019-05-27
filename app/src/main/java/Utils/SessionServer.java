@@ -85,7 +85,7 @@ public class SessionServer extends Session{
                         Ssocket = ss.accept();
                         PrintWriter writer = new PrintWriter(Ssocket.getOutputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(Ssocket.getInputStream()));
-                        SimpleProperty<Integer> gotAccess = new SimpleProperty(0);
+                        SimpleProperty gotAccess = new SimpleProperty(0);
                         while (true) {
                             String line = reader.readLine();
                             broadcasting.cancel();
@@ -94,7 +94,7 @@ public class SessionServer extends Session{
                                 onStop = null;
                             }
                             JSONObject msg = new JSONObject(line);
-                            if(gotAccess.get() == 0)
+                            if(gotAccess.get().equals(0))
                                 thisActivity.runOnUiThread(()-> {
                                     try {
                                         gotAccess.set(1);
@@ -103,11 +103,17 @@ public class SessionServer extends Session{
                                                 .setMessage("Вы действительно хотите предоставить доступ к файлам \"" + msg.getString("Name") + "\"?")
                                                 .setPositiveButton("Да", (dialog, which) -> gotAccess.set(2))
                                                 .setNegativeButton("Нет",  (dialog, which) -> {
-                                                    try {
-                                                        Stop();
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                    new Thread(()-> {
+                                                        try {
+                                                            JSONObject ans = new JSONObject();
+                                                            ans.put("Type", "finish");
+                                                            writer.println(ans.toString());
+                                                            writer.flush();
+                                                            Stop();
+                                                        } catch (JSONException | IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }).start();
                                                 })
                                                 .show();
 
@@ -116,11 +122,15 @@ public class SessionServer extends Session{
                                     }
                                 });
 
-                            if(gotAccess.get() == 2){
+                            if(gotAccess.get().equals(2)){
                                 JSONObject ans = new JSONObject();
                                 if(msg.getString("Type").equals("showDir") && msg.getString("Dir").isEmpty())
                                     msg.put("Type", "start");
                                 switch (msg.getString("Type")){
+                                    case "finish":
+                                        Ssocket.close();
+                                        Stop();
+                                        break;
                                     case "back":
                                         if(msg.getString("Dir") != "/storage/emulated/0/") {
                                             String parentDir = new File(msg.getString("Dir")).getParent();
@@ -237,11 +247,17 @@ public class SessionServer extends Session{
                                                     }).start();
                                                 })
                                                 .setNegativeButton("Нет",  (dialog, which) -> {
-                                                    try {
-                                                        Stop();
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                    new Thread(()-> {
+                                                        try {
+                                                            JSONObject ans = new JSONObject();
+                                                            ans.put("Type", "finish");
+                                                            writer.println(ans.toString());
+                                                            writer.flush();
+                                                            Stop();
+                                                        } catch (JSONException | IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }).start();
                                                 })
                                                 .show();
 
@@ -254,6 +270,9 @@ public class SessionServer extends Session{
                                 Timer t = new Timer();
                                 JSONObject ans = new JSONObject();
                                 switch (msg.getString("Type")){
+                                    case "finish":
+                                        Ssocket.close();
+                                        Stop();
                                     case "start":
                                         TelephonyManager tt = (TelephonyManager) thisActivity.getSystemService(Context.TELEPHONY_SERVICE);
                                         ans.put("Sim1", tt.createForSubscriptionId(1).getNetworkOperatorName());
@@ -320,7 +339,6 @@ public class SessionServer extends Session{
                                         }
                                         ans.put("Type", "getContacts");
                                         ans.put("Contacts", new JSONArray(contacts));
-                                        System.out.println(ans.toString());
                                         writer.println(ans.toString());
                                         writer.flush();
                                         break;
