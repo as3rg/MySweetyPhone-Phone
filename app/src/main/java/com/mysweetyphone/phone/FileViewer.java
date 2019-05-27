@@ -124,7 +124,7 @@ public class FileViewer extends AppCompatActivity {
                                                     JSONObject msg3 = new JSONObject();
                                                     msg3.put("Type", "showDir");
                                                     msg3.put("Name", name);
-                                                    msg3.put("Dir", new File(msg.getString("Dir"), values.getJSONObject(i2).getString("Name")).toPath());
+                                                    msg3.put("Dir", new File(msg.getString("Dir"), values.getJSONObject(i2).getString("Name")).getPath());
                                                     writer.println(msg3.toString());
                                                     writer.flush();
                                                 } catch (JSONException e) {
@@ -190,7 +190,7 @@ public class FileViewer extends AppCompatActivity {
                                                 JSONObject msg3 = new JSONObject();
                                                 msg3.put("Type", "showDir");
                                                 msg3.put("Name", name);
-                                                msg3.put("Dir", new File(msg.getString("Dir"), msg.getString("DirName")).toPath());
+                                                msg3.put("Dir", new File(msg.getString("Dir"), msg.getString("DirName")).getPath());
                                                 writer.println(msg3.toString());
                                                 writer.flush();
                                             } catch (JSONException e) {
