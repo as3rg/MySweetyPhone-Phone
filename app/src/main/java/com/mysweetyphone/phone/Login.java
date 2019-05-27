@@ -21,6 +21,9 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class Login extends AppCompatActivity {
 
     private boolean RegOrLogin = false;     //Reg == true, Login == false
@@ -44,50 +47,54 @@ public class Login extends AppCompatActivity {
     }
 
     public void onLoginClick(View view){
-        RegOrLogin = ((RadioButton)findViewById(R.id.RegRatioLOGIN)).isChecked();
+        try {
+            RegOrLogin = ((RadioButton) findViewById(R.id.RegRatioLOGIN)).isChecked();
 
-        TextView Nick = findViewById(R.id.NickLOGIN);
-        TextView Pass = findViewById(R.id.PasswordLOGIN);
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://mysweetyphone.herokuapp.com/?Type=" + (RegOrLogin ? "Reg" : "Login") + "&Login="+Nick.getText()+"&Pass="+Pass.getText(), new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                try {
-                    TextView ErrorText = findViewById(R.id.ErrorLOGIN);
-                    switch (responseBody.getInt("code")) {
-                        case 3:
-                            ErrorText.setText(R.string.FillNameAndPassLOGIN);
-                            ErrorText.setVisibility(View.VISIBLE);
-                            break;
-                        case 2:
-                            ErrorText.setText(R.string.Exception);
-                            ErrorText.setVisibility(View.VISIBLE);
-                            break;
-                        case 1:
-                            ErrorText.setText(RegOrLogin ? R.string.ErrorRegingLOGIN : R.string.ErrorLoggingInLOGIN);
-                            ErrorText.setVisibility(View.VISIBLE);
-                            break;
-                        case 0:
-                            ErrorText.setVisibility(View.INVISIBLE);
-                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
+            TextView Nick = findViewById(R.id.NickLOGIN);
+            TextView Pass = findViewById(R.id.PasswordLOGIN);
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get("http://mysweetyphone.herokuapp.com/?Type=" + (RegOrLogin ? "Reg" : "Login") + "&Login=" + URLEncoder.encode(Nick.getText().toString(), "UTF-8") + "&Pass=" + URLEncoder.encode(Pass.getText().toString(), "UTF-8"), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                    try {
+                        TextView ErrorText = findViewById(R.id.ErrorLOGIN);
+                        switch (responseBody.getInt("code")) {
+                            case 3:
+                                ErrorText.setText(R.string.FillNameAndPassLOGIN);
+                                ErrorText.setVisibility(View.VISIBLE);
+                                break;
+                            case 2:
+                                ErrorText.setText(R.string.Exception);
+                                ErrorText.setVisibility(View.VISIBLE);
+                                break;
+                            case 1:
+                                ErrorText.setText(RegOrLogin ? R.string.ErrorRegingLOGIN : R.string.ErrorLoggingInLOGIN);
+                                ErrorText.setVisibility(View.VISIBLE);
+                                break;
+                            case 0:
+                                ErrorText.setVisibility(View.INVISIBLE);
+                                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                            editor.putInt("id", responseBody.getInt("id"));
+                                editor.putInt("id", responseBody.getInt("id"));
 
-                            TextView Nick = findViewById(R.id.NickLOGIN);
-                            editor.putString("login", Nick.getText().toString());
-                            editor.commit();
-                            Intent intent = new Intent(getApplicationContext(), RegDevice.class);
-                            intent.putExtras(getIntent());
-                            intent.setAction(getIntent().getAction());
-                            startActivity(intent);
-                            finish();
-                            break;
+                                TextView Nick = findViewById(R.id.NickLOGIN);
+                                editor.putString("login", Nick.getText().toString());
+                                editor.commit();
+                                Intent intent = new Intent(getApplicationContext(), RegDevice.class);
+                                intent.putExtras(getIntent());
+                                intent.setAction(getIntent().getAction());
+                                startActivity(intent);
+                                finish();
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
-            }
-        });
+            });
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }

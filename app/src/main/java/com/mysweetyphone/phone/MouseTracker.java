@@ -35,18 +35,59 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import Utils.Message;
 import Utils.SessionClient;
 
 public class MouseTracker extends AppCompatActivity {
 
+    public static abstract class CustomTimerTask extends TimerTask{
+        Click click;
+
+        CustomTimerTask(Click click){
+            this.click = click;
+        }
+
+        public abstract void action();
+
+        @Override
+        public void run() {
+            action();
+            click.t.cancel();
+        }
+    }
+
+    static class Click{
+
+        int type;
+        public int x,y;
+        public long time;
+        public Timer t;
+        Click(int x, int y, long time, int type){
+            this.x = x;
+            this.y = y;
+            this.time = time;
+            this.type = type;
+        }
+
+        public void Later(CustomTimerTask tt, int delay){
+            t = new Timer();
+            t.scheduleAtFixedRate(tt, delay, 1000);
+        }
+
+        public void Cancel(){
+            if(t!=null) t.cancel();
+        }
+    }
+
     static public SessionClient sc;
     static final int MESSAGESIZE = 100;
     static String name;
     Switch win, alt, shift, ctrl;
     EditText inputView;
-    long DownX,x,DownY,y;
+    Click click;
     long lastUpTime = 0;
     long lastDownTime = 0;
     boolean LPressed = false;
@@ -177,7 +218,7 @@ public class MouseTracker extends AppCompatActivity {
                     keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchMOUSE);
                     extra3Buttons.setVisibility(View.GONE);
-                }else if(value == keyboard) {
+                }else if(value.equals(keyboard)) {
                     inputView.setVisibility(View.VISIBLE);
                     tl.setVisibility(View.VISIBLE);
                     extraButtons.setVisibility(View.VISIBLE);
@@ -186,7 +227,7 @@ public class MouseTracker extends AppCompatActivity {
                     if(sc.getOS().startsWith("Windows")) extra3Buttons.setVisibility(View.VISIBLE);
                     thisActivity.openKeyboard(null);
                     content.setOnTouchListener((v,e)->false);
-                }else if(value == pen_tablet) {
+                }else if(value.equals(pen_tablet)) {
                     inputView.setVisibility(View.GONE);
                     tl.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
@@ -218,68 +259,67 @@ public class MouseTracker extends AppCompatActivity {
     }
 
     public boolean onTouchMOUSE(View v, final MotionEvent event) {
+        final int interval = 200;
         try {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    lastDownTime = Calendar.getInstance().getTimeInMillis();
-                    DownX = (int)event.getX();
-                    DownY = (int)event.getY();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    if(event.getPointerCount() == 1){
-                        if(!LPressed && Calendar.getInstance().getTimeInMillis() - lastUpTime < 400L){
-                            LPressed = true;
+            switch (event.getPointerCount()) {
+                case 1:
+                    Click nextClick = new Click((int) event.getX(), (int) event.getY(), System.currentTimeMillis(), event.getAction());
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            if(click!= null && click.type == MotionEvent.ACTION_UP  && nextClick.time-click.time <= interval) {
+                                click.Cancel();
+                            }
+                            break;
+                        case MotionEvent.ACTION_MOVE:
                             JSONObject msg = new JSONObject();
-                            msg.put("Type", "mousePressed");
+                            msg.put("Type", "mouseMoved");
                             msg.put("Name", name);
-                            msg.put("Key", 1);
+                            msg.put("X", (int) event.getX() - click.x);
+                            msg.put("Y", (int) event.getY() - click.y);
                             Send(msg.toString().getBytes());
-                        }
-                        x = (int)event.getX();
-                        y = (int)event.getY();
-                        JSONObject msg = new JSONObject();
-                        msg.put("Type", "mouseMoved");
-                        msg.put("Name", name);
-                        msg.put("X", (int) x - DownX);
-                        msg.put("Y", (int) y - DownY);
-                        Send(msg.toString().getBytes());
-                    }
-                    if(event.getPointerCount() == 2){
-                        x = (int)event.getX();
-                        JSONObject msg = new JSONObject();
-                        msg.put("Type", "mouseWheel");
-                        msg.put("Name", name);
-                        msg.put("value", (int) x - DownX);
-                        Send(msg.toString().getBytes());
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if(event.getPointerCount() == 1 && DownX == event.getX() && DownY == event.getY()){
-                        if(event.getPointerCount() == 1) {
-                            if (Calendar.getInstance().getTimeInMillis() - lastDownTime < 700L) {
-                                JSONObject msg = new JSONObject();
+                            click = new Click((int) event.getX(), (int) event.getY(), System.currentTimeMillis(), event.getAction());
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            if(click.type == MotionEvent.ACTION_DOWN && nextClick.time-click.time <= interval) {
+                                msg = new JSONObject();
+                                msg.put("Type", "mousePressed");
+                                msg.put("Name", name);
+                                msg.put("Key", 1);
+                                Send(msg.toString().getBytes());
+                                nextClick.Later(new CustomTimerTask(nextClick) {
+                                    @Override
+                                    public void action() {
+                                        try {
+                                            JSONObject msg = new JSONObject();
+                                            msg.put("Type", "mouseReleased");
+                                            msg.put("Name", name);
+                                            msg.put("Key", 1);
+                                            Send(msg.toString().getBytes());
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }, interval);
+                            }else if(click.type == MotionEvent.ACTION_DOWN && nextClick.time-click.time > interval){
+                                msg = new JSONObject();
+                                msg.put("Type", "mouseClicked");
+                                msg.put("Name", name);
+                                msg.put("Key", 3);
+                                Send(msg.toString().getBytes());
+                            }else{
+                                msg = new JSONObject();
                                 msg.put("Type", "mouseReleased");
                                 msg.put("Name", name);
                                 msg.put("Key", 1);
                                 Send(msg.toString().getBytes());
-                            } else if (Calendar.getInstance().getTimeInMillis() - lastDownTime < 2000L) {
-                                JSONObject msg = new JSONObject();
-                                msg.put("Type", "mouseReleased");
-                                msg.put("Name", name);
-                                msg.put("Key", 3);
-                                Send(msg.toString().getBytes());
                             }
-                        }
-                        lastUpTime = Calendar.getInstance().getTimeInMillis();
-                    } else {
-                        if(LPressed){
-                            LPressed = false;
-                        }
+                            break;
+                        default:
+                            break;
                     }
-                    x = 0;
-                    y = 0;
+                    click = nextClick;
                     break;
-                    default: break;
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -592,6 +632,20 @@ public class MouseTracker extends AppCompatActivity {
             case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT: return 37;
             case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT: return 39;
             default: return 0;
+        }
+    }
+
+
+
+    public void Stop(View v){
+        try {
+            JSONObject msg3 = new JSONObject();
+            msg3.put("Type", "finish");
+            msg3.put("Name", name);
+            Send(msg3.toString().getBytes());
+            finish();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

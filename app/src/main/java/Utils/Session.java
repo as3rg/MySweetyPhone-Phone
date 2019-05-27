@@ -43,8 +43,8 @@ public abstract class Session{
     }
 
     public void Stop() throws IOException {
-        broadcasting.cancel();
-        t.interrupt();
+        if(broadcasting!=null) broadcasting.cancel();
+        if(t!=null) t.interrupt();
         if(Dsocket!=null && !Dsocket.isClosed()) Dsocket.close();
         if(Ssocket!=null && !Ssocket.isClosed()) Ssocket.close();
         if(broadcastingSocket!=null && !broadcastingSocket.isClosed()) broadcastingSocket.close();
