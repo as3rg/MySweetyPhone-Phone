@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -608,6 +609,7 @@ public class Saved extends Fragment {
         sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        sb.setOnTouchListener((v, event) -> true);
         VideoView videoView = new VideoView(getActivity());
         Timer timer = new Timer();
         videoView.setOnCompletionListener(mp -> {
@@ -783,6 +785,7 @@ public class Saved extends Fragment {
 
         SeekBar sb = new SeekBar(getActivity());
         sb.setClickable(false);
+        sb.setOnTouchListener((v, event) -> true);
         sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
