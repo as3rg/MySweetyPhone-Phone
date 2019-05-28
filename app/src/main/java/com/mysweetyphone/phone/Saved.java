@@ -604,21 +604,16 @@ public class Saved extends Fragment {
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
 
         SeekBar sb = new SeekBar(getActivity());
+        sb.setClickable(false);
         sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         VideoView videoView = new VideoView(getActivity());
-        Button startButton = new Button(getActivity());
-        startButton.setBackgroundResource(R.drawable.ic_saved_play);
-        startButton.setWidth(100);
-        startButton.setHeight(startButton.getWidth());
-        startButton.setLayoutParams(new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.WRAP_CONTENT));
         Timer timer = new Timer();
         videoView.setOnCompletionListener(mp -> {
             try {
                 videoView.pause();
                 videoView.seekTo(0);
-                startButton.setBackgroundResource(R.drawable.ic_saved_play);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -627,7 +622,6 @@ public class Saved extends Fragment {
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        bar.addView(startButton);
         bar.addView(sb);
         layout.addView(bar);
 
@@ -667,34 +661,18 @@ public class Saved extends Fragment {
                     videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
                     videoView.setOnPreparedListener(mp ->{
                             videoView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            startButton.setOnClickListener(v -> {
+                            sb.setMax(videoView.getDuration());
+                            videoView.setOnClickListener(v -> {
                                 if(videoView.isPlaying()){
                                     videoView.pause();
                                 } else {
                                     videoView.start();
                                 }
-
-                                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                    @Override
-                                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                                        if(sb.isPressed())
-                                            videoView.seekTo(i);
-                                    }
-
-                                    @Override
-                                    public void onStartTrackingTouch(SeekBar seekBar) { }
-
-                                    @Override
-                                    public void onStopTrackingTouch(SeekBar seekBar) { }
-                                });
-
-                                startButton.setBackgroundResource(videoView.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
                             });
                             timer.scheduleAtFixedRate(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    if (!sb.isPressed())
-                                        sb.setProgress((int) videoView.getCurrentPosition());
+                                    sb.setProgress(videoView.getCurrentPosition());
                                 }},0,1);
                             //videoView.setOnPreparedListener((b)->{});
                     });
@@ -795,207 +773,6 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
-    /*private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
-        LinearLayout layout = new LinearLayout(getActivity());
-        layout.setLayoutParams(new LinearLayout.LayoutParams(1000, 1000));
-        layout.isClickable();
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
-        layout.setGravity(Gravity.CENTER);
-
-        SeekBar sb = new SeekBar(getActivity());
-        SurfaceView sv = new SurfaceView(getActivity());
-        sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        MediaPlayer mPlayer = new MediaPlayer();
-        Button startButton = new Button(getActivity());
-        startButton.setBackgroundResource(R.drawable.ic_saved_play);
-        startButton.setHeight(startButton.getWidth());
-        Timer timer = new Timer();
-        mPlayer.setOnCompletionListener(mp -> {
-            try {
-                mPlayer.stop();
-                mPlayer.prepare();
-                mPlayer.seekTo(0);
-                startButton.setBackgroundResource(R.drawable.ic_saved_play);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        layout.addView(sv);
-        layout.addView(startButton);
-        layout.addView(sb);
-
-        new Thread(() -> {
-            try {
-                URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + URLEncoder.encode(name, "UTF-8") + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&FileName=" + text.replace(" ","%20") + "&Date=" + date);
-                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-                connection.setRequestMethod("GET");
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject result = new JSONObject(response.toString());
-                String filebody = result.getString("filebody");
-
-                File out = File.createTempFile(text, ".tmp");
-                tempfiles.add(out);
-                FileOutputStream fos = new FileOutputStream(out);
-                fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
-                fos.close();
-                getActivity().runOnUiThread(() -> {
-                    try {
-                        mPlayer.setDataSource(out.getPath());
-                        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        mPlayer.prepare();
-                        SurfaceHolder holder = sv.getHolder();
-                        holder.addCallback(new SurfaceHolder.Callback() {
-                            @Override
-                            public void surfaceCreated(SurfaceHolder holder) {
-                                mPlayer.setDisplay(holder);
-                                mPlayer.start();
-                            }
-
-                            @Override
-                            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
-
-                            @Override
-                            public void surfaceDestroyed(SurfaceHolder holder) {}
-                        });
-                        sv.setMinimumHeight(200);
-                        sv.setMinimumWidth(200);
-                        sb.setMax(mPlayer.getDuration());
-                        mPlayer.setOnPreparedListener((a)->{
-                            startButton.setOnClickListener(v -> {
-                                if(mPlayer.isPlaying()){
-                                    mPlayer.pause();
-                                }
-                                else{
-                                    mPlayer.start();
-                                }
-                                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                    @Override
-                                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                                        if(sb.isPressed())
-                                            mPlayer.seekTo(i);
-                                    }
-
-                                    @Override
-                                    public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                    }
-
-                                    @Override
-                                    public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                    }
-                                });
-                                startButton.setBackgroundResource(mPlayer.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
-                            });
-                            timer.scheduleAtFixedRate(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    if(!sb.isPressed())
-                                        sb.setProgress(mPlayer.getCurrentPosition());
-                                }
-                            },0,1);
-                            mPlayer.setOnPreparedListener((b)->{});
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-            } catch (IOException | DecoderException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-        TextView textBox = new TextView(getActivity());
-        textBox.setText(text);
-        textBox.setTextSize(20);
-        layout.addView(textBox);
-        TextView dateBox = new TextView(getActivity());
-        Date Date = new java.util.Date(date * 1000L);
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm dd.MM.yyyy");
-        dateBox.setText(format.format(Date) + ", " + sender);
-        layout.addView(dateBox);
-        layout.setPadding(35, 35, 35, 35);
-
-        layout.setOnLongClickListener(v -> {
-            final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setItems(actions, (dialog, item) -> {
-                switch (actions[item]){
-                    case "Удалить сообщение":
-                        AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("http://mysweetyphone.herokuapp.com/?Type=DelMessage&RegDate="+regdate+"&MyName="+ URLEncoder.encode(name, "UTF-8") +"&Login="+ URLEncoder.encode(login, "UTF-8") +"&Id="+id+"&Date="+date+"&Msg="+text.replace(" ","%20").replace("\n","\\n"), new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject result) {
-                                try {
-                                    int i = result.getInt("code");
-
-                                    if (i == 2) {
-                                        throw new Exception("Ошибка приложения!");
-                                    } else if (i == 1) {
-                                        throw new Exception("Неверные данные");
-                                    } else if (i == 0) {
-                                        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
-                                        animation.setAnimationListener(new Animation.AnimationListener(){
-                                            @Override
-                                            public void onAnimationStart(Animation animation) { }
-                                            @Override
-                                            public void onAnimationRepeat(Animation animation) { }
-
-                                            @Override
-                                            public void onAnimationEnd(Animation animation) {
-                                                Handler h = new Handler();
-                                                h.postAtTime(()->MessagesList.removeView(layout), 100);
-                                            }
-                                        });
-                                        layout.startAnimation(animation);
-                                    } else if (i == 4) {
-                                        Toast toast = Toast.makeText(getActivity(),
-                                                "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
-                                        toast.show();
-                                    } else {
-                                        throw new Exception("Ошибка приложения!");
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }); break;
-                    case "Копировать текст":
-                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("", text);
-                        clipboard.setPrimaryClip(clip);
-                        break;
-                    case "Скачать файл":
-                        Download(text,date);
-                }
-            });
-
-            AlertDialog alert = builder.create();
-            alert.show();
-            return false;
-        });
-        MessagesList.addView(layout);
-        if (needsAnim) {
-            Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.send_anim);
-            layout.startAnimation(anim);
-        }
-        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-    }*/
-
     private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -1005,6 +782,7 @@ public class Saved extends Fragment {
         layout.setGravity(Gravity.CENTER);
 
         SeekBar sb = new SeekBar(getActivity());
+        sb.setClickable(false);
         sb.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
@@ -1066,34 +844,15 @@ public class Saved extends Fragment {
                             startButton.setOnClickListener(v -> {
                                 if(mPlayer.isPlaying()){
                                     mPlayer.pause();
-                                }
-                                else{
+                                } else{
                                     mPlayer.start();
                                 }
-                                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                    @Override
-                                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                                        if(sb.isPressed())
-                                            mPlayer.seekTo(i);
-                                    }
-
-                                    @Override
-                                    public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                    }
-
-                                    @Override
-                                    public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                    }
-                                });
                                 startButton.setBackgroundResource(mPlayer.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
                             });
                             timer.scheduleAtFixedRate(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    if(!sb.isPressed())
-                                        sb.setProgress(mPlayer.getCurrentPosition());
+                                    sb.setProgress(mPlayer.getCurrentPosition());
                                 }
                             },0,1);
                             mPlayer.setOnPreparedListener((b)->{});
