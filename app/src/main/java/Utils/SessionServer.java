@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
 import org.apache.commons.io.IOUtils;
@@ -275,10 +277,11 @@ public class SessionServer extends Session{
                                         Stop();
                                     case "start":
                                         TelephonyManager tt = (TelephonyManager) thisActivity.getSystemService(Context.TELEPHONY_SERVICE);
-                                        ans.put("Sim1", tt.createForSubscriptionId(1).getNetworkOperatorName());
-                                        ans.put("Sim2", tt.createForSubscriptionId(2).getNetworkOperatorName());
-                                        if(ans.getString("Sim1").equals(ans.getString("Sim2")))
-                                            ans.put("Sim2","");
+                                        SubscriptionManager subscriptionManager = (SubscriptionManager) thisActivity.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+                                        SubscriptionInfo sim = subscriptionManager.getActiveSubscriptionInfo(1);
+                                        if(sim != null) ans.put("Sim1", sim.getDisplayName());
+                                        sim = subscriptionManager.getActiveSubscriptionInfo(2);
+                                        if(sim != null) ans.put("Sim2", sim.getDisplayName());
                                         ans.put("Type", "start");
                                         writer.println(ans.toString());
                                         writer.flush();

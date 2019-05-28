@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import org.apache.http.Header;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -37,36 +38,68 @@ public class Starting extends AppCompatActivity {
                     || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
                     || PermissionChecker.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED
                     || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS}, 124);
+                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED
+                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE}, 124);
             } else {
-                AsyncHttpClient client = new AsyncHttpClient();
-                client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login=" + URLEncoder.encode(login, "UTF-8") + "&RegDate=" + regdate + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                        try {
-                            if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
-                                if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
-                                    ChangeActivity(Main.class);
-                                else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
-                                    ChangeActivity(ChooseWayToSend.class);
-                            } else if (responseBody.getInt("result") == 1) {
-                                ChangeActivity(Main.class);
-                            } else if (responseBody.getInt("result") == 2) {
-                                ChangeActivity(RegDevice.class);
-                            } else {
-                                ChangeActivity(Login.class);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            ChangeActivity(Login.class);
-                        }
-                    }
-                });
+                Request();
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    private void Request() throws UnsupportedEncodingException {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login=" + URLEncoder.encode(login, "UTF-8") + "&RegDate=" + regdate + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                try {
+                    if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
+                        if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
+                            ChangeActivity(Main.class);
+                        else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                            ChangeActivity(ChooseWayToSend.class);
+                    } else if (responseBody.getInt("result") == 1) {
+                        ChangeActivity(Main.class);
+                    } else if (responseBody.getInt("result") == 2) {
+                        ChangeActivity(RegDevice.class);
+                    } else {
+                        ChangeActivity(Login.class);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ChangeActivity(Login.class);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                try {
+                    Request();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                try {
+                    Request();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                try {
+                    Request();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void ChangeActivity(Class<?> cls){

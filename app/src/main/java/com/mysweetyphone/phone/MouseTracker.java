@@ -10,10 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.BaseKeyListener;
 import android.text.method.KeyListener;
 import android.view.Display;
-
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,18 +21,15 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableLayout;
-import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,9 +39,9 @@ import Utils.SessionClient;
 public class MouseTracker extends AppCompatActivity {
 
     public static abstract class CustomTimerTask extends TimerTask{
-        Click click;
+        SingleClick click;
 
-        CustomTimerTask(Click click){
+        CustomTimerTask(SingleClick click){
             this.click = click;
         }
 
@@ -59,13 +54,13 @@ public class MouseTracker extends AppCompatActivity {
         }
     }
 
-    static class Click{
+    static class SingleClick{
 
-        int type;
         public int x,y;
+        int type;
         public long time;
         public Timer t;
-        Click(int x, int y, long time, int type){
+        SingleClick(int x, int y, long time, int type){
             this.x = x;
             this.y = y;
             this.time = time;
@@ -87,7 +82,7 @@ public class MouseTracker extends AppCompatActivity {
     static String name;
     Switch win, alt, shift, ctrl;
     EditText inputView;
-    Click click;
+    SingleClick singleClick;
     long lastUpTime = 0;
     long lastDownTime = 0;
     boolean LPressed = false;
@@ -261,66 +256,61 @@ public class MouseTracker extends AppCompatActivity {
     public boolean onTouchMOUSE(View v, final MotionEvent event) {
         final int interval = 200;
         try {
-            switch (event.getPointerCount()) {
-                case 1:
-                    Click nextClick = new Click((int) event.getX(), (int) event.getY(), System.currentTimeMillis(), event.getAction());
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            if(click!= null && click.type == MotionEvent.ACTION_UP  && nextClick.time-click.time <= interval) {
-                                click.Cancel();
-                            }
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            JSONObject msg = new JSONObject();
-                            msg.put("Type", "mouseMoved");
-                            msg.put("Name", name);
-                            msg.put("X", (int) event.getX() - click.x);
-                            msg.put("Y", (int) event.getY() - click.y);
-                            Send(msg.toString().getBytes());
-                            click = new Click((int) event.getX(), (int) event.getY(), System.currentTimeMillis(), event.getAction());
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            if(click.type == MotionEvent.ACTION_DOWN && nextClick.time-click.time <= interval) {
-                                msg = new JSONObject();
-                                msg.put("Type", "mousePressed");
-                                msg.put("Name", name);
-                                msg.put("Key", 1);
-                                Send(msg.toString().getBytes());
-                                nextClick.Later(new CustomTimerTask(nextClick) {
-                                    @Override
-                                    public void action() {
-                                        try {
-                                            JSONObject msg = new JSONObject();
-                                            msg.put("Type", "mouseReleased");
-                                            msg.put("Name", name);
-                                            msg.put("Key", 1);
-                                            Send(msg.toString().getBytes());
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }, interval);
-                            }else if(click.type == MotionEvent.ACTION_DOWN && nextClick.time-click.time > interval){
-                                msg = new JSONObject();
-                                msg.put("Type", "mouseClicked");
-                                msg.put("Name", name);
-                                msg.put("Key", 3);
-                                Send(msg.toString().getBytes());
-                            }else{
-                                msg = new JSONObject();
-                                msg.put("Type", "mouseReleased");
-                                msg.put("Name", name);
-                                msg.put("Key", 1);
-                                Send(msg.toString().getBytes());
-                            }
-                            break;
-                        default:
-                            break;
+            SingleClick nextSingleClick = new SingleClick((int) event.getX(), (int) event.getY(), System.currentTimeMillis(), event.getAction());
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if(singleClick != null && singleClick.type == MotionEvent.ACTION_UP  && nextSingleClick.time-singleClick.time <= interval) {
+                        singleClick.Cancel();
                     }
-                    click = nextClick;
                     break;
-
+                case MotionEvent.ACTION_MOVE:
+                    JSONObject msg = new JSONObject();
+                    msg.put("Type", "mouseMoved");
+                    msg.put("Name", name);
+                    msg.put("X", nextSingleClick.x - singleClick.x);
+                    msg.put("Y", nextSingleClick.y - singleClick.y);
+                    Send(msg.toString().getBytes());
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if(singleClick.type == MotionEvent.ACTION_DOWN && nextSingleClick.time-singleClick.time <= interval) {
+                        msg = new JSONObject();
+                        msg.put("Type", "mousePressed");
+                        msg.put("Name", name);
+                        msg.put("Key", 1);
+                        Send(msg.toString().getBytes());
+                        nextSingleClick.Later(new CustomTimerTask(nextSingleClick) {
+                            @Override
+                            public void action() {
+                                try {
+                                    JSONObject msg = new JSONObject();
+                                    msg.put("Type", "mouseReleased");
+                                    msg.put("Name", name);
+                                    msg.put("Key", 1);
+                                    Send(msg.toString().getBytes());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, interval);
+                    }else if(singleClick.type == MotionEvent.ACTION_DOWN && nextSingleClick.time-singleClick.time > interval){
+                        msg = new JSONObject();
+                        msg.put("Type", "mouseClicked");
+                        msg.put("Name", name);
+                        msg.put("Key", 3);
+                        Send(msg.toString().getBytes());
+                    }else{
+                        msg = new JSONObject();
+                        msg.put("Type", "mouseReleased");
+                        msg.put("Name", name);
+                        msg.put("Key", 1);
+                        Send(msg.toString().getBytes());
+                    }
+                    break;
+                default:
+                    break;
             }
+            singleClick = nextSingleClick;
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
