@@ -136,6 +136,7 @@ public class SMSViewer extends AppCompatActivity {
                     Contacts.setAdapter(new ArrayAdapter<>(getBaseContext(), R.layout.spinner_item, ContactList));
                 }
                 if(position != newContact) newContact = -1;
+                Contacts.setClickable(false);
                 new Thread(()-> {
                     try {
                         JSONObject msg = new JSONObject();
@@ -222,6 +223,8 @@ public class SMSViewer extends AppCompatActivity {
                             values = msg.getJSONArray("SMS");
                             if(values.length() == 0) newContact = Contacts.getSelectedItemPosition();
                             runOnUiThread(() -> {
+                                Contacts.setClickable(true);
+                                SendBar.setVisibility(View.VISIBLE);
                                 Messages.removeAllViews();
                                 for (int i = 0; i < values.length(); i++) {
                                     try {

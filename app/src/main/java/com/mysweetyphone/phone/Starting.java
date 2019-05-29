@@ -9,10 +9,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,7 +55,7 @@ public class Starting extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
-                    if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
+                    if (responseBody.getInt("result") == 1 && getIntent().getAction().equals(Intent.ACTION_SEND)) {
                         if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
                             ChangeActivity(Main.class);
                         else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
@@ -114,36 +114,34 @@ public class Starting extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         try {
-            switch (requestCode) {
-                case 124: {
-                    if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == 124) {
+                if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                        AsyncHttpClient client = new AsyncHttpClient();
-                        client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login=" + URLEncoder.encode(login, "UTF-8") + "&RegDate=" + regdate + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                                try {
-                                    if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
-                                        if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
-                                            ChangeActivity(Main.class);
-                                        else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
-                                            ChangeActivity(ChooseWayToSend.class);
-                                    } else if (responseBody.getInt("result") == 1) {
+                    AsyncHttpClient client = new AsyncHttpClient();
+                    client.get("http://mysweetyphone.herokuapp.com/?Type=Check&DeviceType=Phone&Login=" + URLEncoder.encode(login, "UTF-8") + "&RegDate=" + regdate + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
+                            try {
+                                if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
+                                    if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
                                         ChangeActivity(Main.class);
-                                    } else if (responseBody.getInt("result") == 2) {
-                                        ChangeActivity(RegDevice.class);
-                                    } else {
-                                        ChangeActivity(Login.class);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                                        ChangeActivity(ChooseWayToSend.class);
+                                } else if (responseBody.getInt("result") == 1) {
+                                    ChangeActivity(Main.class);
+                                } else if (responseBody.getInt("result") == 2) {
+                                    ChangeActivity(RegDevice.class);
+                                } else {
                                     ChangeActivity(Login.class);
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                ChangeActivity(Login.class);
                             }
-                        });
-                    } else {
-                        finish();
-                    }
+                        }
+                    });
+                } else {
+                    finish();
                 }
             }
         } catch (UnsupportedEncodingException e) {
