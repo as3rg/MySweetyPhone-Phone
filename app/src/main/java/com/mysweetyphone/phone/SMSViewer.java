@@ -372,7 +372,7 @@ public class SMSViewer extends AppCompatActivity {
                 msg2.put("Name", name);
                 writer.println(msg2.toString());
                 writer.flush();
-            } catch (JSONException e) {
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }).start();

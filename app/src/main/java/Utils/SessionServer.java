@@ -98,17 +98,18 @@ public class SessionServer extends Session{
                                 thisActivity.runOnUiThread(onStop);
                                 onStop = null;
                             }
+                            if(line == null) Stop();
                             JSONObject msg = new JSONObject(line);
-                            if(gotAccess.get().equals(0))
-                                thisActivity.runOnUiThread(()-> {
+                            if(gotAccess.get().equals(0)) {
+                                gotAccess.set(1);
+                                thisActivity.runOnUiThread(() -> {
                                     try {
-                                        gotAccess.set(1);
                                         new AlertDialog.Builder(thisActivity)
                                                 .setTitle("Выполнить действие?")
                                                 .setMessage("Вы действительно хотите предоставить доступ к файлам \"" + msg.getString("Name") + "\"?")
                                                 .setPositiveButton("Да", (dialog, which) -> gotAccess.set(2))
-                                                .setNegativeButton("Нет",  (dialog, which) -> {
-                                                    new Thread(()-> {
+                                                .setNegativeButton("Нет", (dialog, which) -> {
+                                                    new Thread(() -> {
                                                         try {
                                                             JSONObject ans = new JSONObject();
                                                             ans.put("Type", "finish");
@@ -126,7 +127,7 @@ public class SessionServer extends Session{
                                         e.printStackTrace();
                                     }
                                 });
-
+                            }
                             if(gotAccess.get().equals(2)){
                                 JSONObject ans = new JSONObject();
                                 if(msg.getString("Type").equals("showDir") && msg.getString("Dir").isEmpty())
@@ -173,6 +174,14 @@ public class SessionServer extends Session{
                                         ans.put("State", state ? 1 : 0);
                                         ans.put("Dir", msg.getString("Dir"));
                                         ans.put("DirName", msg.getString("DirName"));
+                                        writer.println(ans.toString());
+                                        writer.flush();
+                                        break;
+                                    case "deleteFile":
+                                        file = new File((String)msg.get("Dir"), (String)msg.get("FileName"));
+                                        boolean result = file.delete();
+                                        ans.put("State", result ? 0 : 1);        //0 - без ошибок, 1 - нет доступа
+                                        ans.put("Type", "deleteFile");
                                         writer.println(ans.toString());
                                         writer.flush();
                                         break;
@@ -230,17 +239,18 @@ public class SessionServer extends Session{
                                 thisActivity.runOnUiThread(onStop);
                                 onStop = null;
                             }
+                            if(line == null) Stop();
                             JSONObject msg = new JSONObject(line);
-                            if(gotAccess.get() == 0)
-                                thisActivity.runOnUiThread(()-> {
+                            if(gotAccess.get() == 0) {
+                                gotAccess.set(1);
+                                thisActivity.runOnUiThread(() -> {
                                     try {
-                                        gotAccess.set(1);
                                         new AlertDialog.Builder(thisActivity)
                                                 .setTitle("Выполнить действие?")
                                                 .setMessage("Вы действительно хотите предоставить доступ к сообщениям \"" + msg.getString("Name") + "\"?")
                                                 .setPositiveButton("Да", (dialog, which) -> {
                                                     gotAccess.set(2);
-                                                    new Thread(()-> {
+                                                    new Thread(() -> {
                                                         try {
                                                             JSONObject msg2 = new JSONObject();
                                                             msg2.put("Type", "accepted");
@@ -251,8 +261,8 @@ public class SessionServer extends Session{
                                                         }
                                                     }).start();
                                                 })
-                                                .setNegativeButton("Нет",  (dialog, which) -> {
-                                                    new Thread(()-> {
+                                                .setNegativeButton("Нет", (dialog, which) -> {
+                                                    new Thread(() -> {
                                                         try {
                                                             JSONObject ans = new JSONObject();
                                                             ans.put("Type", "finish");
@@ -270,7 +280,7 @@ public class SessionServer extends Session{
                                         e.printStackTrace();
                                     }
                                 });
-
+                            }
                             if(gotAccess.get() == 2){
                                 Timer t = new Timer();
                                 JSONObject ans = new JSONObject();

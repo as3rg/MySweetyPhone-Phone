@@ -1,5 +1,8 @@
 package com.mysweetyphone.phone;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -7,17 +10,26 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,9 +43,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -87,6 +101,7 @@ public class FileViewer extends AppCompatActivity {
                     if(line == null){
                         finish();
                     }
+                    System.out.println(line);
                     JSONObject msg = new JSONObject(line);
                     switch ((String) msg.get("Type")) {
                         case "showDir":
@@ -98,7 +113,6 @@ public class FileViewer extends AppCompatActivity {
                                         Toast toast = Toast.makeText(this,
                                                 "Нет доступа", Toast.LENGTH_LONG);
                                         toast.show();
-                                        return;
                                     }
                                     folders.removeAllViews();
                                     path.setText(msg.getString("Dir"));
@@ -107,61 +121,8 @@ public class FileViewer extends AppCompatActivity {
                                     findViewById(R.id.uploadFileFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
                                     findViewById(R.id.reloadFolderFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
                                     for (int i = 0; i < values.length(); i++) {
-                                        TextView folder = new TextView(this);
-                                        folder.setText(values.getJSONObject(i).getString("Name"));
-                                        files.add(values.getJSONObject(i).getString("Name"));
-                                        folder.setPadding(20, 20, 20, 20);
-                                        folder.setTextSize(20);
-                                        folder.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-                                        Drawable d = getDrawable(values.getJSONObject(i).getString("Type").equals("Folder") ? R.drawable.ic_file_viewer_folder : R.drawable.ic_file_viewer_file);
-                                        d.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-                                        folder.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
-                                        folders.addView(folder);
-                                        final int i2 = i;
-                                        if (values.getJSONObject(i2).getString("Type").equals("Folder"))
-                                            folder.setOnClickListener(v -> new Thread(() -> {
-                                                try {
-                                                    JSONObject msg3 = new JSONObject();
-                                                    msg3.put("Type", "showDir");
-                                                    msg3.put("Name", name);
-                                                    msg3.put("Dir", new File(msg.getString("Dir"), values.getJSONObject(i2).getString("Name")).getPath());
-                                                    writer.println(msg3.toString());
-                                                    writer.flush();
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }).start());
-                                        else folder.setOnClickListener(v -> new Thread(() -> {
-                                            try {
-                                                File out = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
-                                                out.mkdirs();
-                                                File out2 = new File(out, (String) values.getJSONObject(i2).getString("Name"));
-                                                out2.createNewFile();
-
-                                                ServerSocket ss = new ServerSocket(0);
-                                                JSONObject msg2 = new JSONObject();
-                                                msg2.put("Type", "downloadFile");
-                                                msg2.put("Name", name);
-                                                msg2.put("FileName", values.getJSONObject(i2).getString("Name"));
-                                                msg2.put("FileSocketPort", ss.getLocalPort());
-                                                msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());
-                                                writer.println(msg2.toString());
-                                                writer.flush();
-                                                Socket socket = ss.accept();
-                                                DataInputStream filein = new DataInputStream(socket.getInputStream());
-                                                FileOutputStream fileout = new FileOutputStream(out2);
-                                                IOUtils.copy(filein, fileout);
-                                                fileout.close();
-                                                socket.close();
-                                                runOnUiThread(() -> {
-                                                    Toast toast = Toast.makeText(this,
-                                                            "Файл \"" + out2.getName() + "\" загружен", Toast.LENGTH_LONG);
-                                                    toast.show();
-                                                });
-                                            } catch (JSONException | IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }).start());
+                                        JSONObject folder = values.getJSONObject(i);
+                                        Draw(folder.getString("Name"),folder.getString("Type").equals("Folder"), msg.getString("Dir"), folders);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -171,33 +132,19 @@ public class FileViewer extends AppCompatActivity {
                         case "finish":
                             finish();
                             break;
+                        case "deleteFile":
+                            if (msg.getInt("State") == 1) {
+                                runOnUiThread(()-> {
+                                    Toast toast = Toast.makeText(this,
+                                            "Нет доступа", Toast.LENGTH_LONG);
+                                    toast.show();
+                                });
+                            }else reloadFolder(null);
+                            break;
                         case "newDirAnswer":
-                            runOnUiThread(() -> {
+                            runOnUiThread(()-> {
                                 try {
-                                    TextView folder = new TextView(this);
-                                    folder.setText(msg.getString("DirName"));
-                                    files.add(msg.getString("DirName"));
-                                    folder.setPadding(20, 20, 20, 20);
-                                    folder.setTextSize(20);
-                                    folder.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-                                    Drawable d = getDrawable(R.drawable.ic_file_viewer_folder);
-                                    d.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-                                    folder.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
-                                    folders.addView(folder);
-                                    folder.setOnClickListener(v -> {
-                                        new Thread(() -> {
-                                            try {
-                                                JSONObject msg3 = new JSONObject();
-                                                msg3.put("Type", "showDir");
-                                                msg3.put("Name", name);
-                                                msg3.put("Dir", new File(msg.getString("Dir"), msg.getString("DirName")).getPath());
-                                                writer.println(msg3.toString());
-                                                writer.flush();
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }).start();
-                                    });
+                                    Draw(msg.getString("DirName"), true, msg.getString("Dir"), folders);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -227,7 +174,7 @@ public class FileViewer extends AppCompatActivity {
                 msg.put("Name", name);
                 writer.println(msg.toString());
                 writer.flush();
-            } catch (JSONException e) {
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -313,8 +260,7 @@ public class FileViewer extends AppCompatActivity {
                 msg3.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText());
                 writer.println(msg3.toString());
                 writer.flush();
-                sc.Stop();
-            } catch (JSONException | IOException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -347,6 +293,7 @@ public class FileViewer extends AppCompatActivity {
                         Toast toast = Toast.makeText(this,
                                 "Файл \""+file.getName()+"\" отправлен", Toast.LENGTH_LONG);
                         toast.show();
+                        reloadFolder(null);
                     });
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
@@ -357,5 +304,93 @@ public class FileViewer extends AppCompatActivity {
 
     public void Stop(View v){
         finish();
+    }
+
+    public void Draw(String fileName, boolean isFolder, String dir, ViewGroup folders){
+        TextView folder = new TextView(this);
+        folder.setText(fileName);
+        files.add(fileName);
+        folder.setPadding(20, 20, 20, 20);
+        folder.setTextSize(20);
+        folder.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+        Drawable d = getDrawable(isFolder ? R.drawable.ic_file_viewer_folder : R.drawable.ic_file_viewer_file);
+        d.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        folder.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
+        folders.addView(folder);
+        folder.setOnLongClickListener(v -> {
+            String[] actions;
+            if (!isFolder) actions = new String[]{"Удалить", "Скачать файл"};
+            else actions = new String[]{"Удалить"};
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+            builder.setItems(actions, (dialog, item) -> {
+                switch (actions[item]) {
+                    case "Удалить":
+                        new Thread(() -> {
+                            try {
+                                JSONObject msg2 = new JSONObject();
+                                msg2.put("Type", "deleteFile");
+                                msg2.put("Name", name);
+                                msg2.put("FileName", fileName);
+                                msg2.put("Dir", dir);
+                                writer.println(msg2.toString());
+                                writer.flush();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
+                        break;
+                    case "Скачать файл":
+                        new Thread(() -> {
+                            try {
+                                File out = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
+                                out.mkdirs();
+                                File out2 = new File(out, fileName);
+                                out2.createNewFile();
+
+                                ServerSocket ss = new ServerSocket(0);
+                                JSONObject msg2 = new JSONObject();
+                                msg2.put("Type", "downloadFile");
+                                msg2.put("Name", name);
+                                msg2.put("FileName", fileName);
+                                msg2.put("FileSocketPort", ss.getLocalPort());
+                                msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());
+                                writer.println(msg2.toString());
+                                writer.flush();
+                                Socket socket = ss.accept();
+                                DataInputStream filein = new DataInputStream(socket.getInputStream());
+                                FileOutputStream fileout = new FileOutputStream(out2);
+                                IOUtils.copy(filein, fileout);
+                                fileout.close();
+                                socket.close();
+                                runOnUiThread(() -> {
+                                    Toast toast = Toast.makeText(this,
+                                            "Файл \"" + out2.getName() + "\" загружен", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    reloadFolder(null);
+                                });
+                            } catch (JSONException | IOException e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
+                        break;
+                }
+            });
+            android.app.AlertDialog alert = builder.create();
+            alert.show();
+            return false;
+        });
+        if (isFolder)
+            folder.setOnClickListener(v -> new Thread(() -> {
+                try {
+                    JSONObject msg3 = new JSONObject();
+                    msg3.put("Type", "showDir");
+                    msg3.put("Name", name);
+                    msg3.put("Dir", new File(dir, fileName).getPath());
+                    writer.println(msg3.toString());
+                    writer.flush();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }).start());
     }
 }
