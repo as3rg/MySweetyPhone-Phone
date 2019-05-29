@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SMSViewer"
+    tools:layout_editor_absoluteY="81dp">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarSMSVIEWER"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:backgroundTint="#00FFFFFF"
+        android:foregroundTint="#00FCEFEF"
+        app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00FFFFFF"
+            android:onClick="Stop"
+            android:tint="#FFFFFF"
+            app:srcCompat="@drawable/ic_menu_exit" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:backgroundTint="#00FFFFFF"
+            android:onClick="onNewContact"
+            android:tint="#FFFFFF"
+            app:srcCompat="@drawable/ic_sms_viewer_add" />
+
+        <Spinner
+            android:id="@+id/contactSMSVIEWER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:popupBackground="@color/colorPrimary" />
+
+
+    </android.support.v7.widget.Toolbar>
+
+    <ScrollView
+        android:id="@+id/ScrollBarSMSVIEWER"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/MessagesSMSVIEWER"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/ButtonsBarSMSVIEWER"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@color/chatColor"
+        android:gravity="bottom"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="511dp">
+
+        <EditText
+            android:id="@+id/TextFieldSMSVIEWER"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:hint="@string/writeMessage"
+            android:inputType="textCapSentences"
+            android:maxHeight="140dp" />
+
+        <Button
+            android:id="@+id/SimOneSMSVIEWER"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="3"
+            android:background="@drawable/ic_style_button_background"
+            android:onClick="onSendClick1"
+            android:text="Sim1"
+            android:textSize="12sp"
+            tools:ignore="NestedWeights" />
+
+        <Button
+            android:id="@+id/SimTwoSMSVIEWER"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="3"
+            android:background="@drawable/ic_style_button_background"
+            android:onClick="onSendClick2"
+            android:text="Sim2"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

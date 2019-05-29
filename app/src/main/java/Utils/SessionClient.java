@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 
 import com.mysweetyphone.phone.FileViewer;
 import com.mysweetyphone.phone.MouseTracker;
+import com.mysweetyphone.phone.SMSViewer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,7 +86,7 @@ public class SessionClient extends Session{
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.getString("os"), activity));
+                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("os") ? ans.getString("os") : "", activity));
                         Server server = new Server(null);
                         ips.put(p.getAddress().getHostAddress(),server);
                         activity.runOnUiThread(() -> {
@@ -155,6 +156,21 @@ public class SessionClient extends Session{
                         Intent intent = new Intent(activity, FileViewer.class);
                         activity.startActivity(intent);
                     });
+                });
+                break;
+            case SMSVIEWER:
+                t = new Thread(()->{
+                    try {
+                        if (searching != null) StopSearching();
+                        Ssocket = new Socket(address, port);
+                        activity.runOnUiThread(() -> {
+                            SMSViewer.sc = this;
+                            Intent intent = new Intent(activity, SMSViewer.class);
+                            activity.startActivity(intent);
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 });
                 break;
             default:
