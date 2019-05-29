@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.telephony.SmsManager;
@@ -53,6 +54,7 @@ public class SessionServer extends Session{
     public SessionServer(int type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         messageParser = new MessageParser();
+        String name = (PreferenceManager.getDefaultSharedPreferences(thisActivity)).getString("name", "");
         JSONObject message = new JSONObject();
         switch (type){
             case SMSVIEWER:
@@ -62,6 +64,7 @@ public class SessionServer extends Session{
         }
         message.put("port", port);
         message.put("type", type);
+        message.put("name", name);
         byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);

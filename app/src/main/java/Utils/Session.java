@@ -75,4 +75,18 @@ public abstract class Session{
     public void setSocket(Socket ssocket) {
         Ssocket = ssocket;
     }
+
+    public static String decodeType(int i){
+        switch (i){
+            default:
+            case NONE:
+                return "Пусто";
+            case MOUSE:
+                return "Эмуляция мыши";
+            case FILEVIEW:
+                return "Просмотр файлов";
+            case SMSVIEWER:
+                return "Просмотр СМС";
+        }
+    }
 }

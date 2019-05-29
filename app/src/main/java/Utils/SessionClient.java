@@ -31,13 +31,14 @@ public class SessionClient extends Session{
     static private class Server{
         public int value;
         public Button b;
-        Server(Button b){
+        public SessionClient sc;
+        Server(Button b, SessionClient sc){
             this.b = b;
+            this.sc = sc;
             value = 5;
         }
     }
 
-    static ArrayList<SessionClient> servers;
     static Map<String, Server> ips;
     static boolean isSearching;
     static Thread searching;
@@ -57,7 +58,6 @@ public class SessionClient extends Session{
         if(isSearching) {
             StopSearching();
         }
-        servers = new ArrayList<>();
         ips = new TreeMap<>();
         isSearching = true;
         s = new DatagramSocket(BroadCastingPort);
@@ -85,24 +85,24 @@ public class SessionClient extends Session{
                 while (System.currentTimeMillis() - time <= 60000) {
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
-                    if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("os") ? ans.getString("os") : "", activity));
-                        Server server = new Server(null);
-                        ips.put(p.getAddress().getHostAddress(),server);
+                    String name = ans.get("name") + "(" + p.getAddress().getHostAddress() + "): " + decodeType((ans.getInt("type")));
+                    if (!ips.containsKey(name)) {
+                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("os") ? ans.getString("os") : "", activity));
+                        ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
-                            ip.setText(p.getAddress().getHostAddress());
+                            ip.setText(name);
                             server.b = ip;
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
-                                servers.get(v.indexOfChild(ip)).Start();
+                                server.sc.Start();
                                 v.removeView(ip);
                             });
                             v.setEnabled(true);
                             v.addView(ip);
                         });
                     }else
-                        ips.get(p.getAddress().getHostAddress()).value=5;
+                        ips.get(name).value=5;
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
