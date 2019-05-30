@@ -102,7 +102,6 @@ public class FileViewer extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    System.out.println(line);
                     JSONObject msg = new JSONObject(line);
                     switch ((String) msg.get("Type")) {
                         case "showDir":

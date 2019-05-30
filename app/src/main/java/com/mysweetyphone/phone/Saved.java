@@ -86,6 +86,7 @@ public class Saved extends Fragment {
     private String login;
     private LinearLayout MessagesList;
     private ScrollView scrollView;
+    private Button LoadMoreButton;
 
     ArrayList<File> tempfiles;
 
@@ -109,7 +110,7 @@ public class Saved extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final Button LoadMoreButton= getActivity().findViewById(R.id.LoadMoreSAVED);
+        LoadMoreButton = getActivity().findViewById(R.id.LoadMoreSAVED);
         LoadMoreButton.setOnClickListener(v -> {
             LoadMore(10);
             scrollView.fullScroll(ScrollView.FOCUS_DOWN);
@@ -203,6 +204,7 @@ public class Saved extends Fragment {
                                 });
                             }
                             scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                            LoadMoreButton.setVisibility(result.getBoolean("hasnext") ? View.VISIBLE : View.GONE);
                         } else if (i == 4) {
                             Toast toast = Toast.makeText(getActivity(),
                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
@@ -210,6 +212,7 @@ public class Saved extends Fragment {
                         } else {
                             throw new Exception("Ошибка приложения!");
                         }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         Objects.requireNonNull(getActivity()).finish();
@@ -1028,7 +1031,6 @@ public class Saved extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        System.out.println(requestCode+" "+resultCode);
         if (resultCode == RESULT_OK) {
             File file = new File(ImageFilePath.getPath(getActivity(), data.getData()));
             SendFile(data.getData());

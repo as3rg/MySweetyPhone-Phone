@@ -175,7 +175,6 @@ public class SMSViewer extends AppCompatActivity {
                 SimpleProperty<String>  Sim1 = new SimpleProperty<>(""), Sim2 = new SimpleProperty<>("");
                 while (true) {
                     String line = reader.readLine();
-                    System.out.println(line);
                     if(line == null){
                         sc.Stop();
                         finish();

@@ -93,7 +93,6 @@ public class SessionServer extends Session{
                         SimpleProperty gotAccess = new SimpleProperty(0);
                         while (true) {
                             String line = reader.readLine();
-                            System.out.println(line);
                             broadcasting.cancel();
                             if(onStop != null){
                                 thisActivity.runOnUiThread(onStop);
