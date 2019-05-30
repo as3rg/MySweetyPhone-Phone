@@ -3,8 +3,11 @@ package Utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.mysweetyphone.phone.FileViewer;
 import com.mysweetyphone.phone.MouseTracker;
@@ -92,6 +95,16 @@ public class SessionClient extends Session{
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
                             ip.setText(name);
+                            ip.setPadding(5,5,5,5);
+
+                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            params.setMargins(5,10,5,0);
+                            ip.setLayoutParams(params);
+
+                            ip.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{Color.parseColor("#CF8BF3"), Color.parseColor("#FDB99B")}));
                             server.b = ip;
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{

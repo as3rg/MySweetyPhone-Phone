@@ -668,7 +668,9 @@ public class Saved extends Fragment {
                         timer.scheduleAtFixedRate(new TimerTask() {
                             @Override
                             public void run() {
-                                sb.setProgress(videoView.getCurrentPosition());
+                                try {
+                                    sb.setProgress(videoView.getCurrentPosition());
+                                }catch (IllegalStateException ignored){}
                             }},0,1);
                         //videoView.setOnPreparedListener((b)->{});
                     });

@@ -100,6 +100,7 @@ public class FileViewer extends AppCompatActivity {
                     t.cancel();
                     if(line == null){
                         finish();
+                        break;
                     }
                     System.out.println(line);
                     JSONObject msg = new JSONObject(line);
@@ -385,7 +386,8 @@ public class FileViewer extends AppCompatActivity {
                     JSONObject msg3 = new JSONObject();
                     msg3.put("Type", "showDir");
                     msg3.put("Name", name);
-                    msg3.put("Dir", new File(dir, fileName).getPath());
+                    msg3.put("Dir", dir);
+                    msg3.put("DirName", fileName);
                     writer.println(msg3.toString());
                     writer.flush();
                 } catch (JSONException e) {

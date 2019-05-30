@@ -93,12 +93,16 @@ public class SessionServer extends Session{
                         SimpleProperty gotAccess = new SimpleProperty(0);
                         while (true) {
                             String line = reader.readLine();
+                            System.out.println(line);
                             broadcasting.cancel();
                             if(onStop != null){
                                 thisActivity.runOnUiThread(onStop);
                                 onStop = null;
                             }
-                            if(line == null) Stop();
+                            if(line == null){
+                                Stop();
+                                break;
+                            }
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
@@ -146,11 +150,11 @@ public class SessionServer extends Session{
                                         if(msg.getString("Type").equals("start")) msg.put("Dir", "/storage/emulated/0/");
                                     case "showDir":
                                         File[] files;
-                                        if(msg.getString("Dir").isEmpty()){
+                                        if(msg.getString("Dir").isEmpty() && (!msg.has("DirName") || msg.getString("DirName").isEmpty())){
                                             files = File.listRoots();
                                             ans.put("Dir", "");
                                         }else{
-                                            File dir = new File(msg.getString("Dir"));
+                                            File dir = new File(msg.getString("Dir"), msg.has("DirName") ? msg.getString("DirName") : "");
                                             files = dir.listFiles();
                                             ans.put("Dir", dir.getPath());
                                         }
@@ -239,7 +243,10 @@ public class SessionServer extends Session{
                                 thisActivity.runOnUiThread(onStop);
                                 onStop = null;
                             }
-                            if(line == null) Stop();
+                            if(line == null) {
+                                Stop();
+                                break;
+                            }
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get() == 0) {
                                 gotAccess.set(1);
