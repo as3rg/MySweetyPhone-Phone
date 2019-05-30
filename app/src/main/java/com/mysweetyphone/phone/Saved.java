@@ -602,8 +602,6 @@ public class Saved extends Fragment {
         sb.setOnTouchListener((v, event) -> true);
         Button startButton = new Button(getActivity());
         startButton.setBackgroundResource(R.drawable.ic_saved_play);
-        startButton.setWidth(startButton.getHeight());
-        startButton.setHeight(startButton.getWidth());
         startButton.setLayoutParams(new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.WRAP_CONTENT));
         VideoView videoView = new VideoView(getActivity());
         Timer timer = new Timer();
