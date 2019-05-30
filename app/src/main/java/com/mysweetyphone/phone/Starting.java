@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Objects;
 
 public class Starting extends AppCompatActivity {
     int id;
@@ -122,7 +123,7 @@ public class Starting extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                             try {
-                                if (responseBody.getInt("result") == 1 && getIntent().getAction() == Intent.ACTION_SEND) {
+                                if (responseBody.getInt("result") == 1 && Objects.requireNonNull(getIntent().getAction()).equals(Intent.ACTION_SEND)) {
                                     if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
                                         ChangeActivity(Main.class);
                                     else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)

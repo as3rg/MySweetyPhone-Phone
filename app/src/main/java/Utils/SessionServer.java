@@ -1,10 +1,9 @@
 package Utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -13,7 +12,6 @@ import android.provider.Telephony;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -35,25 +33,20 @@ import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import okhttp3.internal.platform.Platform;
-
 public class SessionServer extends Session{
-    Thread onStop;
-    MessageParser messageParser;
-    ServerSocket ss;
-    SimpleProperty<Long> lastSync = new SimpleProperty<>(0L);
-    SimpleProperty<String> currentNumber = new SimpleProperty<>("");
+    private Thread onStop;
+    private ServerSocket ss;
+    private SimpleProperty<Long> lastSync = new SimpleProperty<>(0L);
+    private SimpleProperty<String> currentNumber = new SimpleProperty<>("");
 
     public SessionServer(int type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
-        messageParser = new MessageParser();
+        MessageParser messageParser = new MessageParser();
         String name = (PreferenceManager.getDefaultSharedPreferences(thisActivity)).getString("name", "");
         JSONObject message = new JSONObject();
         switch (type){
@@ -311,7 +304,7 @@ public class SessionServer extends Session{
                                                     if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
                                                     JSONObject ans = new JSONObject();
                                                     JSONArray sms = new JSONArray();
-                                                    Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                                    @SuppressLint("Recycle") Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
                                                     while (cur != null && cur.moveToNext()) {
                                                         String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                                         JSONObject a = new JSONObject();

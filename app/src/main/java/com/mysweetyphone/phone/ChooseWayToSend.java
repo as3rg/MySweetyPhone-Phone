@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import Utils.Message;
@@ -33,9 +34,9 @@ import Utils.Message;
 public class ChooseWayToSend extends AppCompatActivity {
 
     static private class Server{
-        public int value;
-        public Button b;
-        public int port;
+        int value;
+        Button b;
+        int port;
         Server(Button b, int p){
             this.b = b;
             value = 5;
@@ -67,7 +68,6 @@ public class ChooseWayToSend extends AppCompatActivity {
             ChangeActivity(Main.class);
         }
         else {
-            long time = System.currentTimeMillis();
             socket = new DatagramSocket(BroadCastingPort);
             Dialog d = new Dialog(this);
             LinearLayout ll = new LinearLayout(this);
@@ -130,7 +130,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                                 ll.addView(b);
                             });
                         }else
-                            ips.get(p.getAddress().getHostAddress()).value++;
+                            Objects.requireNonNull(ips.get(p.getAddress().getHostAddress())).value++;
                     }
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();

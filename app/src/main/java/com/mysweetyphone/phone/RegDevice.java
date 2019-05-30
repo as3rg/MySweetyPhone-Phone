@@ -20,8 +20,6 @@ import java.net.URLEncoder;
 import java.util.regex.Pattern;
 
 public class RegDevice extends AppCompatActivity {
-    private int id;
-    private String login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +30,8 @@ public class RegDevice extends AppCompatActivity {
 
     public void onAddPhoneClick(View view){
         try {
-            id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
-            login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
+            int id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
+            String login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
             TextView PhoneName = findViewById(R.id.PhoneNameADDPHONE);
             TextView ErrorText = findViewById(R.id.ErrorADDPHONE);
 

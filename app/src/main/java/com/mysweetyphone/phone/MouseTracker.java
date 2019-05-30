@@ -1,5 +1,6 @@
 package com.mysweetyphone.phone;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,10 +58,10 @@ public class MouseTracker extends AppCompatActivity {
 
     static class SingleClick{
 
-        public int x,y;
+        int x,y;
         int type;
-        public long time;
-        public Timer t;
+        long time;
+        Timer t;
         SingleClick(int x, int y, long time, int type){
             this.x = x;
             this.y = y;
@@ -67,12 +69,12 @@ public class MouseTracker extends AppCompatActivity {
             this.type = type;
         }
 
-        public void Later(CustomTimerTask tt, int delay){
+        void Later(CustomTimerTask tt, int delay){
             t = new Timer();
             t.scheduleAtFixedRate(tt, delay, 1000);
         }
 
-        public void Cancel(){
+        void Cancel(){
             if(t!=null) t.cancel();
         }
     }
@@ -201,11 +203,12 @@ public class MouseTracker extends AppCompatActivity {
             final String keyboard = getResources().getString(R.string.keyboardMOUSETRACKER);
             final String pen_tablet = getResources().getString(R.string.pen_tabletMOUSETRACKER);
 
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 TableLayout tl = findViewById(R.id.extraButtonsMOUSETRACKER);
                 String value = parent.getSelectedItem().toString();
-                if(value == mouse) {
+                if(Objects.equals(value, mouse)) {
                     inputView.setVisibility(View.GONE);
                     extraButtons.setVisibility(View.GONE);
                     extra2Buttons.setVisibility(View.GONE);

@@ -5,24 +5,16 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -31,65 +23,30 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import Utils.ImageFilePath;
 import Utils.SessionClient;
 import Utils.SimpleProperty;
-import okhttp3.internal.platform.Platform;
 
 public class SMSViewer extends AppCompatActivity {
 
@@ -294,13 +251,13 @@ public class SMSViewer extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         if(type == 1){
             layout.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_sms_viewer_in));
-            hLayout.setGravity(Gravity.LEFT);
+            hLayout.setGravity(Gravity.START);
         }else if(type == 2){
             layout.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_sms_viewer_out));
-            hLayout.setGravity(Gravity.RIGHT);
+            hLayout.setGravity(Gravity.END);
         }else if(type == 5){
             layout.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_sms_viewer_fail));
-            hLayout.setGravity(Gravity.RIGHT);
+            hLayout.setGravity(Gravity.END);
         }else return;
         TextView textBox = new TextView(this);
         if (text.length() == 0) {
@@ -357,7 +314,7 @@ public class SMSViewer extends AppCompatActivity {
             Animation anim = AnimationUtils.loadAnimation(this, R.anim.send_anim);
             hLayout.startAnimation(anim);
         }
-        ScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+        ScrollView.fullScroll(View.FOCUS_DOWN);
     }
 
     @Override

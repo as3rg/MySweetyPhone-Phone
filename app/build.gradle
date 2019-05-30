@@ -45,8 +45,6 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5'
     implementation 'com.nbsp:library:1.8'
     //для выбора файлов в SAVED
-    implementation 'com.squareup.picasso:picasso:2.71828'
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-    implementation 'me.neavo:vitamio:4.2.2'
 
 }

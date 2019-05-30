@@ -87,7 +87,6 @@ public class Saved extends Fragment {
     private LinearLayout MessagesList;
     private ScrollView scrollView;
     private Button LoadMoreButton;
-
     ArrayList<File> tempfiles;
 
     @Override
@@ -98,8 +97,8 @@ public class Saved extends Fragment {
         login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
         name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
         tempfiles = new ArrayList<>();
-        Intent intent = getActivity().getIntent();
-        if(intent.getAction() == Intent.ACTION_SEND){
+        Intent intent = Objects.requireNonNull(getActivity()).getIntent();
+        if(intent.getAction().equals(Intent.ACTION_SEND)){
             if(intent.getParcelableExtra(Intent.EXTRA_STREAM) != null)
                 SendFile(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             else if(intent.getStringExtra(Intent.EXTRA_TEXT) != null)
@@ -110,7 +109,7 @@ public class Saved extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        LoadMoreButton = getActivity().findViewById(R.id.LoadMoreSAVED);
+        LoadMoreButton = Objects.requireNonNull(getActivity()).findViewById(R.id.LoadMoreSAVED);
         LoadMoreButton.setOnClickListener(v -> {
             LoadMore(10);
             scrollView.fullScroll(ScrollView.FOCUS_DOWN);
@@ -455,6 +454,7 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
+    @SuppressLint("SetTextI18n")
     private void DrawImage(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -474,7 +474,7 @@ public class Saved extends Fragment {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
-                StringBuffer response = new StringBuffer();
+                StringBuilder response = new StringBuilder();
 
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
@@ -586,6 +586,7 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
+    @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     private void DrawVideo(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setGravity(Gravity.CENTER);
@@ -772,6 +773,7 @@ public class Saved extends Fragment {
         scrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
+    @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     private void DrawAudio(String text, Long date, String sender, Boolean needsAnim){
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -819,7 +821,7 @@ public class Saved extends Fragment {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
-                StringBuffer response = new StringBuffer();
+                StringBuilder response = new StringBuilder();
 
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
@@ -1059,7 +1061,7 @@ public class Saved extends Fragment {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
-                StringBuffer response = new StringBuffer();
+                StringBuilder response = new StringBuilder();
 
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
