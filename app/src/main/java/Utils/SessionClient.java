@@ -3,11 +3,15 @@ package Utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.mysweetyphone.phone.FileViewer;
 import com.mysweetyphone.phone.MouseTracker;
+import com.mysweetyphone.phone.SMSViewer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,13 +34,14 @@ public class SessionClient extends Session{
     static private class Server{
         public int value;
         public Button b;
-        Server(Button b){
+        public SessionClient sc;
+        Server(Button b, SessionClient sc){
             this.b = b;
+            this.sc = sc;
             value = 5;
         }
     }
 
-    static ArrayList<SessionClient> servers;
     static Map<String, Server> ips;
     static boolean isSearching;
     static Thread searching;
@@ -56,7 +61,6 @@ public class SessionClient extends Session{
         if(isSearching) {
             StopSearching();
         }
-        servers = new ArrayList<>();
         ips = new TreeMap<>();
         isSearching = true;
         s = new DatagramSocket(BroadCastingPort);
@@ -84,24 +88,34 @@ public class SessionClient extends Session{
                 while (System.currentTimeMillis() - time <= 60000) {
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
-                    if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                        servers.add(new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.getString("os"), activity));
-                        Server server = new Server(null);
-                        ips.put(p.getAddress().getHostAddress(),server);
+                    String name = ans.get("name") + "(" + p.getAddress().getHostAddress() + "): " + decodeType((ans.getInt("type")));
+                    if (!ips.containsKey(name)) {
+                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("os") ? ans.getString("os") : "", activity));
+                        ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
-                            ip.setText(p.getAddress().getHostAddress());
+                            ip.setText(name);
+                            ip.setPadding(5,5,5,5);
+
+                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            params.setMargins(5,10,5,0);
+                            ip.setLayoutParams(params);
+
+                            ip.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{Color.parseColor("#CF8BF3"), Color.parseColor("#FDB99B")}));
                             server.b = ip;
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
-                                servers.get(v.indexOfChild(ip)).Start();
+                                server.sc.Start();
                                 v.removeView(ip);
                             });
                             v.setEnabled(true);
                             v.addView(ip);
                         });
                     }else
-                        ips.get(p.getAddress().getHostAddress()).value=5;
+                        ips.get(name).value=5;
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -155,6 +169,21 @@ public class SessionClient extends Session{
                         Intent intent = new Intent(activity, FileViewer.class);
                         activity.startActivity(intent);
                     });
+                });
+                break;
+            case SMSVIEWER:
+                t = new Thread(()->{
+                    try {
+                        if (searching != null) StopSearching();
+                        Ssocket = new Socket(address, port);
+                        activity.runOnUiThread(() -> {
+                            SMSViewer.sc = this;
+                            Intent intent = new Intent(activity, SMSViewer.class);
+                            activity.startActivity(intent);
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 });
                 break;
             default:

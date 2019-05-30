@@ -92,7 +92,7 @@ public class MouseTracker extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mouse_tracker);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbarMOUSETRACKER);
         setSupportActionBar(toolbar);
 
         name = PreferenceManager.getDefaultSharedPreferences(this).getString("name", "");

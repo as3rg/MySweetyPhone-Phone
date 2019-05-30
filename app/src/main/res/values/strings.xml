@@ -25,11 +25,11 @@
     <string name="exitNAV">Выход</string>
     <string name="deviceslistNAV">Устройства</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="savedNAV">Сохраненное</string>
+    <string name="savedNAV">Избранное</string>
     <string name="writeMessage">Введите сообщение</string>
     <string name="msgWillBeHereTextSAVED">Здесь будут видны ваши сохраненные файлы и сообщения</string>
     <string name="Refresh">Перезагрузить</string>
-    <string name="send_to_savedCHOOSEWAY">Отправить в Сохраненные</string>
+    <string name="send_to_savedCHOOSEWAY">Отправить в Избранное</string>
     <string name="choose_wayCHOOSEWAY">Выберите, что сделать с данными</string>
     <string name="open_siteCHOOSEWAY">Открыть на компьютере</string>
     <string name="copy_to_pcCHOOSEWAY">Отправить в буфер обмена компьютера</string>

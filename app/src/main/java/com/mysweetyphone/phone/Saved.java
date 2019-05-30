@@ -21,7 +21,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -44,7 +43,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -68,7 +66,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,6 +86,7 @@ public class Saved extends Fragment {
     private String login;
     private LinearLayout MessagesList;
     private ScrollView scrollView;
+    private Button LoadMoreButton;
 
     ArrayList<File> tempfiles;
 
@@ -112,7 +110,7 @@ public class Saved extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final Button LoadMoreButton= getActivity().findViewById(R.id.LoadMoreSAVED);
+        LoadMoreButton = getActivity().findViewById(R.id.LoadMoreSAVED);
         LoadMoreButton.setOnClickListener(v -> {
             LoadMore(10);
             scrollView.fullScroll(ScrollView.FOCUS_DOWN);
@@ -206,6 +204,7 @@ public class Saved extends Fragment {
                                 });
                             }
                             scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                            LoadMoreButton.setVisibility(result.getBoolean("hasnext") ? View.VISIBLE : View.GONE);
                         } else if (i == 4) {
                             Toast toast = Toast.makeText(getActivity(),
                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
@@ -213,6 +212,7 @@ public class Saved extends Fragment {
                         } else {
                             throw new Exception("Ошибка приложения!");
                         }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         Objects.requireNonNull(getActivity()).finish();
@@ -235,7 +235,6 @@ public class Saved extends Fragment {
     private void DrawText(String text, Long date, String sender, Boolean needsAnim) {
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        layout.isClickable();
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_saved_box));
         TextView textBox = new TextView(getActivity());
@@ -467,15 +466,6 @@ public class Saved extends Fragment {
         ImageView imageView = new ImageView(getActivity());
         layout.addView(imageView);
 
-        /*WebView webView = new WebView(getActivity());
-        webView.setBackgroundColor(Color.BLACK);
-        webView.getSettings().setSupportZoom(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.setPadding(0, 0, 0, 0);
-        webView.setScrollbarFadingEnabled(true);
-        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        */
-
         (new Thread(() -> {
             try {
                 URL obj = new URL("http://mysweetyphone.herokuapp.com/?Type=DownloadFile&RegDate="+regdate+"&MyName=" + URLEncoder.encode(name, "UTF-8") + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&FileName=" + URLEncoder.encode(text, "UTF-8") + "&Date=" + date);
@@ -610,12 +600,18 @@ public class Saved extends Fragment {
         sb.getThumb().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         sb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         sb.setOnTouchListener((v, event) -> true);
+        Button startButton = new Button(getActivity());
+        startButton.setBackgroundResource(R.drawable.ic_saved_play);
+        startButton.setWidth(startButton.getHeight());
+        startButton.setHeight(startButton.getWidth());
+        startButton.setLayoutParams(new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.WRAP_CONTENT));
         VideoView videoView = new VideoView(getActivity());
         Timer timer = new Timer();
         videoView.setOnCompletionListener(mp -> {
             try {
                 videoView.pause();
                 videoView.seekTo(0);
+                startButton.setBackgroundResource(R.drawable.ic_saved_play);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -624,6 +620,7 @@ public class Saved extends Fragment {
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        bar.addView(startButton);
         bar.addView(sb);
         layout.addView(bar);
 
@@ -651,10 +648,6 @@ public class Saved extends Fragment {
                 fos.write(Hex.decodeHex(filebody.substring(2).toCharArray()));
                 fos.close();
                 getActivity().runOnUiThread(() -> {
-//                    MediaController mediaController = new MediaController(getActivity());
-//                    mediaController.setAnchorView(videoView);
-//                    mediaController.setMediaPlayer(videoView);
-//                    videoView.setMediaController(mediaController);
                     videoView.setVisibility(View.VISIBLE);
                     videoView.setMinimumHeight(100);
                     videoView.setMinimumWidth(100);
@@ -662,21 +655,27 @@ public class Saved extends Fragment {
                     videoView.setVideoURI(Uri.fromFile(out));
                     videoView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
                     videoView.setOnPreparedListener(mp ->{
-                            videoView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            sb.setMax(videoView.getDuration());
-                            videoView.setOnClickListener(v -> {
-                                if(videoView.isPlaying()){
-                                    videoView.pause();
-                                } else {
-                                    videoView.start();
-                                }
-                            });
-                            timer.scheduleAtFixedRate(new TimerTask() {
-                                @Override
-                                public void run() {
+                        videoView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                        sb.setMax(videoView.getDuration());
+                        View.OnClickListener onclick = v -> {
+                            if(videoView.isPlaying()){
+                                videoView.pause();
+                                startButton.setBackgroundResource(R.drawable.ic_saved_play);
+                            } else {
+                                videoView.start();
+                                startButton.setBackgroundResource(R.drawable.ic_saved_pause);
+                            }
+                        };
+                        startButton.setOnClickListener(onclick);
+                        videoView.setOnClickListener(onclick);
+                        timer.scheduleAtFixedRate(new TimerTask() {
+                            @Override
+                            public void run() {
+                                try {
                                     sb.setProgress(videoView.getCurrentPosition());
-                                }},0,1);
-                            //videoView.setOnPreparedListener((b)->{});
+                                }catch (IllegalStateException ignored){}
+                            }},0,1);
+                        //videoView.setOnPreparedListener((b)->{});
                     });
                     videoView.setOnErrorListener((mp, what, extra) -> {
                         System.err.println(what+" "+extra);
@@ -847,10 +846,11 @@ public class Saved extends Fragment {
                             startButton.setOnClickListener(v -> {
                                 if(mPlayer.isPlaying()){
                                     mPlayer.pause();
+                                    startButton.setBackgroundResource(R.drawable.ic_saved_play);
                                 } else{
                                     mPlayer.start();
+                                    startButton.setBackgroundResource(R.drawable.ic_saved_pause);
                                 }
-                                startButton.setBackgroundResource(mPlayer.isPlaying() ? R.drawable.ic_saved_pause : R.drawable.ic_saved_play);
                             });
                             timer.scheduleAtFixedRate(new TimerTask() {
                                 @Override
@@ -1031,7 +1031,6 @@ public class Saved extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        System.out.println(requestCode+" "+resultCode);
         if (resultCode == RESULT_OK) {
             File file = new File(ImageFilePath.getPath(getActivity(), data.getData()));
             SendFile(data.getData());
@@ -1070,7 +1069,7 @@ public class Saved extends Fragment {
                 in.close();
 
                 JSONObject result = new JSONObject(response.toString());
-                String filebody = (String)result.getString("filebody");
+                String filebody = result.getString("filebody");
                 File out2 = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
                 out2.mkdirs();
                 FileOutputStream fos = new FileOutputStream(new File(out2, text));
