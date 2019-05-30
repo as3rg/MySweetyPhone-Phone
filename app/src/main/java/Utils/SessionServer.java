@@ -337,7 +337,6 @@ public class SessionServer extends Session{
                                                             number = number.replaceAll("[ \\-()]","");
                                                         if(cur2.getCount() > 0) a.put("contact", cur2.getString(0)+"("+number+")");
                                                         else a.put("contact", number);
-
                                                         sms.put(a);
                                                     }
                                                     if(sms.length() == 0) return;
@@ -441,6 +440,22 @@ public class SessionServer extends Session{
                                             a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
                                             a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
                                             a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
+                                            if(number.isEmpty()) continue;
+                                            Cursor cur3 = thisActivity
+                                                    .getContentResolver()
+                                                    .query(
+                                                            Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                                                                    Uri.encode(number)),
+                                                            new String[]{ContactsContract.Data.DISPLAY_NAME},
+                                                            null,
+                                                            null,
+                                                            null
+                                                    );
+                                            cur3.moveToFirst();
+                                            if(number.replaceAll("[ \\-()]","").matches("\\+\\d{7,13}"))
+                                                number = number.replaceAll("[ \\-()]","");
+                                            if(cur3.getCount() > 0) a.put("contact", cur3.getString(0)+"("+number+")");
+                                            else a.put("contact", number);
                                             sms.put(a);
                                         }
                                         if(sms.length() == 0) break;
