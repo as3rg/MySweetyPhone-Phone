@@ -216,7 +216,7 @@ public class SessionServer extends Session{
                                 }
                             }
                         }
-                    } catch (IOException | JSONException e) {
+                    } catch (IOException | JSONException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 });
@@ -460,7 +460,7 @@ public class SessionServer extends Session{
                                 }
                             }
                         }
-                    } catch (IOException | JSONException | InterruptedException e) {
+                    } catch (IOException | JSONException | NullPointerException | InterruptedException e) {
                         e.printStackTrace();
                     }
                 });
