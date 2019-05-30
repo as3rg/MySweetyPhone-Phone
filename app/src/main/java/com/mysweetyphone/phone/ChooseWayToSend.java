@@ -118,7 +118,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                                 for (Message m : Message.getMessages(messages.toString().getBytes(), Message.BODYMAXIMUM/10)) {
                                     sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("port")));
                                 }
-                            } catch (IOException | JSONException e) {
+                            } catch (IOException | JSONException | NullPointerException e) {
                                 e.printStackTrace();
                             }
                             socket.close();
@@ -132,7 +132,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                         }else
                             ips.get(p.getAddress().getHostAddress()).value++;
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException | JSONException | NullPointerException e) {
                     e.printStackTrace();
                 }
             });

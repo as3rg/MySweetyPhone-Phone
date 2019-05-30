@@ -159,12 +159,12 @@ public class Saved extends Fragment {
                             Toast toast = Toast.makeText(getActivity(),
                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                             toast.show();
+                            getActivity().finish();
                         } else {
                             throw new Exception("Ошибка приложения!");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        getActivity().finish();
                     }
                 }
             });
@@ -193,7 +193,7 @@ public class Saved extends Fragment {
                         } else if (i == 0) {
                             JSONArray messages = (JSONArray) result.get("messages");
                             MessagesList.removeAllViews();
-                            for (int j = Objects.requireNonNull(messages).length() - 1; j >= 0; j--) {
+                            for (int j = messages.length() - 1; j >= 0; j--) {
                                 JSONObject message = (JSONObject) messages.get(j);
                                 getActivity().runOnUiThread(() -> {
                                     try {
@@ -209,13 +209,13 @@ public class Saved extends Fragment {
                             Toast toast = Toast.makeText(getActivity(),
                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                             toast.show();
+                            getActivity().finish();
                         } else {
                             throw new Exception("Ошибка приложения!");
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Objects.requireNonNull(getActivity()).finish();
                     }
                 }
             });
@@ -302,6 +302,7 @@ public class Saved extends Fragment {
                                             Toast toast = Toast.makeText(getActivity(),
                                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                             toast.show();
+                                            getActivity().finish();
                                         } else {
                                             throw new Exception("Ошибка приложения!");
                                         }
@@ -421,6 +422,7 @@ public class Saved extends Fragment {
                                             Toast toast = Toast.makeText(getActivity(),
                                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                             toast.show();
+                                            getActivity().finish();
                                         } else {
                                             throw new Exception("Ошибка приложения!");
                                         }
@@ -491,11 +493,7 @@ public class Saved extends Fragment {
                         e.printStackTrace();
                     }
                 });
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         })).start();
@@ -552,6 +550,7 @@ public class Saved extends Fragment {
                                             Toast toast = Toast.makeText(getActivity(),
                                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                             toast.show();
+                                            getActivity().finish();
                                         } else {
                                             throw new Exception("Ошибка приложения!");
                                         }
@@ -738,6 +737,7 @@ public class Saved extends Fragment {
                                             Toast toast = Toast.makeText(getActivity(),
                                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                             toast.show();
+                                            getActivity().finish();
                                         } else {
                                             throw new Exception("Ошибка приложения!");
                                         }
@@ -919,6 +919,7 @@ public class Saved extends Fragment {
                                             Toast toast = Toast.makeText(getActivity(),
                                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                                             toast.show();
+                                            getActivity().finish();
                                         } else {
                                             throw new Exception("Ошибка приложения!");
                                         }
@@ -1012,6 +1013,7 @@ public class Saved extends Fragment {
                     Toast toast = Toast.makeText(getActivity(),
                             "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                     toast.show();
+                    getActivity().finish();
                 } else if (i == 3) {
                     throw new RuntimeException("Файл не отправлен!");
                 } else {

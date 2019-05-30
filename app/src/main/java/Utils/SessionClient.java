@@ -77,7 +77,8 @@ public class SessionClient extends Session{
                     for (String item : ips.keySet()) {
                         if (ips.get(item).value == 1) {
                             Button b = ips.get(item).b;
-                            activity.runOnUiThread(() -> v.removeView(b));
+                            if(activity!=null)
+                                activity.runOnUiThread(() -> v.removeView(b));
                             ips.remove(item);
                         }else
                             ips.get(item).value--;
@@ -117,13 +118,13 @@ public class SessionClient extends Session{
                     }else
                         ips.get(name).value=5;
                 }
-            } catch (IOException | JSONException e) {
+            } catch (IOException | NullPointerException | JSONException e) {
                 e.printStackTrace();
             }
             isSearching = false;
             s.close();
             t.cancel();
-            activity.runOnUiThread(onFinishSearching);
+            if(activity!=null) activity.runOnUiThread(onFinishSearching);
         });
         searching.start();
     }
@@ -156,7 +157,7 @@ public class SessionClient extends Session{
                             Intent intent = new Intent(activity, MouseTracker.class);
                             activity.startActivity(intent);
                         });
-                    } catch (SocketException e) {
+                    } catch (SocketException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 });
@@ -164,7 +165,7 @@ public class SessionClient extends Session{
             case FILEVIEW:
                 t = new Thread(()->{
                     if(searching != null) StopSearching();
-                    activity.runOnUiThread(()->{
+                    if(activity != null) activity.runOnUiThread(()->{
                         FileViewer.sc = this;
                         Intent intent = new Intent(activity, FileViewer.class);
                         activity.startActivity(intent);
@@ -181,7 +182,7 @@ public class SessionClient extends Session{
                             Intent intent = new Intent(activity, SMSViewer.class);
                             activity.startActivity(intent);
                         });
-                    } catch (IOException e) {
+                    } catch (IOException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 });

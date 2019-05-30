@@ -276,7 +276,7 @@ public class SMSViewer extends AppCompatActivity {
                             break;
                     }
                 }
-            } catch (IOException | JSONException e) {
+            } catch (IOException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         });
@@ -406,7 +406,7 @@ public class SMSViewer extends AppCompatActivity {
                 writer.println(msg2.toString());
                 writer.flush();
                 runOnUiThread(() -> MessageText.setText(""));
-            } catch (JSONException e) {
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }).start();

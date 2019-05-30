@@ -156,7 +156,7 @@ public class FileViewer extends AppCompatActivity {
                 Toast toast = Toast.makeText(this,
                         "Сессия закрыта", Toast.LENGTH_LONG);
                 toast.show();
-            } catch (JSONException | IOException e) {
+            } catch (JSONException | IOException | NullPointerException e) {
                 e.printStackTrace();
             }
         });
@@ -295,7 +295,7 @@ public class FileViewer extends AppCompatActivity {
                         toast.show();
                         reloadFolder(null);
                     });
-                } catch (JSONException | IOException e) {
+                } catch (JSONException | IOException | NullPointerException e) {
                     e.printStackTrace();
                 }
             }).start();
@@ -368,7 +368,7 @@ public class FileViewer extends AppCompatActivity {
                                     toast.show();
                                     reloadFolder(null);
                                 });
-                            } catch (JSONException | IOException e) {
+                            } catch (JSONException | IOException | NullPointerException e) {
                                 e.printStackTrace();
                             }
                         }).start();
