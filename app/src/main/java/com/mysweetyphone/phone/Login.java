@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
 public class Login extends AppCompatActivity {
 
@@ -52,12 +53,19 @@ public class Login extends AppCompatActivity {
 
             TextView Nick = findViewById(R.id.NickLOGIN);
             TextView Pass = findViewById(R.id.PasswordLOGIN);
+            TextView ErrorText = findViewById(R.id.ErrorLOGIN);
+
+            if (!Pattern.matches("\\w+", Nick.getText().toString())) {
+                ErrorText.setText(R.string.invalid_name);
+                ErrorText.setVisibility(View.VISIBLE);
+                return;
+            }
+
             AsyncHttpClient client = new AsyncHttpClient();
             client.get("http://mysweetyphone.herokuapp.com/?Type=" + (RegOrLogin ? "Reg" : "Login") + "&Login=" + URLEncoder.encode(Nick.getText().toString(), "UTF-8") + "&Pass=" + URLEncoder.encode(Pass.getText().toString(), "UTF-8"), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                     try {
-                        TextView ErrorText = findViewById(R.id.ErrorLOGIN);
                         switch (responseBody.getInt("code")) {
                             case 3:
                                 ErrorText.setText(R.string.FillNameAndPassLOGIN);

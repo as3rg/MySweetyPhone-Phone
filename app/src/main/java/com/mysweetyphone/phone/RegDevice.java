@@ -34,9 +34,9 @@ public class RegDevice extends AppCompatActivity {
             String login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
             TextView PhoneName = findViewById(R.id.PhoneNameADDPHONE);
             TextView ErrorText = findViewById(R.id.ErrorADDPHONE);
-
+            
             if (!Pattern.matches("\\w+", PhoneName.getText().toString())) {
-                ErrorText.setText(R.string.invalid_nameADDPHONE);
+                ErrorText.setText(R.string.invalid_name);
                 ErrorText.setVisibility(View.VISIBLE);
                 return;
             }
