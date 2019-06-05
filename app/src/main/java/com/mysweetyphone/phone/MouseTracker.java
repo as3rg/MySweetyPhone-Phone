@@ -85,9 +85,6 @@ public class MouseTracker extends AppCompatActivity {
     Switch win, alt, shift, ctrl;
     EditText inputView;
     SingleClick singleClick;
-    long lastUpTime = 0;
-    long lastDownTime = 0;
-    boolean LPressed = false;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -116,7 +113,6 @@ public class MouseTracker extends AppCompatActivity {
         ImageButton keyboardButton = findViewById(R.id.keyboardMOUSETRACKER);
         HorizontalScrollView extraButtons = findViewById(R.id.extra1MOUSETRACKER);
         HorizontalScrollView extra2Buttons = findViewById(R.id.extra2MOUSETRACKER);
-        HorizontalScrollView extra3Buttons = findViewById(R.id.extra3MOUSETRACKER);
         inputView = findViewById(R.id.inputMOUSETRACKER);
         inputView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -215,14 +211,12 @@ public class MouseTracker extends AppCompatActivity {
                     tl.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchMOUSE);
-                    extra3Buttons.setVisibility(View.GONE);
                 }else if(value.equals(keyboard)) {
                     inputView.setVisibility(View.VISIBLE);
                     tl.setVisibility(View.VISIBLE);
                     extraButtons.setVisibility(View.VISIBLE);
                     extra2Buttons.setVisibility(View.VISIBLE);
                     keyboardButton.setVisibility(View.VISIBLE);
-                    if(sc.getOS().startsWith("Windows")) extra3Buttons.setVisibility(View.VISIBLE);
                     thisActivity.openKeyboard(null);
                     content.setOnTouchListener((v,e)->false);
                 }else if(value.equals(pen_tablet)) {
@@ -232,7 +226,6 @@ public class MouseTracker extends AppCompatActivity {
                     content.setOnTouchListener(thisActivity::onTouchPENTABLET);
                     extraButtons.setVisibility(View.GONE);
                     extra2Buttons.setVisibility(View.GONE);
-                    extra3Buttons.setVisibility(View.GONE);
                 }
             }
 
@@ -445,20 +438,6 @@ public class MouseTracker extends AppCompatActivity {
                 return 122;
             case R.id.F12MOUSETRACKER:
                 return 123;
-            case R.id.volumeMuteMOUSETRACKER:
-                return 173;
-            case R.id.volumeDownMOUSETRACKER:
-                return 174;
-            case R.id.volumeUpMOUSETRACKER:
-                return 175;
-            case R.id.nextTrackMOUSETRACKER:
-                return 176;
-            case R.id.prevTrackMOUSETRACKER:
-                return 177;
-            case R.id.stopMOUSETRACKER:
-                return 178;
-            case R.id.pauseMOUSETRACKER:
-                return 179;
             default:
                 return -1;
         }
@@ -469,14 +448,6 @@ public class MouseTracker extends AppCompatActivity {
         msg.put("Name", name);
         msg.put("value", ViewToButtonId(v));
         msg.put("Type", "keyClicked");
-        Send(msg.toString().getBytes());
-    }
-
-    public void sendMediaButton(View v) throws JSONException {
-        JSONObject msg = new JSONObject();
-        msg.put("Name", name);
-        msg.put("value", ViewToButtonId(v));
-        msg.put("Type", "winApiClicked");
         Send(msg.toString().getBytes());
     }
 
