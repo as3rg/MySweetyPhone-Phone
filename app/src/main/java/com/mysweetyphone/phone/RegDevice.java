@@ -31,7 +31,7 @@ public class RegDevice extends AppCompatActivity {
     public void onAddPhoneClick(View view){
         try {
             int id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
-            String login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
+            String login = PreferenceManager.getDefaultSharedPreferences(this).getString("login", "");
             TextView PhoneName = findViewById(R.id.PhoneNameADDPHONE);
             TextView ErrorText = findViewById(R.id.ErrorADDPHONE);
             
@@ -40,6 +40,25 @@ public class RegDevice extends AppCompatActivity {
                 ErrorText.setVisibility(View.VISIBLE);
                 return;
             }
+            if (login.isEmpty()){
+                ErrorText.setVisibility(View.INVISIBLE);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                editor.putString("name", PhoneName.getText().toString());
+                editor.putInt("regdate", (int)System.currentTimeMillis()/1000);
+                editor.apply();
+                Intent intent;
+                if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                    intent = new Intent(getApplicationContext(), ChooseWayToSend.class);
+                else intent = new Intent(getApplicationContext(), Main.class);
+                intent.putExtras(getIntent());
+                intent.setAction(getIntent().getAction());
+                startActivity(intent);
+                finish();
+                return;
+            }
+
             AsyncHttpClient client = new AsyncHttpClient();
             client.get("http://mysweetyphone.herokuapp.com/?Type=AddDevice&DeviceType=Phone&Id=" + id + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Name=" + URLEncoder.encode(PhoneName.getText().toString(), "UTF-8"), new JsonHttpResponseHandler() {
                 @Override
@@ -63,10 +82,9 @@ public class RegDevice extends AppCompatActivity {
                                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                                TextView Name = findViewById(R.id.PhoneNameADDPHONE);
-                                editor.putString("name", Name.getText().toString());
+                                editor.putString("name", PhoneName.getText().toString());
                                 editor.putInt("regdate", responseBody.getInt("regdate"));
-                                editor.commit();
+                                editor.apply();
                                 Intent intent;
                                 if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
                                     intent = new Intent(getApplicationContext(), ChooseWayToSend.class);

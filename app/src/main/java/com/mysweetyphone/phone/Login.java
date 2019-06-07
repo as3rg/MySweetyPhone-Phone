@@ -28,12 +28,20 @@ import java.util.regex.Pattern;
 public class Login extends AppCompatActivity {
 
     private boolean RegOrLogin = false;     //Reg == true, Login == false
+    TextView Nick;
+    TextView Pass;
+    TextView ErrorText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_login);
+
+        Nick = findViewById(R.id.NickLOGIN);
+        Pass = findViewById(R.id.PasswordLOGIN);
+        ErrorText = findViewById(R.id.ErrorLOGIN);
     }
 
     public void onModeChanged(View view){
@@ -41,19 +49,28 @@ public class Login extends AppCompatActivity {
         switch (view.getId()){
             case R.id.RegRatioLOGIN:
                 LoginButton.setText(R.string.RegLOGIN);
+                Nick.setEnabled(true);
+                Pass.setEnabled(true);
+                LoginButton.setOnClickListener(this::onLoginClick);
                 break;
             case R.id.LoginRatioLOGIN:
                 LoginButton.setText(R.string.log_inLOGIN);
+                Nick.setEnabled(true);
+                Pass.setEnabled(true);
+                LoginButton.setOnClickListener(this::onLoginClick);
+                break;
+            case R.id.OfflineRatioLOGIN:
+                LoginButton.setText(R.string.offline);
+                Nick.setEnabled(false);
+                Pass.setEnabled(false);
+                LoginButton.setOnClickListener(this::Offline);
+                break;
         }
     }
 
     public void onLoginClick(View view){
         try {
             RegOrLogin = ((RadioButton) findViewById(R.id.RegRatioLOGIN)).isChecked();
-
-            TextView Nick = findViewById(R.id.NickLOGIN);
-            TextView Pass = findViewById(R.id.PasswordLOGIN);
-            TextView ErrorText = findViewById(R.id.ErrorLOGIN);
 
             if (!Pattern.matches("\\w+", Nick.getText().toString())) {
                 ErrorText.setText(R.string.invalid_name);
@@ -104,5 +121,21 @@ public class Login extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    public void Offline(View v){
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("id");
+        editor.remove("name");
+        editor.remove("login");
+        editor.apply();
+        Intent intent = new Intent(getApplicationContext(), RegDevice.class);
+        intent.putExtras(getIntent());
+        intent.setAction(getIntent().getAction());
+        startActivity(intent);
+        finish();
     }
 }

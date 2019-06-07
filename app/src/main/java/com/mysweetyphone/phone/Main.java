@@ -2,6 +2,8 @@ package com.mysweetyphone.phone;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -34,6 +36,7 @@ public class Main extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        login = PreferenceManager.getDefaultSharedPreferences(this).getString("login","");
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -58,6 +61,11 @@ public class Main extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        if(login.isEmpty()){
+            navigationView.inflateMenu(R.menu.activity_main_drawer_offline);
+        }else{
+            navigationView.inflateMenu(R.menu.activity_main_drawer);
+        }
     }
     @Override
     public void onBackPressed() {
@@ -72,8 +80,12 @@ public class Main extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         TextView name = findViewById(R.id.NameNav);
-        login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login","");
-        if(name != null) name.setText(login);
+        if(login.isEmpty()){
+            name.setText("Инкогнито");
+            name.setTextColor(Color.parseColor("#cccccc"));
+            name.setTypeface(null, Typeface.ITALIC);
+        }
+        else if(name != null) name.setText(login);
         getMenuInflater().inflate(R.menu.action_bar_reload_button, menu);
         return true;
     }
@@ -89,7 +101,6 @@ public class Main extends AppCompatActivity
         return true;
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         try {
@@ -110,7 +121,7 @@ public class Main extends AppCompatActivity
                     editor.remove("id");
                     editor.remove("name");
                     editor.remove("login");
-                    editor.commit();
+                    editor.apply();
                     finish();
                     return false;
                 case R.id.nav_devices_list:

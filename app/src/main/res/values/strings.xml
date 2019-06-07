@@ -44,4 +44,5 @@
     <string name="keyboardMOUSETRACKER">Клавиатура</string>
     <string name="pen_tabletMOUSETRACKER">Гр. Планшет</string>
     <string name="new_sessionSSERVER">Начать сессию</string>
+    <string name="offline">Включить Offline Режим</string>
 </resources>

@@ -58,6 +58,10 @@ public class ChooseWayToSend extends AppCompatActivity {
             RadioButton rb = findViewById(R.id.openSiteCHOOSEWAY);
             rg.removeView(rb);
         }
+        if(PreferenceManager.getDefaultSharedPreferences(this).getString("login","").isEmpty()){
+            RadioButton rb = findViewById(R.id.sendToSavedCHOOSEWAY);
+            rg.removeView(rb);
+        }
         ips = new TreeMap<>();
     }
 

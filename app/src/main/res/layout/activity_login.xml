@@ -63,7 +63,7 @@
             android:buttonTint="@color/white"
             android:checked="true"
             android:onClick="onModeChanged"
-            android:text="Войти"
+            android:text="@string/log_inLOGIN"
             android:textColor="@color/white"
             android:textColorLink="#00963636"
             android:textSize="18sp" />
@@ -76,7 +76,19 @@
             android:layout_weight="1"
             android:buttonTint="@color/white"
             android:onClick="onModeChanged"
-            android:text="Зарегистрироваться"
+            android:text="@string/RegLOGIN"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <RadioButton
+            android:id="@+id/OfflineRatioLOGIN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:buttonTint="@color/white"
+            android:onClick="onModeChanged"
+            android:text="@string/offline"
             android:textColor="@color/white"
             android:textSize="18sp" />
     </RadioGroup>
@@ -88,6 +100,5 @@
         android:layout_margin="5dp"
         android:onClick="onLoginClick"
         android:text="@string/log_inLOGIN" />
-
 
 </LinearLayout>
