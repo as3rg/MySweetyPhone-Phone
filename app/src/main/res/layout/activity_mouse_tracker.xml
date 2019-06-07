@@ -67,7 +67,7 @@
                 android:gravity="end"
                 android:onClick="switchExtraButton"
                 android:text="Win "
-                android:textColor="@color/white"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
             <Switch
@@ -78,7 +78,7 @@
                 android:gravity="end"
                 android:onClick="switchExtraButton"
                 android:text="Ctrl "
-                android:textColor="@color/white"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
         </TableRow>
 
@@ -96,7 +96,7 @@
                 android:gravity="end"
                 android:onClick="switchExtraButton"
                 android:text="Shift "
-                android:textColor="@color/white"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
             <Switch
@@ -107,7 +107,7 @@
                 android:gravity="end"
                 android:onClick="switchExtraButton"
                 android:text="Alt "
-                android:textColor="@color/white"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
         </TableRow>

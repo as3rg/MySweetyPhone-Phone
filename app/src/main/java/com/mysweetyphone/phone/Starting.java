@@ -30,30 +30,13 @@ public class Starting extends AppCompatActivity {
     String name;
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        try {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.starting_activity);
-            id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
-            regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate", -1);
-            login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
-            name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
-            if (PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED
-                    || PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE}, 124);
-            } else {
-                if(!name.isEmpty() && login.isEmpty())
-                    ChangeActivity(Main.class);
-                else
-                    Request();
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.starting_activity);
+        id = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("id", -1);
+        regdate = (PreferenceManager.getDefaultSharedPreferences(this)).getInt("regdate", -1);
+        login = (PreferenceManager.getDefaultSharedPreferences(this)).getString("login", "");
+        name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE}, 124);
     }
 
     private void Request() throws UnsupportedEncodingException {

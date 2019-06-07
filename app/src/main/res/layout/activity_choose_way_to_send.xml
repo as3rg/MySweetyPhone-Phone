@@ -25,12 +25,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:buttonTint="@color/white"
+            android:buttonTint="@android:color/white"
             android:checked="true"
             android:padding="20dp"
             android:text="@string/send_to_savedCHOOSEWAY"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
             android:textSize="14sp" />
 
         <RadioButton
@@ -38,11 +38,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:buttonTint="@color/white"
+            android:buttonTint="@android:color/white"
             android:padding="20dp"
             android:text="@string/open_siteCHOOSEWAY"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
             android:textSize="14sp" />
 
         <RadioButton
@@ -50,11 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:buttonTint="@color/white"
+            android:buttonTint="@android:color/white"
             android:padding="20dp"
             android:text="@string/copy_to_pcCHOOSEWAY"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
             android:textSize="14sp" />
 
     </RadioGroup>

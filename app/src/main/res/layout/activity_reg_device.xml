@@ -46,7 +46,7 @@
         android:clickable="true"
         android:contextClickable="true"
         android:drawableLeft="@drawable/ic_devices_list_phone"
-        android:drawableTint="@color/white"
+        android:drawableTint="@android:color/white"
         android:editable="true"
         android:enabled="true"
         android:freezesText="false"

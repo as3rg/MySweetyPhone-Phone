@@ -46,11 +46,7 @@ public class SessionClient extends Session{
     static boolean isSearching;
     static Thread searching;
     static DatagramSocket s;
-    String os;
-
-    public String getOS(){
-        return os;
-    }
+    public boolean isPhone = false;
 
     static{
         isSearching = false;
@@ -91,7 +87,7 @@ public class SessionClient extends Session{
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     String name = ans.get("name") + "(" + p.getAddress().getHostAddress() + "): " + decodeType((ans.getInt("type")));
                     if (!ips.containsKey(name)) {
-                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("os") ? ans.getString("os") : "", activity));
+                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("subtype") && ans.getString("subtype").equals("Phone"), activity));
                         ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
@@ -139,11 +135,11 @@ public class SessionClient extends Session{
         }catch (NullPointerException ignored){}
     }
 
-    public SessionClient(InetAddress address, int Port, int type, String os, Activity activity) throws IOException {
+    public SessionClient(InetAddress address, int Port, int type, boolean isPhone, Activity activity) throws IOException {
         this.address = address;
         this.port = Port;
         this.type = type;
-        this.os = os;
+        this.isPhone = isPhone;
 
         switch (type) {
             case MOUSE:

@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Handler;
@@ -12,14 +14,21 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.support.annotation.Dimension;
+import android.support.design.widget.Snackbar;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.mysweetyphone.phone.IME;
+import com.mysweetyphone.phone.Main;
 import com.mysweetyphone.phone.MouseTracker;
 
 import org.apache.commons.io.IOUtils;
@@ -74,6 +83,7 @@ public class SessionServer extends Session{
         message.put("port", port);
         message.put("type", type);
         message.put("name", name);
+        message.put("subtype", "Phone");
         byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
@@ -98,7 +108,7 @@ public class SessionServer extends Session{
                     try {
                         Dsocket.setBroadcast(true);
                         DatagramPacket p;
-                        SimpleProperty gotAccess = new SimpleProperty(2);
+                        SimpleProperty gotAccess = new SimpleProperty(0);
                         while (!Dsocket.isClosed()) {
                             if(gotAccess.get().equals(1))
                                 continue;
@@ -127,9 +137,46 @@ public class SessionServer extends Session{
                             if(messageParser.messageMap.get(head) == null) continue;
                             String msgString = new String(messageParser.parse(head));
                             JSONObject msg = new JSONObject(msgString);
+                            if(gotAccess.get().equals(0)) {
+                                gotAccess.set(1);
+                                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                params.weight = 1.0f;
+                                params.gravity = Gravity.CENTER;
+                                LinearLayout layout = (LinearLayout) ((IME) thisContext).layout;
 
-//                            if(gotAccess.get().equals(0)) {
-//                                gotAccess.set(1);
+                                LinearLayout notification = new LinearLayout(thisContext);
+                                notification.setOrientation(LinearLayout.HORIZONTAL);
+                                TextView text = new TextView(thisContext);
+                                text.setText("Вы действительно хотите предоставить доступ к клавиатуре \"" + msg.getString("Name") + "\"?");
+                                text.setTextColor(Color.WHITE);
+                                text.setLayoutParams(params);
+                                notification.addView(text);
+
+                                Button yes = new Button(thisContext);
+                                yes.setText("Да");
+                                yes.setLayoutParams(params);
+                                yes.setOnClickListener((v -> {
+                                    gotAccess.set(2);
+                                    ((LinearLayout)((IME)thisContext).layout).removeView(notification);
+                                }));
+                                notification.addView(yes);
+
+                                Button no = new Button(thisContext);
+                                no.setText("Нет");
+                                no.setLayoutParams(params);
+                                no.setOnClickListener((v -> {
+                                    try {
+                                        Stop();
+                                        layout.removeView(notification);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }));
+                                notification.addView(no);
+                                Handler mainHandler = new Handler(thisContext.getMainLooper());
+                                mainHandler.post(()-> {
+                                    layout.addView(notification, 1);
+                                });
 //                                Handler mainHandler = new Handler(thisContext.getMainLooper());
 //                                mainHandler.post(()-> {
 //                                    try {
@@ -146,20 +193,14 @@ public class SessionServer extends Session{
 //                                                        e.printStackTrace();
 //                                                    }
 //                                                }).create();
-//                                        Window window = dialog.getWindow();
-//                                        WindowManager.LayoutParams lp = window.getAttributes();
-//                                        lp.token = mInputView.getWindowToken();
-//                                        lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
-//                                        window.setAttributes(lp);
-//                                        window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+//                                        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
+//                                        dialog.show();
 //                                    } catch (JSONException e) {
 //                                        e.printStackTrace();
 //                                    }
 //                                });
-//
-//                            }
 
-                            System.out.println(msgString);
+                            }
 
                             if(gotAccess.get().equals(2))
                                 try {
@@ -168,7 +209,7 @@ public class SessionServer extends Session{
                                             ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, MouseTracker.AwtToAndroid(msg.getInt("value"))));
                                             break;
                                         case "keyPressed":
-                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, MouseTracker.AwtToAndroid(msg.getInt("value"))));
+                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, MouseTracker.AwtToAndroid(msg.getInt("value"))));
                                             break;
                                         case "keyClicked":
                                             ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, MouseTracker.AwtToAndroid(msg.getInt("value"))));

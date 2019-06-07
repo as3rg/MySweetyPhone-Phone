@@ -90,7 +90,10 @@ public class MouseTracker extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mouse_tracker);
+        if(sc.isPhone)
+            setContentView(R.layout.activity_mouse_tracker_phone);
+        else
+            setContentView(R.layout.activity_mouse_tracker);
         Toolbar toolbar = findViewById(R.id.toolbarMOUSETRACKER);
         setSupportActionBar(toolbar);
 
@@ -113,6 +116,7 @@ public class MouseTracker extends AppCompatActivity {
         ImageButton keyboardButton = findViewById(R.id.keyboardMOUSETRACKER);
         HorizontalScrollView extraButtons = findViewById(R.id.extra1MOUSETRACKER);
         HorizontalScrollView extra2Buttons = findViewById(R.id.extra2MOUSETRACKER);
+        TableLayout TableExtraButtons = findViewById(R.id.extraButtonsMOUSETRACKER);
         inputView = findViewById(R.id.inputMOUSETRACKER);
         inputView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -127,7 +131,7 @@ public class MouseTracker extends AppCompatActivity {
                     JSONObject msg = new JSONObject();
                     msg.put("Name", name);
                     msg.put("Type", "keysTyped");
-                    if(win.isChecked() || alt.isChecked() || shift.isChecked() || ctrl.isChecked()){
+                    if(!sc.isPhone && (win.isChecked() || alt.isChecked() || shift.isChecked() || ctrl.isChecked())){
                         msg.put("Subtype", "hotkey");
                         for(char c : s.toString().toCharArray()){
                             msg.put("value", Character.toString(c));
@@ -185,6 +189,8 @@ public class MouseTracker extends AppCompatActivity {
             }
         });
 
+        if(sc.isPhone) return;
+
         content.setOnTouchListener(this::onTouchMOUSE);
         Spinner type = findViewById(R.id.typeMOUSETRACKER);
         type.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_item, new String[]{
@@ -194,6 +200,7 @@ public class MouseTracker extends AppCompatActivity {
         }));
 
         MouseTracker thisActivity = this;
+
         type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             final String mouse = getResources().getString(R.string.mouseMOUSETRACKER);
             final String keyboard = getResources().getString(R.string.keyboardMOUSETRACKER);
@@ -202,18 +209,17 @@ public class MouseTracker extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                TableLayout tl = findViewById(R.id.extraButtonsMOUSETRACKER);
                 String value = parent.getSelectedItem().toString();
                 if(Objects.equals(value, mouse)) {
                     inputView.setVisibility(View.GONE);
                     extraButtons.setVisibility(View.GONE);
                     extra2Buttons.setVisibility(View.GONE);
-                    tl.setVisibility(View.GONE);
+                    TableExtraButtons.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchMOUSE);
                 }else if(value.equals(keyboard)) {
                     inputView.setVisibility(View.VISIBLE);
-                    tl.setVisibility(View.VISIBLE);
+                    TableExtraButtons.setVisibility(View.VISIBLE);
                     extraButtons.setVisibility(View.VISIBLE);
                     extra2Buttons.setVisibility(View.VISIBLE);
                     keyboardButton.setVisibility(View.VISIBLE);
@@ -221,7 +227,7 @@ public class MouseTracker extends AppCompatActivity {
                     content.setOnTouchListener((v,e)->false);
                 }else if(value.equals(pen_tablet)) {
                     inputView.setVisibility(View.GONE);
-                    tl.setVisibility(View.GONE);
+                    TableExtraButtons.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchPENTABLET);
                     extraButtons.setVisibility(View.GONE);
@@ -581,7 +587,7 @@ public class MouseTracker extends AppCompatActivity {
             case 65485: return KeyEvent.KEYCODE_COPY;
             case 65487: return KeyEvent.KEYCODE_PASTE;
         }
-        throw new RuntimeException();
+        return -1;
     }
 
     public static int AndroidToAwt(int e){

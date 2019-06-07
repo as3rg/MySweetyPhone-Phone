@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MouseTracker">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarMOUSETRACKER"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
+                android:onClick="Stop"
+                android:tint="#FFFFFF"
+                app:srcCompat="@drawable/ic_menu_exit" />
+
+            <ImageButton
+                android:id="@+id/keyboardMOUSETRACKER"
+                android:layout_width="111dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:backgroundTint="#00FFFFFF"
+                android:onClick="openKeyboard"
+                android:tint="#FFFFFF"
+                app:srcCompat="@drawable/ic_mouse_tracker_keyboard" />
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/extra1MOUSETRACKER"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/leftMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="←" />
+
+            <Button
+                android:id="@+id/downMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="↓" />
+
+            <Button
+                android:id="@+id/upMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="↑" />
+
+            <Button
+                android:id="@+id/rightMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="→" />
+
+            <Button
+                android:id="@+id/escapeMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Esc" />
+
+            <Button
+                android:id="@+id/enterMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="sendExtraButton"
+                android:text="Enter" />
+
+            <Button
+                android:id="@+id/delMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Del" />
+
+            <Button
+                android:id="@+id/tabMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Tab" />
+
+            <Button
+                android:id="@+id/homeMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Home" />
+
+            <Button
+                android:id="@+id/endMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="End" />
+
+            <Button
+                android:id="@+id/pageupMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Page Up" />
+
+            <Button
+                android:id="@+id/pagedownMOUSETRACKER"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendExtraButton"
+                android:text="Page Down" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <EditText
+        android:id="@+id/inputMOUSETRACKER"
+        style="@android:style/Widget.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:autofillHints=""
+        android:ems="10"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="start|top"
+        android:inputType="none|textMultiLine|text"
+        android:textColor="#00FFFFFF"
+        android:textColorHighlight="#00FFFFFF"
+        android:textColorHint="#00FFFFFF"
+        android:textColorLink="#00FFFFFF" />
+
+</LinearLayout>
