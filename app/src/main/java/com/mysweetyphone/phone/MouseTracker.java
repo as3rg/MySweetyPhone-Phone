@@ -80,7 +80,7 @@ public class MouseTracker extends AppCompatActivity {
     }
 
     static public SessionClient sc;
-    static final int MESSAGESIZE = 100;
+    static public final int MESSAGESIZE = 100;
     static String name;
     Switch win, alt, shift, ctrl;
     EditText inputView;
@@ -462,7 +462,129 @@ public class MouseTracker extends AppCompatActivity {
         Send(msg.toString().getBytes());
     }
 
-    public int AndroidToAwt(int e){
+    public static int AwtToAndroid(int e){
+        switch (e){
+            case 48: return KeyEvent.KEYCODE_0;
+            case 49: return KeyEvent.KEYCODE_1;
+            case 50: return KeyEvent.KEYCODE_2;
+            case 51: return KeyEvent.KEYCODE_3;
+            case 52: return KeyEvent.KEYCODE_4;
+            case 53: return KeyEvent.KEYCODE_5;
+            case 54: return KeyEvent.KEYCODE_6;
+            case 55: return KeyEvent.KEYCODE_7;
+            case 56: return KeyEvent.KEYCODE_8;
+            case 57: return KeyEvent.KEYCODE_9;
+            case 151: return KeyEvent.KEYCODE_STAR;
+            case 520: return KeyEvent.KEYCODE_POUND;
+            case 38: return KeyEvent.KEYCODE_DPAD_UP;
+            case 40: return KeyEvent.KEYCODE_DPAD_DOWN;
+            case 37: return KeyEvent.KEYCODE_DPAD_LEFT;
+            case 39: return KeyEvent.KEYCODE_DPAD_RIGHT;
+            case 12: return KeyEvent.KEYCODE_CLEAR;
+            case 65: return KeyEvent.KEYCODE_A;
+            case 66: return KeyEvent.KEYCODE_B;
+            case 67: return KeyEvent.KEYCODE_C;
+            case 68: return KeyEvent.KEYCODE_D;
+            case 69: return KeyEvent.KEYCODE_E;
+            case 70: return KeyEvent.KEYCODE_F;
+            case 71: return KeyEvent.KEYCODE_G;
+            case 72: return KeyEvent.KEYCODE_H;
+            case 73: return KeyEvent.KEYCODE_I;
+            case 74: return KeyEvent.KEYCODE_J;
+            case 75: return KeyEvent.KEYCODE_K;
+            case 76: return KeyEvent.KEYCODE_L;
+            case 77: return KeyEvent.KEYCODE_M;
+            case 78: return KeyEvent.KEYCODE_N;
+            case 79: return KeyEvent.KEYCODE_O;
+            case 80: return KeyEvent.KEYCODE_P;
+            case 81: return KeyEvent.KEYCODE_Q;
+            case 82: return KeyEvent.KEYCODE_R;
+            case 83: return KeyEvent.KEYCODE_S;
+            case 84: return KeyEvent.KEYCODE_T;
+            case 85: return KeyEvent.KEYCODE_U;
+            case 86: return KeyEvent.KEYCODE_V;
+            case 87: return KeyEvent.KEYCODE_W;
+            case 88: return KeyEvent.KEYCODE_X;
+            case 89: return KeyEvent.KEYCODE_Y;
+            case 90: return KeyEvent.KEYCODE_Z;
+            case 44: return KeyEvent.KEYCODE_COMMA;
+            case 46: return KeyEvent.KEYCODE_PERIOD;
+            case 18: return KeyEvent.KEYCODE_ALT_LEFT;
+            case 16: return KeyEvent.KEYCODE_SHIFT_LEFT;
+            case 9: return KeyEvent.KEYCODE_TAB;
+            case 32: return KeyEvent.KEYCODE_SPACE;
+            case 10: return KeyEvent.KEYCODE_ENTER;
+            case 8: return KeyEvent.KEYCODE_DEL;
+            case 192: return KeyEvent.KEYCODE_GRAVE;
+            case 45: return KeyEvent.KEYCODE_MINUS;
+            case 61: return KeyEvent.KEYCODE_EQUALS;
+            case 91: return KeyEvent.KEYCODE_LEFT_BRACKET;
+            case 93: return KeyEvent.KEYCODE_RIGHT_BRACKET;
+            case 92: return KeyEvent.KEYCODE_BACKSLASH;
+            case 59: return KeyEvent.KEYCODE_SEMICOLON;
+            case 222: return KeyEvent.KEYCODE_APOSTROPHE;
+            case 47: return KeyEvent.KEYCODE_SLASH;
+            case 512: return KeyEvent.KEYCODE_AT;
+            case 521: return KeyEvent.KEYCODE_PLUS;
+            case 525: return KeyEvent.KEYCODE_MENU;
+            case 65488: return KeyEvent.KEYCODE_SEARCH;
+            case 19: return KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+            case 65480: return KeyEvent.KEYCODE_MEDIA_STOP;
+            case 33: return KeyEvent.KEYCODE_PAGE_UP;
+            case 34: return KeyEvent.KEYCODE_PAGE_DOWN;
+            case 27: return KeyEvent.KEYCODE_ESCAPE;
+            case 127: return KeyEvent.KEYCODE_FORWARD_DEL;
+            case 17: return KeyEvent.KEYCODE_CTRL_LEFT;
+            case 20: return KeyEvent.KEYCODE_CAPS_LOCK;
+            case 145: return KeyEvent.KEYCODE_SCROLL_LOCK;
+            case 157: return KeyEvent.KEYCODE_META_LEFT;
+            case 154: return KeyEvent.KEYCODE_SYSRQ;
+            case 36: return KeyEvent.KEYCODE_MOVE_HOME;
+            case 35: return KeyEvent.KEYCODE_MOVE_END;
+            case 155: return KeyEvent.KEYCODE_INSERT;
+            case 112: return KeyEvent.KEYCODE_F1;
+            case 113: return KeyEvent.KEYCODE_F2;
+            case 114: return KeyEvent.KEYCODE_F3;
+            case 115: return KeyEvent.KEYCODE_F4;
+            case 116: return KeyEvent.KEYCODE_F5;
+            case 117: return KeyEvent.KEYCODE_F6;
+            case 118: return KeyEvent.KEYCODE_F7;
+            case 119: return KeyEvent.KEYCODE_F8;
+            case 120: return KeyEvent.KEYCODE_F9;
+            case 121: return KeyEvent.KEYCODE_F10;
+            case 122: return KeyEvent.KEYCODE_F11;
+            case 123: return KeyEvent.KEYCODE_F12;
+            case 144: return KeyEvent.KEYCODE_NUM_LOCK;
+            case 96: return KeyEvent.KEYCODE_NUMPAD_0;
+            case 97: return KeyEvent.KEYCODE_NUMPAD_1;
+            case 98: return KeyEvent.KEYCODE_NUMPAD_2;
+            case 99: return KeyEvent.KEYCODE_NUMPAD_3;
+            case 100: return KeyEvent.KEYCODE_NUMPAD_4;
+            case 101: return KeyEvent.KEYCODE_NUMPAD_5;
+            case 102: return KeyEvent.KEYCODE_NUMPAD_6;
+            case 103: return KeyEvent.KEYCODE_NUMPAD_7;
+            case 104: return KeyEvent.KEYCODE_NUMPAD_8;
+            case 105: return KeyEvent.KEYCODE_NUMPAD_9;
+            case 111: return KeyEvent.KEYCODE_NUMPAD_DIVIDE;
+            case 106: return KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
+            case 109: return KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
+            case 107: return KeyEvent.KEYCODE_NUMPAD_ADD;
+            case 519: return KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN;
+            case 522: return KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN;
+            case 524: return KeyEvent.KEYCODE_WINDOW;
+            case 156: return KeyEvent.KEYCODE_HELP;
+            case 224: return KeyEvent.KEYCODE_DPAD_UP;
+            case 225: return KeyEvent.KEYCODE_DPAD_DOWN;
+            case 226: return KeyEvent.KEYCODE_DPAD_UP;
+            case 227: return KeyEvent.KEYCODE_DPAD_DOWN;
+            case 65489: return KeyEvent.KEYCODE_CUT;
+            case 65485: return KeyEvent.KEYCODE_COPY;
+            case 65487: return KeyEvent.KEYCODE_PASTE;
+        }
+        throw new RuntimeException();
+    }
+
+    public static int AndroidToAwt(int e){
         switch (e){
             case KeyEvent.KEYCODE_HOME: return 36;
             case KeyEvent.KEYCODE_BACK: return 35;

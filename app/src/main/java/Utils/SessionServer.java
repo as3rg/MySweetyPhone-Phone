@@ -5,13 +5,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.net.Uri;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
+import android.support.annotation.Dimension;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.view.KeyEvent;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.mysweetyphone.phone.IME;
+import com.mysweetyphone.phone.MouseTracker;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -33,7 +42,9 @@ import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,12 +55,17 @@ public class SessionServer extends Session{
     private SimpleProperty<Long> lastSync = new SimpleProperty<>(0L);
     private SimpleProperty<String> currentNumber = new SimpleProperty<>("");
 
-    public SessionServer(int type, int Port, Runnable doOnStopSession, Activity thisActivity) throws IOException, JSONException {
+    public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         MessageParser messageParser = new MessageParser();
-        String name = (PreferenceManager.getDefaultSharedPreferences(thisActivity)).getString("name", "");
+        String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", "");
         JSONObject message = new JSONObject();
         switch (type){
+            case MOUSE:
+                Dsocket = new DatagramSocket(Port);
+                Dsocket.setBroadcast(true);
+                port = Dsocket.getLocalPort();
+                break;
             case SMSVIEWER:
             case FILEVIEW:
                 ss = new ServerSocket(Port);
@@ -77,6 +93,102 @@ public class SessionServer extends Session{
         broadcasting.schedule(broadcastingTask, 2000, 2000);
 
         switch (type) {
+            case MOUSE:
+                t = new Thread(() -> {
+                    try {
+                        Dsocket.setBroadcast(true);
+                        DatagramPacket p;
+                        SimpleProperty gotAccess = new SimpleProperty(2);
+                        while (!Dsocket.isClosed()) {
+                            if(gotAccess.get().equals(1))
+                                continue;
+                            Message m = null;
+                            int head = -1;
+                            p = null;
+                            do{
+                                byte[] buf = new byte[Message.getMessageSize(MouseTracker.MESSAGESIZE)];
+                                p = new DatagramPacket(buf, buf.length);
+                                try {
+                                    Dsocket.receive(p);
+                                    broadcasting.cancel();
+                                    if(onStop != null){
+                                        onStop.run();
+                                        onStop = null;
+                                    }
+                                    m = new Message(p.getData());
+                                    messageParser.messageMap.put(m.getId(), m);
+                                    if (head == -1)
+                                        head = m.getId();
+                                } catch (SocketException ignored){
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }while (!Dsocket.isClosed() && (m == null || m.getNext() != -1));
+                            if(messageParser.messageMap.get(head) == null) continue;
+                            String msgString = new String(messageParser.parse(head));
+                            JSONObject msg = new JSONObject(msgString);
+
+//                            if(gotAccess.get().equals(0)) {
+//                                gotAccess.set(1);
+//                                Handler mainHandler = new Handler(thisContext.getMainLooper());
+//                                mainHandler.post(()-> {
+//                                    try {
+//                                        AlertDialog dialog = new AlertDialog.Builder(thisContext)
+//                                                .setTitle("Выполнить действие?")
+//                                                .setMessage("Вы действительно хотите предоставить доступ к клавиатуре \"" + msg.getString("Name") + "\"?")
+//                                                .setPositiveButton("Да", (dialog2, which) -> {
+//                                                    gotAccess.set(2);
+//                                                })
+//                                                .setNegativeButton("Нет", (dialog2, which) -> {
+//                                                    try {
+//                                                        Stop();
+//                                                    } catch (IOException e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//                                                }).create();
+//                                        Window window = dialog.getWindow();
+//                                        WindowManager.LayoutParams lp = window.getAttributes();
+//                                        lp.token = mInputView.getWindowToken();
+//                                        lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
+//                                        window.setAttributes(lp);
+//                                        window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                });
+//
+//                            }
+
+                            System.out.println(msgString);
+
+                            if(gotAccess.get().equals(2))
+                                try {
+                                    switch (msg.getString("Type")) {
+                                        case "keyReleased":
+                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, MouseTracker.AwtToAndroid(msg.getInt("value"))));
+                                            break;
+                                        case "keyPressed":
+                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, MouseTracker.AwtToAndroid(msg.getInt("value"))));
+                                            break;
+                                        case "keyClicked":
+                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, MouseTracker.AwtToAndroid(msg.getInt("value"))));
+                                            ((IME)thisContext).getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, MouseTracker.AwtToAndroid(msg.getInt("value"))));
+                                            break;
+                                        case "keysTyped":
+                                            ((IME)thisContext).getCurrentInputConnection().commitText(msg.getString("value"),1);
+                                            break;
+                                        case "start":
+                                            break;
+                                        default:
+                                            System.err.println(msgString);
+                                    }
+                                }catch (IllegalArgumentException ignored){}
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
             case FILEVIEW:
                 t = new Thread(()->{
                     try {
@@ -88,7 +200,7 @@ public class SessionServer extends Session{
                             String line = reader.readLine();
                             broadcasting.cancel();
                             if(onStop != null){
-                                thisActivity.runOnUiThread(onStop);
+                                ((Activity)thisContext).runOnUiThread(onStop);
                                 onStop = null;
                             }
                             if(line == null){
@@ -98,9 +210,9 @@ public class SessionServer extends Session{
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
-                                thisActivity.runOnUiThread(() -> {
+                                ((Activity)thisContext).runOnUiThread(() -> {
                                     try {
-                                        new AlertDialog.Builder(thisActivity)
+                                        new AlertDialog.Builder(thisContext)
                                                 .setTitle("Выполнить действие?")
                                                 .setMessage("Вы действительно хотите предоставить доступ к файлам \"" + msg.getString("Name") + "\"?")
                                                 .setPositiveButton("Да", (dialog, which) -> gotAccess.set(2))
@@ -232,7 +344,7 @@ public class SessionServer extends Session{
                             String line = reader.readLine();
                             broadcasting.cancel();
                             if(onStop != null){
-                                thisActivity.runOnUiThread(onStop);
+                                ((Activity)thisContext).runOnUiThread(onStop);
                                 onStop = null;
                             }
                             if(line == null) {
@@ -242,9 +354,9 @@ public class SessionServer extends Session{
                             JSONObject msg = new JSONObject(line);
                             if(gotAccess.get() == 0) {
                                 gotAccess.set(1);
-                                thisActivity.runOnUiThread(() -> {
+                                ((Activity)thisContext).runOnUiThread(() -> {
                                     try {
-                                        new AlertDialog.Builder(thisActivity)
+                                        new AlertDialog.Builder(thisContext)
                                                 .setTitle("Выполнить действие?")
                                                 .setMessage("Вы действительно хотите предоставить доступ к сообщениям \"" + msg.getString("Name") + "\"?")
                                                 .setPositiveButton("Да", (dialog, which) -> {
@@ -288,7 +400,7 @@ public class SessionServer extends Session{
                                         Ssocket.close();
                                         Stop();
                                     case "start":
-                                        SubscriptionManager subscriptionManager = (SubscriptionManager) thisActivity.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+                                        SubscriptionManager subscriptionManager = (SubscriptionManager) thisContext.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
                                         SubscriptionInfo sim = subscriptionManager.getActiveSubscriptionInfo(1);
                                         if(sim != null) ans.put("Sim1", sim.getDisplayName());
                                         sim = subscriptionManager.getActiveSubscriptionInfo(2);
@@ -304,7 +416,7 @@ public class SessionServer extends Session{
                                                     if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
                                                     JSONObject ans = new JSONObject();
                                                     JSONArray sms = new JSONArray();
-                                                    @SuppressLint("Recycle") Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                                    @SuppressLint("Recycle") Cursor cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
                                                     while (cur != null && cur.moveToNext()) {
                                                         String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                                         JSONObject a = new JSONObject();
@@ -314,7 +426,7 @@ public class SessionServer extends Session{
                                                         a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
 
                                                         if(number.isEmpty()) continue;
-                                                        Cursor cur2 = thisActivity
+                                                        Cursor cur2 = thisContext
                                                                 .getContentResolver()
                                                                 .query(
                                                                         Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
@@ -344,11 +456,11 @@ public class SessionServer extends Session{
                                         }, 0, 45000);
                                     case "getContacts":
                                         Set<String> contacts = new HashSet<>();
-                                        Cursor cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.ADDRESS}, null, null, null);
+                                        Cursor cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.ADDRESS}, null, null, null);
                                         while (cur != null && cur.moveToNext()) {
                                             String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                             if(number == null || number.isEmpty()) continue;
-                                            Cursor cur2 = thisActivity
+                                            Cursor cur2 = thisContext
                                                     .getContentResolver()
                                                     .query(
                                                             Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
@@ -371,7 +483,7 @@ public class SessionServer extends Session{
                                         break;
                                     case "getContact":
                                         String number = msg.getString("Number");
-                                        Cursor cur2 = thisActivity
+                                        Cursor cur2 = thisContext
                                             .getContentResolver()
                                             .query(
                                                     Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
@@ -393,7 +505,7 @@ public class SessionServer extends Session{
                                     case "showSMSs":
                                         currentNumber.set(msg.getString("Number"));
                                         JSONArray sms = new JSONArray();
-                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, null, null, Telephony.Sms.DATE + " ASC");
+                                        cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, null, null, Telephony.Sms.DATE + " ASC");
                                         while (cur != null && cur.moveToNext()) {
                                             number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                             if(number == null || !(number.replaceAll("[ \\-()]","").equals(msg.getString("Number")) || number.equals(msg.getString("Number")))
@@ -420,7 +532,7 @@ public class SessionServer extends Session{
                                         Thread.sleep(2000);
                                         ans = new JSONObject();
                                         sms = new JSONArray();
-                                        cur = thisActivity.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+                                        cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
                                         while (cur != null && cur.moveToNext()) {
                                             number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                                             if (number == null || !(number.replaceAll("[ \\-()]", "").equals(currentNumber.get()) || number.equals(currentNumber.get()))
@@ -433,7 +545,7 @@ public class SessionServer extends Session{
                                             a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
                                             a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
                                             if(number.isEmpty()) continue;
-                                            Cursor cur3 = thisActivity
+                                            Cursor cur3 = thisContext
                                                     .getContentResolver()
                                                     .query(
                                                             Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,

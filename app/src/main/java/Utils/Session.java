@@ -27,16 +27,16 @@ public abstract class Session{
             MOUSE = 1,
             FILEVIEW = 2,
             SMSVIEWER = 3;
+//
+//    public static Stack<Session> sessions;
 
-    public static Stack<Session> sessions;
+//    static {
+//        sessions=new Stack<>();
+//    }
 
-    static {
-        sessions=new Stack<>();
-    }
-
-    public Session(){
-        sessions.add(this);
-    }
+//    public Session(){
+//        sessions.add(this);
+//    }
 
     public void Start(){
         t.start();

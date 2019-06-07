@@ -74,23 +74,8 @@ public class SServer extends Fragment {
     }
 
     public void CloseSession(View e) {
-        try {
-            NewSession.setOnClickListener(this::OpenSession);
-            NewSession.setText("Открыть сессию");
-            Session.sessions.pop().Stop();
-            SessionType.setEnabled(true);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onDestroy(){
-        try {
-            if(Session.sessions.size() > 0) Session.sessions.pop().Stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        super.onDestroy();
+        NewSession.setOnClickListener(this::OpenSession);
+        NewSession.setText("Открыть сессию");
+        SessionType.setEnabled(true);
     }
 }

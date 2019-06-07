@@ -80,7 +80,7 @@ public class Main extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         TextView name = findViewById(R.id.NameNav);
-        if(login.isEmpty()){
+        if(login.isEmpty() && name != null) {
             name.setText("Инкогнито");
             name.setTextColor(Color.parseColor("#cccccc"));
             name.setTypeface(null, Typeface.ITALIC);
