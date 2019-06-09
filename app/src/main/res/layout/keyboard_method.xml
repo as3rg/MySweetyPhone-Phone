@@ -3,7 +3,5 @@
     android:layout_height="wrap_content"
     android:layout_width="wrap_content">
     <subtype
-        android:label="en_US"
-        android:imeSubtypeLocale="en_US"
-        android:imeSubtypeMode="keyboard" />
+        android:label="@string/keyboard_name"/>
 </input-method>

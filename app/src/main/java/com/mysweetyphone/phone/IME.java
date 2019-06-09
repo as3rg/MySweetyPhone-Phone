@@ -1,13 +1,12 @@
 package com.mysweetyphone.phone;
 
+import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
-
 import org.json.JSONException;
-
 import java.io.IOException;
-
 import Utils.Session;
 
 public class IME extends InputMethodService{
@@ -26,11 +25,12 @@ public class IME extends InputMethodService{
         return kv;
     }
 
-//    public void onKey(View v) {
-//        InputConnection ic = getCurrentInputConnection();
-//        ic.sendKeyEvent()
-//        ic.commitText(String.valueOf(96),1);
-//    }
+    @Override
+    public void onWindowShown (){
+        if(PreferenceManager.getDefaultSharedPreferences(this).getString("name", "").isEmpty()){
+            startActivity(new Intent(this, Starting.class));
+        }
+    }
 
     public void OpenSession(View e){
         try{
