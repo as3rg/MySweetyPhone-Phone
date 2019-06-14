@@ -44,8 +44,12 @@ public class Main extends AppCompatActivity
             fm.getFragments().clear();
             ft.replace(R.id.MainFragment,new Saved());
         }else {
-            if (fm.getFragments().isEmpty())
-                ft.replace(R.id.MainFragment, new DevicesList());
+            if (fm.getFragments().isEmpty()) {
+                if(login.isEmpty())
+                    ft.replace(R.id.MainFragment, new SClient());
+                else
+                    ft.replace(R.id.MainFragment, new DevicesList());
+            }
         }
         ft.commit();
 
@@ -66,6 +70,7 @@ public class Main extends AppCompatActivity
         }else{
             navigationView.inflateMenu(R.menu.activity_main_drawer);
         }
+
     }
     @Override
     public void onBackPressed() {

@@ -19,8 +19,10 @@ import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.text.InputType;
+import android.text.Layout;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import android.widget.TextView;
 import com.mysweetyphone.phone.IME;
 import com.mysweetyphone.phone.Main;
 import com.mysweetyphone.phone.MouseTracker;
+import com.mysweetyphone.phone.R;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -52,11 +55,14 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 public class SessionServer extends Session{
     private Thread onStop;
@@ -101,7 +107,6 @@ public class SessionServer extends Session{
             }
         };
         broadcasting.schedule(broadcastingTask, 2000, 2000);
-
         switch (type) {
             case MOUSE:
                 t = new Thread(() -> {
@@ -109,6 +114,7 @@ public class SessionServer extends Session{
                         Dsocket.setBroadcast(true);
                         DatagramPacket p;
                         SimpleProperty gotAccess = new SimpleProperty(0);
+                        LinearLayout layout = (LinearLayout) ((IME) thisContext).layout;
                         while (!Dsocket.isClosed()) {
                             if(gotAccess.get().equals(1))
                                 continue;
@@ -122,7 +128,7 @@ public class SessionServer extends Session{
                                     Dsocket.receive(p);
                                     broadcasting.cancel();
                                     if(onStop != null){
-                                        onStop.run();
+                                        onStop.start();
                                         onStop = null;
                                     }
                                     m = new Message(p.getData());
@@ -140,25 +146,19 @@ public class SessionServer extends Session{
                             if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
                                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                                params.weight = 1.0f;
                                 params.gravity = Gravity.CENTER;
-                                LinearLayout layout = (LinearLayout) ((IME) thisContext).layout;
 
                                 LinearLayout notification = new LinearLayout(thisContext);
                                 notification.setOrientation(LinearLayout.HORIZONTAL);
-                                TextView text = new TextView(thisContext);
-                                text.setText("Вы действительно хотите предоставить доступ к клавиатуре \"" + msg.getString("Name") + "\"?");
-                                text.setTextColor(Color.WHITE);
-                                text.setLayoutParams(params);
-                                notification.addView(text);
 
                                 Button yes = new Button(thisContext);
                                 yes.setText("Да");
                                 yes.setLayoutParams(params);
                                 yes.setOnClickListener((v -> {
                                     gotAccess.set(2);
-                                    ((LinearLayout)((IME)thisContext).layout).removeView(notification);
+                                    layout.removeView(notification);
                                 }));
+                                yes.setMinimumWidth(200);
                                 notification.addView(yes);
 
                                 Button no = new Button(thisContext);
@@ -172,34 +172,19 @@ public class SessionServer extends Session{
                                         e.printStackTrace();
                                     }
                                 }));
+                                no.setMinimumWidth(200);
                                 notification.addView(no);
+
+                                TextView text = new TextView(thisContext);
+                                text.setText("Вы действительно хотите предоставить доступ к клавиатуре \"" + msg.getString("Name") + "\"?");
+                                text.setTextColor(Color.WHITE);
+                                text.setLayoutParams(params);
+                                notification.addView(text);
+
                                 Handler mainHandler = new Handler(thisContext.getMainLooper());
                                 mainHandler.post(()-> {
-                                    layout.addView(notification, 1);
+                                    layout.addView(notification);
                                 });
-//                                Handler mainHandler = new Handler(thisContext.getMainLooper());
-//                                mainHandler.post(()-> {
-//                                    try {
-//                                        AlertDialog dialog = new AlertDialog.Builder(thisContext)
-//                                                .setTitle("Выполнить действие?")
-//                                                .setMessage("Вы действительно хотите предоставить доступ к клавиатуре \"" + msg.getString("Name") + "\"?")
-//                                                .setPositiveButton("Да", (dialog2, which) -> {
-//                                                    gotAccess.set(2);
-//                                                })
-//                                                .setNegativeButton("Нет", (dialog2, which) -> {
-//                                                    try {
-//                                                        Stop();
-//                                                    } catch (IOException e) {
-//                                                        e.printStackTrace();
-//                                                    }
-//                                                }).create();
-//                                        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
-//                                        dialog.show();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                });
-
                             }
 
                             if(gotAccess.get().equals(2))

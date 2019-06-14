@@ -84,7 +84,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Users/Xiaomi/AppData/Local/JetBrains/Toolbox/apps/AndroidStudio/ch-0/183.5452501/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_add_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Users/Xiaomi/AppData/Local/JetBrains/Toolbox/apps/AndroidStudio/ch-0/183.5452501/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_up_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -94,7 +94,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_sms_viewer_add" />
+                            <entry key="outputName" value="ic_keyboard_up" />
                             <entry key="sourceFile" value="C:\Users\Alex" />
                           </map>
                         </option>
