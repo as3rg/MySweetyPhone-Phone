@@ -49,7 +49,7 @@ public class FileViewer extends AppCompatActivity {
     Thread receiving;
     PrintWriter writer;
     BufferedReader reader;
-    String name;
+    String name, login;
     Set<String> files;
 
     @Override
@@ -60,6 +60,7 @@ public class FileViewer extends AppCompatActivity {
 
         files = new HashSet<>();
         name = PreferenceManager.getDefaultSharedPreferences(this).getString("name", "");
+        login = PreferenceManager.getDefaultSharedPreferences(this).getString("login", "");
 
         receiving = new Thread(()-> {
             try {
@@ -75,6 +76,7 @@ public class FileViewer extends AppCompatActivity {
                             JSONObject msg2 = new JSONObject();
                             msg2.put("Type", "start");
                             msg2.put("Name", name);
+                            if(!login.isEmpty()) msg2.put("Login", login);
                             writer.println(msg2.toString());
                             writer.flush();
                         } catch (JSONException e) {
@@ -159,6 +161,7 @@ public class FileViewer extends AppCompatActivity {
                 JSONObject msg = new JSONObject();
                 msg.put("Type", "finish");
                 msg.put("Name", name);
+                if(!login.isEmpty()) msg.put("Login", login);
                 writer.println(msg.toString());
                 writer.flush();
             } catch (JSONException | NullPointerException e) {
@@ -173,6 +176,7 @@ public class FileViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "back");
                 msg2.put("Name", name);
+                if(!login.isEmpty()) msg2.put("Login", login);
                 msg2.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText().toString());
                 writer.println(msg2.toString());
                 writer.flush();
@@ -217,6 +221,7 @@ public class FileViewer extends AppCompatActivity {
                             msg2.put("Type", "newDir");
                             msg2.put("DirName", input.getText().toString());
                             msg2.put("Name", name);
+                            if(!login.isEmpty()) msg2.put("Login", login);
                             msg2.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText().toString());
                             writer.println(msg2.toString());
                             writer.flush();
@@ -244,6 +249,7 @@ public class FileViewer extends AppCompatActivity {
                 JSONObject msg3 = new JSONObject();
                 msg3.put("Type", "showDir");
                 msg3.put("Name", name);
+                if(!login.isEmpty()) msg3.put("Login", login);
                 msg3.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText());
                 writer.println(msg3.toString());
                 writer.flush();
@@ -264,6 +270,7 @@ public class FileViewer extends AppCompatActivity {
                     JSONObject msg2 = new JSONObject();
                     msg2.put("Type", "uploadFile");
                     msg2.put("Name", name);
+                    if(!login.isEmpty()) msg2.put("Login", login);
                     msg2.put("FileName", file.getName());
                     msg2.put("FileSocketPort", ss.getLocalPort());
                     msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());
@@ -317,6 +324,7 @@ public class FileViewer extends AppCompatActivity {
                                 JSONObject msg2 = new JSONObject();
                                 msg2.put("Type", "deleteFile");
                                 msg2.put("Name", name);
+                                if(!login.isEmpty()) msg2.put("Login", login);
                                 msg2.put("FileName", fileName);
                                 msg2.put("Dir", dir);
                                 writer.println(msg2.toString());
@@ -338,6 +346,7 @@ public class FileViewer extends AppCompatActivity {
                                 JSONObject msg2 = new JSONObject();
                                 msg2.put("Type", "downloadFile");
                                 msg2.put("Name", name);
+                                if(!login.isEmpty()) msg2.put("Login", login);
                                 msg2.put("FileName", fileName);
                                 msg2.put("FileSocketPort", ss.getLocalPort());
                                 msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());
@@ -372,6 +381,7 @@ public class FileViewer extends AppCompatActivity {
                     JSONObject msg3 = new JSONObject();
                     msg3.put("Type", "showDir");
                     msg3.put("Name", name);
+                    if(!login.isEmpty()) msg3.put("Login", login);
                     msg3.put("Dir", dir);
                     msg3.put("DirName", fileName);
                     writer.println(msg3.toString());

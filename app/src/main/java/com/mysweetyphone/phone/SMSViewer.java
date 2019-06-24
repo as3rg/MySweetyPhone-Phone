@@ -50,7 +50,7 @@ import Utils.SimpleProperty;
 
 public class SMSViewer extends AppCompatActivity {
 
-    private String name;
+    private String name, login;
     Thread receiving;
     PrintWriter writer;
     BufferedReader reader;
@@ -74,6 +74,7 @@ public class SMSViewer extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
+        login = PreferenceManager.getDefaultSharedPreferences(this).getString("login", "");
 
         ContactList = new ArrayList<>();
 
@@ -100,6 +101,7 @@ public class SMSViewer extends AppCompatActivity {
                         msg.put("Type", "showSMSs");
                         msg.put("Contact", Contacts.getSelectedItem().toString());
                         msg.put("Name", name);
+                        if(!login.isEmpty()) msg.put("Login", login);
                         Pattern r = Pattern.compile(".*\\((.+)\\)");
                         Matcher m = r.matcher(Contacts.getSelectedItem().toString());
                         if (m.find())
@@ -127,6 +129,7 @@ public class SMSViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "start");
                 msg2.put("Name", name);
+                if(!login.isEmpty()) msg2.put("Login", login);
                 writer.println(msg2.toString());
                 writer.flush();
                 SimpleProperty<String>  Sim1 = new SimpleProperty<>(""), Sim2 = new SimpleProperty<>("");
@@ -326,6 +329,7 @@ public class SMSViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "finish");
                 msg2.put("Name", name);
+                if(!login.isEmpty()) msg2.put("Login", login);
                 writer.println(msg2.toString());
                 writer.flush();
             } catch (JSONException | NullPointerException e) {
@@ -359,6 +363,7 @@ public class SMSViewer extends AppCompatActivity {
                 msg2.put("Number", Contacts.getSelectedItem());
                 msg2.put("Text", MessageText.getText());
                 msg2.put("Name", name);
+                if(!login.isEmpty()) msg2.put("Login", login);
                 msg2.put("Sim", i);
                 writer.println(msg2.toString());
                 writer.flush();
@@ -375,6 +380,7 @@ public class SMSViewer extends AppCompatActivity {
                 JSONObject msg3 = new JSONObject();
                 msg3.put("Type", "finish");
                 msg3.put("Name", name);
+                if(!login.isEmpty()) msg3.put("Login", login);
                 writer.println(msg3.toString());
                 writer.flush();
                 finish();

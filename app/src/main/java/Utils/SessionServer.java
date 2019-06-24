@@ -73,7 +73,8 @@ public class SessionServer extends Session{
     public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         MessageParser messageParser = new MessageParser();
-        String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", "");
+        String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", ""),
+            login = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("login", "");
         JSONObject message = new JSONObject();
         switch (type){
             case MOUSE:
@@ -143,7 +144,10 @@ public class SessionServer extends Session{
                             if(messageParser.messageMap.get(head) == null) continue;
                             String msgString = new String(messageParser.parse(head));
                             JSONObject msg = new JSONObject(msgString);
-                            if(gotAccess.get().equals(0)) {
+
+                            if(msg.has("Login") && msg.get("Login").equals(login))
+                                gotAccess.set(2);
+                            else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
                                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                                 params.gravity = Gravity.CENTER;
@@ -234,7 +238,10 @@ public class SessionServer extends Session{
                                 break;
                             }
                             JSONObject msg = new JSONObject(line);
-                            if(gotAccess.get().equals(0)) {
+
+                            if(msg.has("Login") && msg.get("Login").equals(login))
+                                gotAccess.set(2);
+                            else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
                                 ((Activity)thisContext).runOnUiThread(() -> {
                                     try {
@@ -378,7 +385,10 @@ public class SessionServer extends Session{
                                 break;
                             }
                             JSONObject msg = new JSONObject(line);
-                            if(gotAccess.get() == 0) {
+
+                            if(msg.has("Login") && msg.get("Login").equals(login))
+                                gotAccess.set(2);
+                            else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
                                 ((Activity)thisContext).runOnUiThread(() -> {
                                     try {
@@ -418,7 +428,7 @@ public class SessionServer extends Session{
                                     }
                                 });
                             }
-                            if(gotAccess.get() == 2){
+                            if(gotAccess.get().equals(2)){
                                 Timer t = new Timer();
                                 JSONObject ans = new JSONObject();
                                 switch (msg.getString("Type")){

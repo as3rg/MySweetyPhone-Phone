@@ -81,7 +81,7 @@ public class MouseTracker extends AppCompatActivity {
 
     static public SessionClient sc;
     static public final int MESSAGESIZE = 100;
-    static String name;
+    static String name, login;
     Switch win, alt, shift, ctrl;
     EditText inputView;
     SingleClick singleClick;
@@ -98,12 +98,14 @@ public class MouseTracker extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         name = PreferenceManager.getDefaultSharedPreferences(this).getString("name", "");
+        login = PreferenceManager.getDefaultSharedPreferences(this).getString("login", "");
 
         View content = findViewById(android.R.id.content);
         JSONObject msg2 = new JSONObject();
         try {
             msg2.put("Type", "start");
             msg2.put("Name", name);
+            if(!login.isEmpty()) msg2.put("Login", login);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -130,6 +132,7 @@ public class MouseTracker extends AppCompatActivity {
                 try {
                     JSONObject msg = new JSONObject();
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     msg.put("Type", "keysTyped");
                     if(!sc.isPhone && (win.isChecked() || alt.isChecked() || shift.isChecked() || ctrl.isChecked())){
                         msg.put("Subtype", "hotkey");
@@ -171,6 +174,7 @@ public class MouseTracker extends AppCompatActivity {
                     msg.put("Type", "keyClicked");
                     msg.put("value", AndroidToAwt(keyCode));
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     Send(msg.toString().getBytes());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -269,6 +273,7 @@ public class MouseTracker extends AppCompatActivity {
                     JSONObject msg = new JSONObject();
                     msg.put("Type", "mouseMoved");
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     msg.put("X", nextSingleClick.x - singleClick.x);
                     msg.put("Y", nextSingleClick.y - singleClick.y);
                     Send(msg.toString().getBytes());
@@ -278,6 +283,7 @@ public class MouseTracker extends AppCompatActivity {
                         msg = new JSONObject();
                         msg.put("Type", "mousePressed");
                         msg.put("Name", name);
+                        if(!login.isEmpty()) msg.put("Login", login);
                         msg.put("Key", 1);
                         Send(msg.toString().getBytes());
                         nextSingleClick.Later(new CustomTimerTask(nextSingleClick) {
@@ -287,6 +293,7 @@ public class MouseTracker extends AppCompatActivity {
                                     JSONObject msg = new JSONObject();
                                     msg.put("Type", "mouseReleased");
                                     msg.put("Name", name);
+                                    if(!login.isEmpty()) msg.put("Login", login);
                                     msg.put("Key", 1);
                                     Send(msg.toString().getBytes());
                                 } catch (JSONException e) {
@@ -298,12 +305,14 @@ public class MouseTracker extends AppCompatActivity {
                         msg = new JSONObject();
                         msg.put("Type", "mouseClicked");
                         msg.put("Name", name);
+                        if(!login.isEmpty()) msg.put("Login", login);
                         msg.put("Key", 3);
                         Send(msg.toString().getBytes());
                     }else{
                         msg = new JSONObject();
                         msg.put("Type", "mouseReleased");
                         msg.put("Name", name);
+                        if(!login.isEmpty()) msg.put("Login", login);
                         msg.put("Key", 1);
                         Send(msg.toString().getBytes());
                     }
@@ -329,6 +338,7 @@ public class MouseTracker extends AppCompatActivity {
                     JSONObject msg = new JSONObject();
                     msg.put("Type", "startDrawing");
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     msg.put("X", event.getX() / width);
                     msg.put("Y", event.getY() / height);
                     Send(msg.toString().getBytes());
@@ -337,6 +347,7 @@ public class MouseTracker extends AppCompatActivity {
                     msg = new JSONObject();
                     msg.put("Type", "draw");
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     msg.put("X", event.getX() / width);
                     msg.put("Y", event.getY() / height);
                     Send(msg.toString().getBytes());
@@ -346,6 +357,7 @@ public class MouseTracker extends AppCompatActivity {
                     msg.put("Type", "mouseReleased");
                     msg.put("Key", 1);
                     msg.put("Name", name);
+                    if(!login.isEmpty()) msg.put("Login", login);
                     Send(msg.toString().getBytes());
                 default:
                     break;
@@ -363,6 +375,7 @@ public class MouseTracker extends AppCompatActivity {
             JSONObject msg = new JSONObject();
             msg.put("Type", "finish");
             msg.put("Name", name);
+            if(!login.isEmpty()) msg.put("Login", login);
             Send(msg.toString().getBytes());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -452,6 +465,7 @@ public class MouseTracker extends AppCompatActivity {
     public void sendExtraButton(View v) throws JSONException {
         JSONObject msg = new JSONObject();
         msg.put("Name", name);
+        if(!login.isEmpty()) msg.put("Login", login);
         msg.put("value", ViewToButtonId(v));
         msg.put("Type", "keyClicked");
         Send(msg.toString().getBytes());
@@ -460,6 +474,7 @@ public class MouseTracker extends AppCompatActivity {
     public void switchExtraButton(View v) throws JSONException {
         JSONObject msg = new JSONObject();
         msg.put("Name", name);
+        if(!login.isEmpty()) msg.put("Login", login);
         msg.put("value", ViewToButtonId(v));
         if(((Switch)v).isChecked())
             msg.put("Type", "keyPressed");
@@ -734,6 +749,7 @@ public class MouseTracker extends AppCompatActivity {
             JSONObject msg3 = new JSONObject();
             msg3.put("Type", "finish");
             msg3.put("Name", name);
+            if(!login.isEmpty()) msg3.put("Login", login);
             Send(msg3.toString().getBytes());
             finish();
         } catch (JSONException e) {
