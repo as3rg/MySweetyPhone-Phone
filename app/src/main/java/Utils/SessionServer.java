@@ -145,7 +145,7 @@ public class SessionServer extends Session{
                             String msgString = new String(messageParser.parse(head));
                             JSONObject msg = new JSONObject(msgString);
 
-                            if(msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
@@ -239,7 +239,7 @@ public class SessionServer extends Session{
                             }
                             JSONObject msg = new JSONObject(line);
 
-                            if(msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
@@ -386,7 +386,7 @@ public class SessionServer extends Session{
                             }
                             JSONObject msg = new JSONObject(line);
 
-                            if(msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
