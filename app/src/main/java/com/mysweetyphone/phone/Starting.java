@@ -46,9 +46,9 @@ public class Starting extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 try {
                     if (responseBody.getInt("result") == 1 && getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_SEND)) {
-                        if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
-                            ChangeActivity(Main.class);
-                        else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                            if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
+                                ChangeActivity(Main.class);
+                            else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
                             ChangeActivity(ChooseWayToSend.class);
                     } else if (responseBody.getInt("result") == 1) {
                         ChangeActivity(Main.class);
@@ -100,15 +100,18 @@ public class Starting extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         try {
-            if (requestCode == 124) {
-                if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == 124 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if(!name.isEmpty() && login.isEmpty())
-                        ChangeActivity(Main.class);
+                        if (getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_SEND)) {
+                            if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
+                                ChangeActivity(Main.class);
+                            else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
+                                ChangeActivity(ChooseWayToSend.class);
+                        }
                     else
                         Request();
-                } else {
-                    finish();
-                }
+            } else {
+                finish();
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

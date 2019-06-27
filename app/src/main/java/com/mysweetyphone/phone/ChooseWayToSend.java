@@ -93,7 +93,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                         Button b = new Button(this);
                         b.setBackgroundColor(Color.WHITE);
                         b.setText(p.getAddress().getHostAddress());
-                        Server s = new Server(b,ans.getInt("port"));
+                        Server s = new Server(b,ans.getInt("Port"));
                         Activity thisActivity = this;
                         b.setOnClickListener(button-> new Thread(()-> {
                             try(DatagramSocket sendsocket = new DatagramSocket()) {
@@ -112,15 +112,16 @@ public class ChooseWayToSend extends AppCompatActivity {
                                 sendsocket.setBroadcast(true);
                                 JSONObject messages = new JSONObject();
                                 messages.put("Name", PreferenceManager.getDefaultSharedPreferences(this).getString("name", ""));
+                                messages.put("Login", PreferenceManager.getDefaultSharedPreferences(this).getString("login", ""));
                                 if (rg.getCheckedRadioButtonId() == R.id.openSiteCHOOSEWAY) {
-                                    messages.put("type", "openSite");
-                                    messages.put("site", getIntent().getStringExtra(Intent.EXTRA_TEXT));
+                                    messages.put("Type", "openSite");
+                                    messages.put("Site", getIntent().getStringExtra(Intent.EXTRA_TEXT));
                                 } else {
-                                    messages.put("type", "copy");
-                                    messages.put("value", getIntent().getStringExtra(Intent.EXTRA_TEXT));
+                                    messages.put("Type", "copy");
+                                    messages.put("Value", getIntent().getStringExtra(Intent.EXTRA_TEXT));
                                 }
                                 for (Message m : Message.getMessages(messages.toString().getBytes(), Message.BODYMAXIMUM/10)) {
-                                    sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("port")));
+                                    sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("Port")));
                                 }
                             } catch (IOException | JSONException | NullPointerException e) {
                                 e.printStackTrace();
