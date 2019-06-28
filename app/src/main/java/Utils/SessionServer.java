@@ -69,6 +69,14 @@ public class SessionServer extends Session{
     private ServerSocket ss;
     private SimpleProperty<Long> lastSync = new SimpleProperty<>(0L);
     private SimpleProperty<String> currentNumber = new SimpleProperty<>("");
+    public static final int[] allowedTypes = {SMSVIEWER, FILEVIEW};
+
+    public void setOnStop(Runnable r){
+        if(r == null)
+            onStop = null;
+        else
+            onStop = new Thread(r);
+    }
 
     public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);

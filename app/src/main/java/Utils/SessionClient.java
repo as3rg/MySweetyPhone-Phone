@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -70,15 +71,17 @@ public class SessionClient extends Session{
             t.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    for (String item : ips.keySet()) {
-                        if (ips.get(item).value == 1) {
-                            Button b = ips.get(item).b;
-                            if(activity!=null)
-                                activity.runOnUiThread(() -> v.removeView(b));
-                            ips.remove(item);
-                        }else
-                            ips.get(item).value--;
-                    }
+                    try {
+                        for (String item : ips.keySet()) {
+                            if (ips.get(item).value == 1) {
+                                Button b = ips.get(item).b;
+                                if (activity != null)
+                                    activity.runOnUiThread(() -> v.removeView(b));
+                                ips.remove(item);
+                            } else
+                                ips.get(item).value--;
+                        }
+                    }catch (ConcurrentModificationException ignored){}
                 }
             }, 0, 2000);
             try {

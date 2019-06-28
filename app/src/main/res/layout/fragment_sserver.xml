@@ -18,5 +18,14 @@
         android:id="@+id/newSessionSSERVER"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="30dp"
         android:text="@string/new_sessionSSERVER" />
+
+    <Switch
+        android:id="@+id/serverModeSSERVER"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ServerModeSSERVER"
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
 </LinearLayout>

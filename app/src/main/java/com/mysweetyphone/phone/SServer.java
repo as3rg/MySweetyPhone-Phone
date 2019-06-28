@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Switch;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 
+import Utils.ServerMode;
 import Utils.Session;
 
 
@@ -20,6 +22,7 @@ public class SServer extends Fragment {
 
     Button NewSession;
     Spinner SessionType;
+    Switch ServerMode;
     public static final String
             FILEVIEW = "Просмотр Файлов",
             SMSVIEW = "Просмотр SMS";
@@ -42,6 +45,12 @@ public class SServer extends Fragment {
         SessionType.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.spinner_item, new String[]{FILEVIEW, SMSVIEW}));
         NewSession = getActivity().findViewById(R.id.newSessionSSERVER);
         NewSession.setOnClickListener(this::OpenSession);
+        ServerMode = getActivity().findViewById(R.id.serverModeSSERVER);
+
+        ServerMode.setChecked(Utils.ServerMode.getState());
+        NewSession.setEnabled(!ServerMode.isChecked());
+        SessionType.setEnabled(!ServerMode.isChecked());
+        ServerMode.setOnClickListener(this::SwitchServerMode);
     }
 
 
@@ -74,8 +83,28 @@ public class SServer extends Fragment {
     }
 
     public void CloseSession(View e) {
-        NewSession.setOnClickListener(this::OpenSession);
-        NewSession.setText("Открыть сессию");
-        SessionType.setEnabled(true);
+        try {
+            NewSession.setOnClickListener(this::OpenSession);
+            NewSession.setText("Открыть сессию");
+            Session.sessions.pop().Stop();
+            SessionType.setEnabled(true);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void SwitchServerMode(View v) {
+        try {
+            Switch s = (Switch) v;
+            if(s.isChecked()){
+                if(!Session.sessions.isEmpty()) CloseSession(null);
+                Utils.ServerMode.Start();
+            }else
+                Utils.ServerMode.Stop();
+            NewSession.setEnabled(!s.isChecked());
+            SessionType.setEnabled(!s.isChecked());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

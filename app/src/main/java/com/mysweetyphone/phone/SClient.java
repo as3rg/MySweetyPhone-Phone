@@ -10,8 +10,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import java.io.IOException;
 import java.net.SocketException;
 
+import Utils.ServerMode;
 import Utils.SessionClient;
 
 
@@ -40,13 +42,14 @@ public class SClient extends Fragment {
 
     public void Search(View v) {
         try {
+            ServerMode.Stop();
             SearchSessions.setOnClickListener(this::StopSearching);
             SearchSessions.setText(R.string.stop_searchingSCLIENT);
             SessionClient.Search(ConnectToSession, new Thread(() -> {
                 SearchSessions.setOnClickListener(this::Search);
                 SearchSessions.setText(R.string.searchSCLIENT);
             }), getActivity());
-        } catch (SocketException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

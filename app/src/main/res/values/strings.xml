@@ -46,4 +46,5 @@
     <string name="pen_tabletMOUSETRACKER">Гр. Планшет</string>
     <string name="new_sessionSSERVER">Начать сессию</string>
     <string name="offline">Включить Offline Режим</string>
+    <string name="ServerModeSSERVER">Автооткрытие сессий</string>
 </resources>

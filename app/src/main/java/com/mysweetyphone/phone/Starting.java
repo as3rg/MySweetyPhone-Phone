@@ -101,15 +101,13 @@ public class Starting extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         try {
             if (requestCode == 124 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(!name.isEmpty() && login.isEmpty())
-                        if (getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_SEND)) {
-                            if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
-                                ChangeActivity(Main.class);
-                            else if (getIntent().getStringExtra(Intent.EXTRA_TEXT) != null)
-                                ChangeActivity(ChooseWayToSend.class);
-                        }
-                    else
-                        Request();
+                if(!name.isEmpty() && login.isEmpty())
+                    if (getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_SEND) && getIntent().getStringExtra(Intent.EXTRA_TEXT) != null) {
+                        ChangeActivity(ChooseWayToSend.class);
+                    } else
+                        ChangeActivity(Main.class);
+                else
+                    Request();
             } else {
                 finish();
             }
