@@ -2,8 +2,12 @@ package com.mysweetyphone.phone;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -25,12 +29,23 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableLayout;
+import android.widget.Toast;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -255,6 +270,40 @@ public class MouseTracker extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public void Screenshot(View v){
+        new Thread(() -> {
+            try {
+                ServerSocket ss = new ServerSocket(0);
+                JSONObject msg2 = new JSONObject();
+                msg2.put("Type", "makeScreenshot");
+                msg2.put("Port", ss.getLocalPort());
+                msg2.put("Name", name);
+                if(!login.isEmpty()) msg2.put("Login", login);
+                Send(msg2.toString().getBytes());
+                ss.setSoTimeout(10000);
+                Socket socket = ss.accept();
+
+
+                File out = new File(Environment.getExternalStorageDirectory() + "/MySweetyPhone");
+                out.mkdirs();
+                String fileName = "Screenshot_"+new SimpleDateFormat("HH:mm:ss_dd.MM.yyyy").format(System.currentTimeMillis())+".png";
+                FileOutputStream fileout = new FileOutputStream(new File(out, fileName));
+                BitmapFactory.decodeStream(socket.getInputStream()).compress(Bitmap.CompressFormat.PNG,100, fileout);
+
+                fileout.close();
+                socket.close();
+                ss.close();
+                runOnUiThread(() -> {
+                    Toast toast = Toast.makeText(this,
+                            "Скриншот сохранен в файл \""+fileName+"\"", Toast.LENGTH_LONG);
+                    toast.show();
+                });
+            } catch (IOException | JSONException e2) {
+                e2.printStackTrace();
             }
         }).start();
     }

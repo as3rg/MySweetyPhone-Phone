@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.support.annotation.Dimension;
+import android.support.constraint.solver.widgets.Rectangle;
 import android.support.design.widget.Snackbar;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;

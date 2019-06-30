@@ -36,13 +36,23 @@
 
             <ImageButton
                 android:id="@+id/keyboardMOUSETRACKER"
-                android:layout_width="111dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:backgroundTint="#00FFFFFF"
                 android:onClick="openKeyboard"
                 android:tint="#FFFFFF"
                 app:srcCompat="@drawable/ic_mouse_tracker_keyboard" />
+
+            <ImageButton
+                android:id="@+id/makeScreenshotFILEVIEWER"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:backgroundTint="#00FFFFFF"
+                android:onClick="Screenshot"
+                android:tint="#FFFFFF"
+                app:srcCompat="@drawable/ic_mouse_tracker_screenshot" />
 
         </android.support.v7.widget.Toolbar>
 
