@@ -131,6 +131,7 @@ public class MouseTracker extends AppCompatActivity {
         ctrl = findViewById(R.id.ctrlMOUSETRACKER);
         shift = findViewById(R.id.shiftMOUSETRACKER);
         ImageButton keyboardButton = findViewById(R.id.keyboardMOUSETRACKER);
+        ImageButton makeScreenshotButton = findViewById(R.id.makeScreenshotMOUSETRACKER);
         HorizontalScrollView extraButtons = findViewById(R.id.extra1MOUSETRACKER);
         HorizontalScrollView extra2Buttons = findViewById(R.id.extra2MOUSETRACKER);
         TableLayout TableExtraButtons = findViewById(R.id.extraButtonsMOUSETRACKER);
@@ -235,6 +236,7 @@ public class MouseTracker extends AppCompatActivity {
                     extra2Buttons.setVisibility(View.GONE);
                     TableExtraButtons.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
+                    makeScreenshotButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchMOUSE);
                 }else if(value.equals(keyboard)) {
                     inputView.setVisibility(View.VISIBLE);
@@ -242,12 +244,14 @@ public class MouseTracker extends AppCompatActivity {
                     extraButtons.setVisibility(View.VISIBLE);
                     extra2Buttons.setVisibility(View.VISIBLE);
                     keyboardButton.setVisibility(View.VISIBLE);
+                    makeScreenshotButton.setVisibility(View.VISIBLE);
                     thisActivity.openKeyboard(null);
                     content.setOnTouchListener((v,e)->false);
                 }else if(value.equals(pen_tablet)) {
                     inputView.setVisibility(View.GONE);
                     TableExtraButtons.setVisibility(View.GONE);
                     keyboardButton.setVisibility(View.GONE);
+                    makeScreenshotButton.setVisibility(View.GONE);
                     content.setOnTouchListener(thisActivity::onTouchPENTABLET);
                     extraButtons.setVisibility(View.GONE);
                     extra2Buttons.setVisibility(View.GONE);
