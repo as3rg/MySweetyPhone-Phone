@@ -2,16 +2,12 @@ package Utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import org.json.JSONException;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Properties;
-import java.util.stream.Stream;
 
 public class ServerMode {
     private static ArrayList<SessionServer> opened = new ArrayList<>();

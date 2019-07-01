@@ -253,7 +253,6 @@ public class Saved extends Fragment {
         layout.addView(dateBox);
         layout.setPadding(35, 35, 35, 35);
 
-        //удаление сообщения
         layout.setOnLongClickListener(v -> {
             String[] actions;
             if(isURL(text))
@@ -261,9 +260,6 @@ public class Saved extends Fragment {
             else
                 actions = new String[]{"Удалить сообщение", "Копировать текст"};
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            //кнопка для закрытия диалога
-            //builder.setNeutralButton("Отмена",
-            //        (dialog, id) -> dialog.cancel());
             builder.setItems(actions, (dialog, item) -> {
                 try {
                     switch (actions[item]) {
@@ -381,9 +377,6 @@ public class Saved extends Fragment {
         layout.setOnLongClickListener(v -> {
             final String[] actions ={"Удалить сообщение", "Скачать файл", "Копировать текст"};
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            //кнопка для закрытия диалога
-            //builder.setNeutralButton("Отмена",
-            //        (dialog, id) -> dialog.cancel());
             builder.setItems(actions, (dialog, item) -> {
                 try {
                     switch (actions[item]) {
@@ -903,12 +896,10 @@ public class Saved extends Fragment {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
                                                 @Override
-                                                public void onAnimationStart(Animation animation) {
-                                                }
+                                                public void onAnimationStart(Animation animation) {}
 
                                                 @Override
-                                                public void onAnimationRepeat(Animation animation) {
-                                                }
+                                                public void onAnimationRepeat(Animation animation) {}
 
                                                 @Override
                                                 public void onAnimationEnd(Animation animation) {
@@ -1029,7 +1020,6 @@ public class Saved extends Fragment {
         t.start();
     }
 
-    //выбор файла
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1039,13 +1029,9 @@ public class Saved extends Fragment {
         }
     }
 
-    //определение расширения файла
     private static String getExtension(String text) {
-        // если в имени файла есть точка и она не является первым символом в названии файла
         if(text.lastIndexOf(".") != -1 && text.lastIndexOf(".") != 0)
-            // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
             return text.substring(text.lastIndexOf(".")+1);
-            // в противном случае возвращаем заглушку, то есть расширение не найдено
         else return "";
     }
 

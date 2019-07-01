@@ -3,11 +3,9 @@ package Utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.mysweetyphone.phone.FileViewer;
 import com.mysweetyphone.phone.MouseTracker;
@@ -16,14 +14,12 @@ import com.mysweetyphone.phone.SMSViewer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.Timer;

@@ -9,6 +9,10 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+/**
+ * Скопированно со https://stackoverflow.com/questions/27602986/convert-a-file-path-to-uri-in-android
+ */
+
 public class ImageFilePath {
     public static String getPath(final Context context, final Uri uri) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
