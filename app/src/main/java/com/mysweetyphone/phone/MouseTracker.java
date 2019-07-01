@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -31,17 +30,12 @@ import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -51,6 +45,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import Utils.Message;
+import Utils.Session;
 import Utils.SessionClient;
 
 public class MouseTracker extends AppCompatActivity {
@@ -105,7 +100,7 @@ public class MouseTracker extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(sc.isPhone)
+        if(sc.getType() == Session.KEYBOARD)
             setContentView(R.layout.activity_mouse_tracker_phone);
         else
             setContentView(R.layout.activity_mouse_tracker);
@@ -150,7 +145,7 @@ public class MouseTracker extends AppCompatActivity {
                     msg.put("Name", name);
                     if(!login.isEmpty()) msg.put("Login", login);
                     msg.put("Type", "keysTyped");
-                    if(!sc.isPhone && (win.isChecked() || alt.isChecked() || shift.isChecked() || ctrl.isChecked())){
+                    if(!(sc.getType() == Session.KEYBOARD) && (win.isChecked() || alt.isChecked() || shift.isChecked() || ctrl.isChecked())){
                         msg.put("Subtype", "hotkey");
                         for(char c : s.toString().toCharArray()){
                             msg.put("value", Character.toString(c));
@@ -209,7 +204,7 @@ public class MouseTracker extends AppCompatActivity {
             }
         });
 
-        if(sc.isPhone) return;
+        if(sc.getType() == Session.KEYBOARD) return;
 
         content.setOnTouchListener(this::onTouchMOUSE);
         Spinner type = findViewById(R.id.typeMOUSETRACKER);

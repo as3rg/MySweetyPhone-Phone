@@ -46,7 +46,7 @@ public class IME extends InputMethodService{
         try{
             NewSession.setOnClickListener(this::CloseSession);
             NewSession.setText("Закрыть сессию");
-            Utils.SessionServer s = new Utils.SessionServer(Session.MOUSE,0,()->{
+            Utils.SessionServer s = new Utils.SessionServer(Session.KEYBOARD,0,()->{
                 Handler mainHandler = new Handler(Looper.getMainLooper());
                 mainHandler.post(()-> {
                     NewSession.setOnClickListener(this::OpenSession);

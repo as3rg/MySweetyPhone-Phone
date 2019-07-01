@@ -4,36 +4,24 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
-import android.support.annotation.Dimension;
-import android.support.constraint.solver.widgets.Rectangle;
-import android.support.design.widget.Snackbar;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
-import android.text.InputType;
-import android.text.Layout;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mysweetyphone.phone.IME;
-import com.mysweetyphone.phone.Main;
 import com.mysweetyphone.phone.MouseTracker;
-import com.mysweetyphone.phone.R;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -56,14 +44,10 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 
 public class SessionServer extends Session{
     private Thread onStop;
@@ -86,7 +70,7 @@ public class SessionServer extends Session{
             login = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("login", "");
         JSONObject message = new JSONObject();
         switch (type){
-            case MOUSE:
+            case KEYBOARD:
                 Dsocket = new DatagramSocket(Port);
                 Dsocket.setBroadcast(true);
                 port = Dsocket.getLocalPort();
@@ -99,7 +83,6 @@ public class SessionServer extends Session{
         message.put("port", port);
         message.put("type", type);
         message.put("name", name);
-        message.put("subtype", "Phone");
         byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
@@ -118,7 +101,7 @@ public class SessionServer extends Session{
         };
         broadcasting.schedule(broadcastingTask, 2000, 2000);
         switch (type) {
-            case MOUSE:
+            case KEYBOARD:
                 t = new Thread(() -> {
                     try {
                         Dsocket.setBroadcast(true);
