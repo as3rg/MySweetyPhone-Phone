@@ -2,6 +2,8 @@ package com.mysweetyphone.phone;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -89,10 +91,19 @@ public class DevicesList extends Fragment {
             DeviceName.setText(arr.getString(i));
             DeviceName.setPadding(20,0,0,0);
             DeviceName.setTextSize(22);
-            if (arr.getString(i).equals(name)) DeviceName.setTextColor(Color.RED);
-            RemoveButton.setTextColor(Color.WHITE);
-            RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_style_button_background));
             RemoveButton.setText("Удалить");
+            if (arr.getString(i).equals(name)) {
+                RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_devices_list_this_phone));
+                    Shader textShader = new LinearGradient(0, 0, RemoveButton.getPaint().measureText(RemoveButton.getText().toString()),RemoveButton.getTextSize(),
+                        new int[]{
+                                Color.parseColor("#fc354c"),
+                                Color.parseColor("#0ABFBC"),
+                        }, null, Shader.TileMode.CLAMP);
+                RemoveButton.getPaint().setShader(textShader);
+            }else {
+                RemoveButton.setTextColor(Color.WHITE);
+                RemoveButton.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.ic_style_button_background));
+            }
             RemoveButton.setOnClickListener(v -> {
                 try {
                     final TableRow parent = (TableRow) v.getParent();
