@@ -85,7 +85,7 @@ public class SServer extends Fragment {
         try {
             NewSession.setOnClickListener(this::OpenSession);
             NewSession.setText("Открыть сессию");
-            Session.sessions.pop().Stop();
+            if(!Session.sessions.isEmpty()) Session.sessions.pop().Stop();
             SessionType.setEnabled(true);
         } catch (IOException e1) {
             e1.printStackTrace();

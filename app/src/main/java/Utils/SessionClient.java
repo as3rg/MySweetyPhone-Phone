@@ -49,7 +49,12 @@ public class SessionClient extends Session{
         isSearching = false;
     }
 
-    public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
+    public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws IOException {
+        for(Session s : Session.sessions){
+            if(s instanceof SessionServer){
+                s.Stop();
+            }
+        }
         v.removeAllViews();
         if(isSearching) {
             StopSearching();
