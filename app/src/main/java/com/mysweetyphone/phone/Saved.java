@@ -142,9 +142,9 @@ public class Saved extends Fragment {
                     try {
                         int i = result.getInt("code");
                         if (i == 2) {
-                            throw new Exception("Ошибка приложения!");
+                            throw new RuntimeException("Ошибка приложения!");
                         } else if (i == 1) {
-                            throw new Exception("Неверные данные");
+                            throw new RuntimeException("Неверные данные");
                         } else if (i == 0) {
                             getActivity().runOnUiThread(() -> {
                                 try {
@@ -160,7 +160,7 @@ public class Saved extends Fragment {
                             toast.show();
                             getActivity().finish();
                         } else {
-                            throw new Exception("Ошибка приложения!");
+                            throw new RuntimeException("Ошибка приложения!");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -186,9 +186,9 @@ public class Saved extends Fragment {
                         int i = result.getInt("code");
 
                         if (i == 2) {
-                            throw new Exception("Ошибка приложения!");
+                            throw new RuntimeException("Ошибка приложения!");
                         } else if (i == 1) {
-                            throw new Exception("Неверные данные");
+                            throw new RuntimeException("Неверные данные");
                         } else if (i == 0) {
                             JSONArray messages = (JSONArray) result.get("messages");
                             MessagesList.removeAllViews();
@@ -210,7 +210,7 @@ public class Saved extends Fragment {
                             toast.show();
                             getActivity().finish();
                         } else {
-                            throw new Exception("Ошибка приложения!");
+                            throw new RuntimeException("Ошибка приложения!");
                         }
 
                     } catch (Exception e) {
@@ -272,9 +272,9 @@ public class Saved extends Fragment {
                                         int i = result.getInt("code");
 
                                         if (i == 2) {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         } else if (i == 1) {
-                                            throw new Exception("Неверные данные");
+                                            throw new RuntimeException("Неверные данные");
                                         } else if (i == 0) {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -299,7 +299,7 @@ public class Saved extends Fragment {
                                             toast.show();
                                             getActivity().finish();
                                         } else {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -389,9 +389,9 @@ public class Saved extends Fragment {
                                         int i = result.getInt("code");
 
                                         if (i == 2) {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         } else if (i == 1) {
-                                            throw new Exception("Неверные данные");
+                                            throw new RuntimeException("Неверные данные");
                                         } else if (i == 0) {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -416,7 +416,7 @@ public class Saved extends Fragment {
                                             toast.show();
                                             getActivity().finish();
                                         } else {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -518,9 +518,9 @@ public class Saved extends Fragment {
                                         int i = result.getInt("code");
 
                                         if (i == 2) {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         } else if (i == 1) {
-                                            throw new Exception("Неверные данные");
+                                            throw new RuntimeException("Неверные данные");
                                         } else if (i == 0) {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -545,7 +545,7 @@ public class Saved extends Fragment {
                                             toast.show();
                                             getActivity().finish();
                                         } else {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -706,9 +706,9 @@ public class Saved extends Fragment {
                                         int i = result.getInt("code");
 
                                         if (i == 2) {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         } else if (i == 1) {
-                                            throw new Exception("Неверные данные");
+                                            throw new RuntimeException("Неверные данные");
                                         } else if (i == 0) {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -733,7 +733,7 @@ public class Saved extends Fragment {
                                             toast.show();
                                             getActivity().finish();
                                         } else {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -889,9 +889,9 @@ public class Saved extends Fragment {
                                         int i = result.getInt("code");
 
                                         if (i == 2) {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         } else if (i == 1) {
-                                            throw new Exception("Неверные данные");
+                                            throw new RuntimeException("Неверные данные");
                                         } else if (i == 0) {
                                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.delete_anim);
                                             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -914,7 +914,7 @@ public class Saved extends Fragment {
                                             toast.show();
                                             getActivity().finish();
                                         } else {
-                                            throw new Exception("Ошибка приложения!");
+                                            throw new RuntimeException("Ошибка приложения!");
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();

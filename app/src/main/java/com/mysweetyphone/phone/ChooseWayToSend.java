@@ -92,7 +92,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                         JSONObject ans = new JSONObject(new String(p.getData()));
                         Button b = new Button(this);
                         b.setBackgroundColor(Color.WHITE);
-                        b.setText(p.getAddress().getHostAddress());
+                        b.setText(ans.get("Name") + "(" + p.getAddress().getHostAddress() + ")");
                         Server s = new Server(b,ans.getInt("Port"));
                         Activity thisActivity = this;
                         b.setOnClickListener(button-> new Thread(()-> {
