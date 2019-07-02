@@ -10,7 +10,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 /**
- * Скопированно со https://stackoverflow.com/questions/27602986/convert-a-file-path-to-uri-in-android
+ * Скопировано с сайта https://stackoverflow.com/questions/27602986/convert-a-file-path-to-uri-in-android
  */
 
 public class ImageFilePath {
