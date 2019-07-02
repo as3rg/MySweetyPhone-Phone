@@ -11,7 +11,9 @@ import android.widget.LinearLayout;
 import java.io.IOException;
 
 import Utils.ServerMode;
+import Utils.Session;
 import Utils.SessionClient;
+import Utils.SessionServer;
 
 
 public class SClient extends Fragment {
@@ -39,7 +41,6 @@ public class SClient extends Fragment {
 
     public void Search(View v) {
         try {
-            ServerMode.Stop();
             SearchSessions.setOnClickListener(this::StopSearching);
             SearchSessions.setText(R.string.stop_searchingSCLIENT);
             SessionClient.Search(ConnectToSession, new Thread(() -> {

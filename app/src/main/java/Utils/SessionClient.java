@@ -1,9 +1,12 @@
 package Utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.wifi.WifiManager;
+import android.text.format.Formatter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ConcurrentModificationException;
@@ -49,12 +53,7 @@ public class SessionClient extends Session{
         isSearching = false;
     }
 
-    public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws IOException {
-        for(Session s : Session.sessions){
-            if(s instanceof SessionServer){
-                s.Stop();
-            }
-        }
+    public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
         if(isSearching) {
             StopSearching();
@@ -90,6 +89,17 @@ public class SessionClient extends Session{
                     s.receive(p);
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     String name = ans.get("name") + "(" + p.getAddress().getHostAddress() + "): " + decodeType((ans.getInt("type")));
+
+                    if(InetAddress.getByName(
+                        Formatter.formatIpAddress(
+                            (
+                                (WifiManager) activity
+                                .getApplicationContext()
+                                .getSystemService(Context.WIFI_SERVICE)
+                            ).getConnectionInfo()
+                                .getIpAddress()
+                        )
+                    ).equals(p.getAddress())) continue;
                     if (!ips.containsKey(name)) {
                         Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("subtype") && ans.getString("subtype").equals("Phone"), activity));
                         ips.put(name,server);
