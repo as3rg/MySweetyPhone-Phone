@@ -56,6 +56,8 @@ public class SessionServer extends Session{
     private SimpleProperty<String> currentNumber = new SimpleProperty<>("");
     public static final int[] allowedTypes = {SMSVIEWER, FILEVIEW};
 
+    public static SessionServer openedServer = null;
+
     public void setOnStop(Runnable r){
         if(r == null)
             onStop = null;
@@ -224,6 +226,7 @@ public class SessionServer extends Session{
                             if(onStop != null){
                                 ((Activity)thisContext).runOnUiThread(onStop);
                                 onStop = null;
+                                openedServer = null;
                             }
                             if(line == null){
                                 Stop();
@@ -371,6 +374,7 @@ public class SessionServer extends Session{
                             if(onStop != null){
                                 ((Activity)thisContext).runOnUiThread(onStop);
                                 onStop = null;
+                                openedServer = null;
                             }
                             if(line == null) {
                                 Stop();
@@ -617,7 +621,14 @@ public class SessionServer extends Session{
     @Override
     public void Stop() throws IOException {
         super.Stop();
+        if(equals(openedServer)) openedServer = null;
         if(ss!=null)
             ss.close();
+    }
+
+    public void SingleStart(){
+        Start();
+        if(openedServer == null) openedServer = this;
+        else throw new RuntimeException("Ошибка приложения");
     }
 }

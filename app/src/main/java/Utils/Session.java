@@ -26,12 +26,6 @@ public abstract class Session{
             SMSVIEWER = 3,
             KEYBOARD = 4;
 
-    public static Stack<Session> sessions;
-
-    static {
-        sessions=new Stack<>();
-    }
-
     public void Start(){
         t.start();
     }

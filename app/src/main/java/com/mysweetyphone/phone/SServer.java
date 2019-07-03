@@ -15,6 +15,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import Utils.Session;
+import Utils.SessionServer;
 
 
 public class SServer extends Fragment {
@@ -50,6 +51,14 @@ public class SServer extends Fragment {
         NewSession.setEnabled(!ServerMode.isChecked());
         SessionType.setEnabled(!ServerMode.isChecked());
         ServerMode.setOnClickListener(this::SwitchServerMode);
+
+        if(SessionServer.openedServer != null){
+            NewSession.setOnClickListener(this::CloseSession);
+            NewSession.setText("Закрыть сессию");
+            SessionType.setEnabled(false);
+        }else{
+            NewSession.setOnClickListener(this::OpenSession);
+        }
     }
 
 
@@ -63,7 +72,7 @@ public class SServer extends Fragment {
                 NewSession.setText("Открыть сессию");
                 SessionType.setEnabled(true);
             }, getActivity());
-            s.Start();
+            s.SingleStart();
             SessionType.setEnabled(false);
         } catch (IOException | JSONException err){
             err.printStackTrace();
@@ -85,7 +94,7 @@ public class SServer extends Fragment {
         try {
             NewSession.setOnClickListener(this::OpenSession);
             NewSession.setText("Открыть сессию");
-            if(!Session.sessions.isEmpty()) Session.sessions.pop().Stop();
+            SessionServer.openedServer.Stop();
             SessionType.setEnabled(true);
         } catch (IOException e1) {
             e1.printStackTrace();
@@ -96,7 +105,7 @@ public class SServer extends Fragment {
         try {
             Switch s = (Switch) v;
             if(s.isChecked()){
-                if(!Session.sessions.isEmpty()) CloseSession(null);
+                if(SessionServer.openedServer != null) CloseSession(null);
                 Utils.ServerMode.Start();
             }else
                 Utils.ServerMode.Stop();
