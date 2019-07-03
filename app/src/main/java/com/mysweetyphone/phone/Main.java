@@ -20,6 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -36,6 +38,8 @@ public class Main extends AppCompatActivity
     private int id;
     private String login;
     private String name;
+
+    private ImageButton reload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +81,15 @@ public class Main extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        reload = findViewById(R.id.reloadMAIN);
         if(login.isEmpty()){
             navigationView.inflateMenu(R.menu.activity_main_drawer_offline);
+            reload.setVisibility(View.GONE);
+
         }else{
             navigationView.inflateMenu(R.menu.activity_main_drawer);
+            reload.setVisibility(View.VISIBLE);
         }
 
         ServerMode.SetContext(this);
@@ -104,12 +113,10 @@ public class Main extends AppCompatActivity
             name.setTypeface(null, Typeface.ITALIC);
         }
         else if(name != null) name.setText(login);
-        getMenuInflater().inflate(R.menu.action_bar_reload_button, menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean reload(View v){
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
@@ -143,15 +150,19 @@ public class Main extends AppCompatActivity
                     finish();
                     return false;
                 case R.id.nav_devices_list:
+                    reload.setVisibility(View.VISIBLE);
                     FragmentToReplace = new DevicesList();
                     break;
                 case R.id.nav_saved:
+                    reload.setVisibility(View.VISIBLE);
                     FragmentToReplace = new Saved();
                     break;
                 case R.id.nav_sclient:
+                    reload.setVisibility(View.GONE);
                     FragmentToReplace = new SClient();
                     break;
                 case R.id.nav_sserver:
+                    reload.setVisibility(View.GONE);
                     FragmentToReplace = new SServer();
                     break;
             }
