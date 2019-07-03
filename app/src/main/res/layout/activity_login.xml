@@ -1,104 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#202020"
-    android:theme="@style/AppTheme"
-    tools:context=".Login"
-    tools:layout_editor_absoluteY="81dp"
-    android:gravity="center"
-    android:orientation="vertical">
+    tools:context=".Login">
 
-    <TextView
-        android:id="@+id/ErrorLOGIN"
-        android:layout_width="411dp"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textColor="#FF0000"
-        android:textStyle="bold|italic"
-        android:visibility="invisible" />
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <EditText
-        android:id="@+id/NickLOGIN"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:autofillHints=""
-        android:drawableLeft="@drawable/ic_login_login"
-        android:drawableTint="@android:color/white"
-        android:ems="10"
-        android:hint="@string/nickLOGIN"
-        android:inputType="textPersonName" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarLOGIN"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
-    <EditText
-        android:id="@+id/PasswordLOGIN"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:autofillHints=""
-        android:drawableLeft="@drawable/ic_login_pass"
-        android:drawableTint="@android:color/white"
-        android:ems="10"
-        android:hint="@string/passwordLOGIN"
-        android:inputType="textPassword" />
+            <TextView
+                android:id="@+id/titleLOGIN"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/app_name"
+                android:textSize="24sp" />
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="left|center_vertical"
-        android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#202020"
+        tools:layout_editor_absoluteY="81dp"
+        android:gravity="center">
 
-        <RadioButton
-            android:id="@+id/LoginRatioLOGIN"
+
+
+        <TextView
+            android:id="@+id/ErrorLOGIN"
+            android:layout_width="411dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#FF0000"
+            android:textStyle="bold|italic"
+            android:visibility="invisible" />
+
+        <EditText
+            android:id="@+id/NickLOGIN"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:buttonTint="@android:color/white"
-            android:checked="true"
-            android:onClick="onModeChanged"
-            android:text="@string/log_inLOGIN"
-            android:textColor="@android:color/white"
-            android:textColorLink="#00963636"
-            android:textSize="18sp" />
+            android:autofillHints=""
+            android:drawableLeft="@drawable/ic_login_login"
+            android:drawableTint="@android:color/white"
+            android:ems="10"
+            android:hint="@string/nickLOGIN"
+            android:inputType="textPersonName" />
 
-        <RadioButton
-            android:id="@+id/RegRatioLOGIN"
+        <EditText
+            android:id="@+id/PasswordLOGIN"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:buttonTint="@android:color/white"
-            android:onClick="onModeChanged"
-            android:text="@string/RegLOGIN"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:autofillHints=""
+            android:drawableLeft="@drawable/ic_login_pass"
+            android:drawableTint="@android:color/white"
+            android:ems="10"
+            android:hint="@string/passwordLOGIN"
+            android:inputType="textPassword" />
 
-        <RadioButton
-            android:id="@+id/OfflineRatioLOGIN"
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:buttonTint="@android:color/white"
-            android:onClick="onModeChanged"
-            android:text="@string/offline"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-    </RadioGroup>
+            android:gravity="left|center_vertical"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/LoginLOGIN"
-        android:layout_width="227dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:onClick="onLoginClick"
-        android:text="@string/log_inLOGIN" />
+            <RadioButton
+                android:id="@+id/LoginRatioLOGIN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:buttonTint="@android:color/white"
+                android:checked="true"
+                android:onClick="onModeChanged"
+                android:text="@string/log_inLOGIN"
+                android:textColor="@android:color/white"
+                android:textColorLink="#00963636"
+                android:textSize="18sp" />
 
-</LinearLayout>
+            <RadioButton
+                android:id="@+id/RegRatioLOGIN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:buttonTint="@android:color/white"
+                android:onClick="onModeChanged"
+                android:text="@string/RegLOGIN"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <RadioButton
+                android:id="@+id/OfflineRatioLOGIN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:buttonTint="@android:color/white"
+                android:onClick="onModeChanged"
+                android:text="@string/offline"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/LoginLOGIN"
+            android:layout_width="227dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:onClick="onLoginClick"
+            android:text="@string/log_inLOGIN" />
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

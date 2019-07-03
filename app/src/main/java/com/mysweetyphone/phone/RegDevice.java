@@ -2,9 +2,13 @@ package com.mysweetyphone.phone;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,7 +28,15 @@ public class RegDevice extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg_device);
-
+        Toolbar toolbar = findViewById(R.id.toolbarADDPHONE);
+        setSupportActionBar(toolbar);
+        TextView title = findViewById(R.id.titleADDPHONE);
+        Shader textShader = new LinearGradient(0, 0, title.getMeasuredWidth(),title.getLineHeight(),
+                new int[]{
+                        Color.parseColor("#d53369"),
+                        Color.parseColor("#cbad6d"),
+                }, null, Shader.TileMode.CLAMP);
+        title.getPaint().setShader(textShader);
     }
 
     public void onAddPhoneClick(View view){

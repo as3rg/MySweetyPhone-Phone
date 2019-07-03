@@ -3,6 +3,8 @@ package com.mysweetyphone.phone;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -58,6 +61,13 @@ public class Main extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbarMAIN);
         setSupportActionBar(toolbar);
+        TextView title = findViewById(R.id.titleMAIN);
+        Shader textShader = new LinearGradient(0, 0, title.getMeasuredWidth(),title.getLineHeight(),
+                new int[]{
+                        Color.parseColor("#d53369"),
+                        Color.parseColor("#cbad6d"),
+                }, null, Shader.TileMode.CLAMP);
+        title.getPaint().setShader(textShader);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

@@ -2,9 +2,13 @@ package com.mysweetyphone.phone;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -31,12 +35,21 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_login);
+        Toolbar toolbar = findViewById(R.id.toolbarLOGIN);
+        setSupportActionBar(toolbar);
 
         Nick = findViewById(R.id.NickLOGIN);
         Pass = findViewById(R.id.PasswordLOGIN);
         ErrorText = findViewById(R.id.ErrorLOGIN);
+
+        TextView title = findViewById(R.id.titleLOGIN);
+        Shader textShader = new LinearGradient(0, 0, title.getMeasuredWidth(),title.getLineHeight(),
+                new int[]{
+                        Color.parseColor("#d53369"),
+                        Color.parseColor("#cbad6d"),
+                }, null, Shader.TileMode.CLAMP);
+        title.getPaint().setShader(textShader);
     }
 
     public void onModeChanged(View view){

@@ -18,9 +18,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/chatColor"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        android:background="@drawable/ic_style_background"
-        />
+        app:itemTextColor="@android:color/white"
+        app:itemIconTint="@android:color/white"/>
 
 </android.support.v4.widget.DrawerLayout>

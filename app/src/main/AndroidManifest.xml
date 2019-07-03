@@ -23,18 +23,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <service android:name=".IME"
+
+        <service
+            android:name=".IME"
             android:label="@string/keyboard_name"
             android:permission="android.permission.BIND_INPUT_METHOD">
-            <meta-data android:name="android.view.im" android:resource="@layout/keyboard_method"/>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@layout/keyboard_method" />
+
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
         </service>
+
         <activity
             android:name=".SMSViewer"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".FileViewer"
             android:configChanges="orientation|screenSize"
@@ -70,16 +76,19 @@
         </activity>
         <activity
             android:name=".Login"
+            android:label=""
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".RegDevice" />
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".RegDevice"
+            android:label=""
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".Main"
+            android:label=""
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
