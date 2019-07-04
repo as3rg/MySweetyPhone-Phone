@@ -70,7 +70,7 @@ public abstract class Session{
             case NONE:
                 return "Пусто";
             case MOUSE:
-                return "Эмуляция мыши";
+                return "Эмуляция ввода";
             case FILEVIEW:
                 return "Просмотр файлов";
             case SMSVIEWER:
