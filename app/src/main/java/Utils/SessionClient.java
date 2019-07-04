@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ConcurrentModificationException;
@@ -44,14 +43,9 @@ public class SessionClient extends Session{
     }
 
     static Map<String, Server> ips;
-    static boolean isSearching;
+    static boolean isSearching = false;
     static Thread searching;
     static DatagramSocket s;
-    public boolean isPhone = false;
-
-    static{
-        isSearching = false;
-    }
 
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
@@ -101,7 +95,7 @@ public class SessionClient extends Session{
                         )
                     ).equals(p.getAddress())) continue;
                     if (!ips.containsKey(name)) {
-                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), ans.has("subtype") && ans.getString("subtype").equals("Phone"), activity));
+                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity));
                         ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
@@ -149,11 +143,10 @@ public class SessionClient extends Session{
         }catch (NullPointerException ignored){}
     }
 
-    public SessionClient(InetAddress address, int Port, int type, boolean isPhone, Activity activity) throws IOException {
+    public SessionClient(InetAddress address, int Port, int type, Activity activity) {
         this.address = address;
         this.port = Port;
         this.type = type;
-        this.isPhone = isPhone;
 
         switch (type) {
             case MOUSE:

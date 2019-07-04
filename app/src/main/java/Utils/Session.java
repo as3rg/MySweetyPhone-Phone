@@ -16,7 +16,7 @@ public abstract class Session{
     protected Thread t;
     protected Timer broadcasting;
     protected DatagramSocket broadcastingSocket;
-    static int BroadCastingPort = 9000;
+    static final int BroadCastingPort = 9000;
 
 
     public static final int

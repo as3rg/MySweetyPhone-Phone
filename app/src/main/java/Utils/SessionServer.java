@@ -65,6 +65,7 @@ public class SessionServer extends Session{
             onStop = new Thread(r);
     }
 
+    @SuppressLint("MissingPermission")
     public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         MessageParser messageParser = new MessageParser();

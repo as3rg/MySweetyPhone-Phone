@@ -10,20 +10,15 @@ public class Message {
      *  |  1b  | 4b |  4b  |  4b |    65494b    |
      *  '------'----'------'-----'--------------'
      */
-    static int currentId;
+    static int currentId = 0;
     public static final int idSize = 4;
     public int maxSize;
     public int bodySize;
-    public static final int sendPort = 2020;
     private byte[] arr;
     private int id, next, len;
     private boolean isHeadValue;
     public static int MAXIMUM = 65507;
     public static int BODYMAXIMUM = 65494;
-
-    static {
-        currentId = 0;
-    }
 
     private Message(int length, byte[] body, int size){
         if(size > BODYMAXIMUM) {
