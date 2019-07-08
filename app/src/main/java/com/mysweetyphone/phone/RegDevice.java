@@ -70,6 +70,8 @@ public class RegDevice extends AppCompatActivity {
                 return;
             }
 
+            PhoneName.setEnabled(false);
+            view.setEnabled(false);
             AsyncHttpClient client = new AsyncHttpClient();
             client.get("http://mysweetyphone.herokuapp.com/?Type=AddDevice&DeviceType=Phone&Id=" + id + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Name=" + URLEncoder.encode(PhoneName.getText().toString(), "UTF-8"), new JsonHttpResponseHandler() {
                 @Override
@@ -106,6 +108,8 @@ public class RegDevice extends AppCompatActivity {
                                 finish();
                                 break;
                         }
+                        PhoneName.setEnabled(true);
+                        view.setEnabled(true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
