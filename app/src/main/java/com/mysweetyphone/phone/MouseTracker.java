@@ -83,11 +83,11 @@ public class MouseTracker extends AppCompatActivity {
             this.y = y;
             this.time = time;
             this.type = type;
+            t = new Timer();
         }
 
         void Later(CustomTimerTask tt, int delay){
-            t = new Timer();
-            t.scheduleAtFixedRate(tt, delay, 1000);
+            t.schedule(tt, delay);
         }
 
         void Cancel(){
@@ -322,6 +322,7 @@ public class MouseTracker extends AppCompatActivity {
                 if(singleClick == null)
                     event.setAction(MotionEvent.ACTION_DOWN);
                 switch (event.getAction()) {
+                    case MotionEvent.ACTION_POINTER_DOWN:
                     case MotionEvent.ACTION_DOWN:
                         if (singleClick != null && singleClick.type == MotionEvent.ACTION_UP && nextClick.time - singleClick.time <= LInterval) {
                             singleClick.Cancel();
@@ -331,12 +332,13 @@ public class MouseTracker extends AppCompatActivity {
                             @Override
                             public void action() {
                                 try {
-                                    if(!nextClick.equals(singleClick)) return;
+                                    if(nextClick != singleClick) return;
                                     JSONObject msg = new JSONObject();
                                     msg.put("Type", "mousePressed");
                                     msg.put("Name", name);
                                     if (!login.isEmpty()) msg.put("Login", login);
                                     msg.put("Key", 3);
+                                    if(nextClick != singleClick) return;
                                     Send(msg.toString().getBytes());
                                     msg.put("Type", "mouseReleased");
                                     Send(msg.toString().getBytes());
@@ -359,6 +361,7 @@ public class MouseTracker extends AppCompatActivity {
                         msg.put("Y", nextClick.y - singleClick.y);
                         Send(msg.toString().getBytes());
                         break;
+                    case MotionEvent.ACTION_POINTER_UP:
                     case MotionEvent.ACTION_UP:
                         singleClick.Cancel();
                         if (singleClick.type == MotionEvent.ACTION_DOWN && nextClick.time - singleClick.time <= LInterval) {
@@ -397,12 +400,12 @@ public class MouseTracker extends AppCompatActivity {
                 }
                 singleClick = nextClick;
             }else if(event.getPointerCount() == 2 && Arrays.asList(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE, MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_POINTER_UP).contains(event.getAction())) {
-                Click nextClick1 = new Click((int) event.getX(0), (int) event.getY(0), System.currentTimeMillis(), event.getAction()),
-                    nextClick2 = new Click((int) event.getX(1), (int) event.getY(1), System.currentTimeMillis(), event.getAction());
                 if(singleClick != null) {
                     singleClick.Cancel();
                     singleClick = null;
                 }
+                Click nextClick1 = new Click((int) event.getX(0), (int) event.getY(0), System.currentTimeMillis(), event.getAction()),
+                    nextClick2 = new Click((int) event.getX(1), (int) event.getY(1), System.currentTimeMillis(), event.getAction());
                 if(doubleClick != null){
                     int range1 = nextClick1.y - doubleClick.first.y,
                         range2 = nextClick2.y - doubleClick.second.y;
