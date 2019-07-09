@@ -23,16 +23,20 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DevicesList extends Fragment {
     int regdate;
     int id;
     String name;
     String login;
+    Set<String> names = new HashSet();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,6 +54,8 @@ public class DevicesList extends Fragment {
             login = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("login", "");
             name = (PreferenceManager.getDefaultSharedPreferences(getActivity())).getString("name", "");
 
+            TableLayout layout = getActivity().findViewById(R.id.tableDEVICESLIST);
+
             AsyncHttpClient client = new AsyncHttpClient();
             client.get("http://mysweetyphone.herokuapp.com/?Type=ShowDevices&RegDate=" + regdate + "&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&MyName=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler() {
                 @Override
@@ -60,9 +66,11 @@ public class DevicesList extends Fragment {
                                     "Ваше устройство не зарегистрировано!", Toast.LENGTH_LONG);
                             toast.show();
                             getActivity().finish();
-                        } else
-                            printDevices(responseBody.getJSONArray("PCs"), false, printDevices(responseBody.getJSONArray("Phones"), true, 0));
-                    } catch (Exception e) {
+                        } else {
+                            names.clear();
+                            printDevices(responseBody.getJSONArray("PCs"), false, printDevices(responseBody.getJSONArray("Phones"), true, 0, layout), layout);
+                        }
+                    } catch (JSONException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
@@ -77,10 +85,12 @@ public class DevicesList extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private int printDevices(JSONArray arr, boolean isPhone, int odd) throws Exception {
-        final TableLayout table = getView().findViewById(R.id.tableDEVICESLIST);
+    private int printDevices(JSONArray arr, boolean isPhone, int odd, TableLayout table) throws JSONException {
+        if (table == null) return 0;
         int i = 0;
         for (; i < arr.length(); i++){
+            if(names.contains(arr.getString(i))) continue;
+            names.add(arr.getString(i));
             final TableRow row = new TableRow(getActivity());
             final TextView DeviceName = new TextView(getActivity());
             final Button RemoveButton = new Button(getActivity());
