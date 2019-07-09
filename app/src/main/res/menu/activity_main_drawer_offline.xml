@@ -12,6 +12,10 @@
         android:icon="@drawable/ic_menu_new_session"
         android:title="@string/sserverNAV" />
     <item
+        android:id="@+id/nav_instruction"
+        android:icon="@drawable/ic_menu_help"
+        android:title="@string/nav_help" />
+    <item
         android:id="@+id/nav_exit"
         android:icon="@drawable/ic_menu_exit"
         android:title="@string/exitNAV" />

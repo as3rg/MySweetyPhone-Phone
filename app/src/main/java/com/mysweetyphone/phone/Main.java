@@ -162,6 +162,7 @@ public class Main extends AppCompatActivity
                     FragmentToReplace = new SClient();
                     break;
                 case R.id.nav_instruction:
+                    reload.setVisibility(View.GONE);
                     FragmentToReplace = new Instruction();
                     break;
                 case R.id.nav_sserver:
