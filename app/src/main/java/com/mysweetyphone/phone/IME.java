@@ -1,11 +1,15 @@
 package com.mysweetyphone.phone;
 
+import android.app.Service;
 import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
+import android.inputmethodservice.Keyboard;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.View;
+import android.view.inputmethod.InputMethod;
 import android.widget.Button;
 import android.widget.ScrollView;
 
@@ -35,15 +39,12 @@ public class IME extends InputMethodService{
         return kv;
     }
 
-    @Override
-    public void onWindowShown (){
-        if(PreferenceManager.getDefaultSharedPreferences(this).getString("name", "").isEmpty()){
-            startActivity(new Intent(this, Starting.class));
-        }
-    }
-
     public void OpenSession(View e){
         try{
+            if(PreferenceManager.getDefaultSharedPreferences(this).getString("name", "").isEmpty()){
+                startActivity(new Intent(this, Starting.class));
+                return;
+            }
             NewSession.setOnClickListener(this::CloseSession);
             NewSession.setText("Закрыть сессию");
             Utils.SessionServer s = new Utils.SessionServer(Session.KEYBOARD,0,()->{
@@ -60,6 +61,10 @@ public class IME extends InputMethodService{
     }
 
     public void CloseSession(View e) {Handler mainHandler = new Handler(Looper.getMainLooper());
+        if(PreferenceManager.getDefaultSharedPreferences(this).getString("name", "").isEmpty()){
+            startActivity(new Intent(this, Starting.class));
+            return;
+        }
         mainHandler.post(()-> {
             NewSession.setOnClickListener(this::OpenSession);
             NewSession.setText("Открыть сессию");
