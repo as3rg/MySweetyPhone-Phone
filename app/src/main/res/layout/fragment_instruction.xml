@@ -16,26 +16,255 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/instruction_head"
+                android:id="@+id/head"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="Инструкция по применению"
                 android:textAlignment="center"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/instruction"
+                android:id="@+id/menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:text="Меню слева содержит следующие разделы:
+                \n- “Избранное”,
+                \n- “Устройства”,
+                \n- “Подключиться”,
+                \n- “Новая  Сессия”,
+                \n- “Помощь”,
+                \n- “Выход”."
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/menu2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="Меню слева содержит следующие разделы: “Избранное”, “Устройства”, “Подключиться”, “Новая  Сессия”, “Помощь” и “Выход”.
-                  - Раздел “Избранное” нужен для отправки текстовых сообщений и файлов на сервер для доступа к ним со всех устройств.
-                  - Раздел “Устройства” позволяет просматривать и удалять устройства, привязанные к данному аккаунту.
-                  - Раздел “Подключиться” позволяет данному устройству подключаться к другому.
-                  - Раздел “Новая Сессия” позволяет создавать сессии для управления этим устройством.
-                  - Кнопка “Выход” завершает работу приложения и выходит из аккаунта. При следующем запуске потребуется повторная аутентификация."
-                android:textSize="18sp" />
+                android:text=" - Раздел “Избранное” нужен для отправки текстовых сообщений и файлов на сервер для доступа к ним со всех устройств. \n - Раздел “Устройства” позволяет просматривать и удалять устройства, привязанные к данному аккаунту. \n - Раздел “Подключиться” позволяет данному устройству подключаться к другому. \n - Раздел “Новая Сессия” позволяет создавать сессии для управления этим устройством.  \n - Кнопка “Выход” завершает работу приложения и выходит из аккаунта. При следующем запуске потребуется повторная аутентификация. "
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/izbranoe_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Избранное"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/izbrannoe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Для отправки текстовых сообщений и файлов на сервер для доступа к ним со всех устройств используется вкладка “Избранное”. В ней можно отправлять сообщения, файлы, весом не более 1 Мб,  а также скачивать эти файлы на любом устройстве (пункт в контекстном меню)."
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/offline_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Offline режим"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/offline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Offline режим используется при отсутствии интернета. В данном режиме отсутствует вкладка ”Диспетчер устройств” и вкладка “Избранное”. Чтобы перейти в offline режим, нужно при запуске приложения нажать на кнопку “Включить offline режим”."
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/sessions_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Сессии"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/sessions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="В инструкции ниже управляемое устройство (открывающее сессию), называется сервером, а управляющее устройство (подключающееся), называется клиентом.
+                \n\nДля работы следующих функций нужно быть подключенным к одному  Wi-Fi на клиенте и сервере.
+В случае некорректной работы функций попробуйте отключить стандартный брандмауэр в Windows и/или антивирус. Возможно, они блокируют попытки соединения устройств.
+\n\nСессии могут выполнять разные функции: “Эмуляция ввода”, “Удалённый просмотр файлов”, “Удалённая отправка SMS”,“Отправка в буфер обмена”, “Удалённое открытие ссылки”."
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/input__head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Эмуляция ввода"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Откройте сессию на сервере, выбрав “Эмуляция ввода” в выпадающем списке, подключитесь к данной сессии на клиенте. В появившемся окне в правом верхнем углу будет предоставлен выбор функции: “Мышь”, ”Клавиатура” или  “Графический планшет”.
+\n\n- При выборе функции “Мышь” клиент может управлять курсором сервера (короткое нажатие – ЛКМ, длинное нажатие – ПКМ, свайп двумя пальцами – колёсико мыши, клик + свайп – перемещение мыши с зажатой ЛКМ(drag)).
+Сервером для данной функции может быть только компьютер, а клиентом как компьютер, так и Android устройство.
+\n\n- При выборе функции “Клавиатура” клавиатура клиента может заменять клавиатуру сервера. В данном окне на Android присутствует возможность сделать скриншот экрана компьютера, который сразу появится в папке MySweetyPhone на Android устройстве.
+Сервером для данной функции может быть любое устройство, клиентом также любое устройство.
+Для использования Android устройства в качестве сервера активируйте Удалённую клавиатуру MySweetyPhone (см. пункт “ Активация удалённой клавиатуры MySweetyPhone ”).
+\n\n- При выборе функции “Графический планшет” Android устройство может использоваться в качестве графического планшета. Данная функция не требует настройки в графических редакторах и лучше всего работает в горизонтальном положении устройства-клиента.
+Также можно выбрать область для рисования, для этого нажмите правой кнопкой мыши по иконке в трее и выберите соответствующий пункт.
+"
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/activation_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Активация удалённой клавиатуры"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/activationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/activation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Активировать удалённую клавиатуру MySweetyPhone нужно в настройках (Нажмите на кнопку ниже, чтобы перейти в настройки) в этом расположении: Настройки – Язык и ввод – Данная клавиатура – Выбрать клавиатуру – Удалённая клавиатура MySweetyPhone. Затем нажать “Назад”, выбрать  “Данная клавиатура” и поменять её на “Удалённая клавиатура  MySweetyPhone”. После этого нужно зайти в любое приложение, открыть клавиатуру и нажать “Открыть сессию”. На компьютере подключиться к сессии, на телефоне подтвердить подключение. Для выхода из данного режима на компьютере нажать Ctrl + F4, на телефоне выключить клавиатуру таким же способом, как включили. "
+                    android:textSize="19sp" />
+
+                <Button
+                    android:id="@+id/settings_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/empty_directory_hint"
+                    android:text="Перейти в настройки" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/file_checker_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Просмотр файлов"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/file_checker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Откройте сессию на сервере, выбрав “Просмотр файлов” в выпадающем списке, подключитесь к данной сессии на клиенте.  Клиент получает доступ к просмотру, скачиванию и удалению файлов сервера, созданию новых папок и отправке файлов с клиента на сервер. "
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/sms_checker_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Просмотр SMS"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/sms_checker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Откройте сессию на сервере, выбрав “Просмотр SMS” в выпадающем списке, подключитесь к данной сессии на клиенте.  Данная функция позволяет удалённо читать и отправлять SMS. Сервером для данной функции может быть только Android устройство, а клиентом как компьютер, так и Android устройство. "
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/open_site_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Удалённое открытие ссылки"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/open_site"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Для открытия на компьютере выделенной на Android устройстве ссылки нажмите кнопку “ Share”, выберите приложение MySweetyPhone. Далее предоставляется выбор: отправить её во вкладку “Избранное”, открыть данную ссылку в браузере компьютера или отправить её в буфер обмена компьютера. Выберите пункт “Открыть на компьютере”, нажмите “Выполнить” и выберите компьютер."
+                android:textSize="19sp" />
+
+            <TextView
+                android:id="@+id/send_text_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Отправка текста в буфер обмена"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/send_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Для отправки текста в буфер обмена компьютера, скопируйте нужный текст в Android устройстве, нажмите на кнопку “Share”, выберите приложение MySweetyPhone. Далее можно отправить данный текст во вкладку “Избранное” или в буфер обмена компьютера. Выберите пункт “Отправить в буфер обмена компьютера”, нажмите “Выполнить” и выберите компьютер."
+                android:textSize="19sp" />
+
 
         </LinearLayout>
     </ScrollView>
