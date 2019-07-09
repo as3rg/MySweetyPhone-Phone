@@ -142,7 +142,7 @@ public class Main extends AppCompatActivity
                     id = PreferenceManager.getDefaultSharedPreferences(this).getInt("id", -1);
                     name = (PreferenceManager.getDefaultSharedPreferences(this)).getString("name", "");
                     AsyncHttpClient client = new AsyncHttpClient();
-                    client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler());
+                    if(!login.isEmpty()) client.get("http://mysweetyphone.herokuapp.com/?Type=RemoveDevice&Login=" + URLEncoder.encode(login, "UTF-8") + "&Id=" + id + "&Name=" + URLEncoder.encode(name, "UTF-8"), new JsonHttpResponseHandler());
                     editor.remove("id");
                     editor.remove("name");
                     editor.remove("login");
