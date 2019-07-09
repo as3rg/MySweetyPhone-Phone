@@ -47,4 +47,6 @@
     <string name="new_sessionSSERVER">Начать сессию</string>
     <string name="offline">Включить Offline Режим</string>
     <string name="ServerModeSSERVER">Автооткрытие сессий</string>
+    <string name="load_moreSAVED">Загрузить ещё</string>
+    <string name="nav_help">Помощь</string>
 </resources>

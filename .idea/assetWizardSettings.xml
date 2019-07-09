@@ -84,7 +84,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Users/spyte/AppData/Local/JetBrains/Toolbox/apps/AndroidStudio/ch-0/183.5522156/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_screen_share_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/D:/Programs/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_help_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -94,7 +94,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_file_viewer_screenshot" />
+                            <entry key="outputName" value="ic_menu_help" />
                             <entry key="sourceFile" value="C:\Users\Alex" />
                           </map>
                         </option>
