@@ -62,7 +62,7 @@ public class Starting extends AppCompatActivity {
                 }
             }
 
-            public void onFailure(){
+            void onFailure(){
                 try {
                     if(isOnline) Request();
                 } catch (UnsupportedEncodingException e) {
