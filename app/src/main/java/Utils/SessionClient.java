@@ -84,15 +84,16 @@ public class SessionClient extends Session{
                     JSONObject ans = new JSONObject(new String(p.getData()));
                     String name = ans.get("name") + "(" + p.getAddress().getHostAddress() + "): " + decodeType((ans.getInt("type")));
 
-                    if(InetAddress.getByName(
-                        Formatter.formatIpAddress(
-                            (
-                                (WifiManager) activity
-                                .getApplicationContext()
-                                .getSystemService(Context.WIFI_SERVICE)
-                            ).getConnectionInfo()
-                                .getIpAddress()
-                        )
+                    if((NetworkUtil.getLocalAddresses() != null && NetworkUtil.getLocalAddresses().contains(p.getAddress()))
+                            || InetAddress.getByName(
+                            Formatter.formatIpAddress(
+                                    (
+                                            (WifiManager) activity
+                                                    .getApplicationContext()
+                                                    .getSystemService(Context.WIFI_SERVICE)
+                                    ).getConnectionInfo()
+                                            .getIpAddress()
+                            )
                     ).equals(p.getAddress())) continue;
                     if (!ips.containsKey(name)) {
                         Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity));
