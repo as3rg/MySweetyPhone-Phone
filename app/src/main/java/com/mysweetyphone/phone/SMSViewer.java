@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -236,6 +238,12 @@ public class SMSViewer extends AppCompatActivity {
                             break;
                     }
                 }
+            } catch (ConnectException e){
+                runOnUiThread(()->{
+                    Toast toast = Toast.makeText(this,
+                            "Сессия закрыта", Toast.LENGTH_LONG);
+                    toast.show();
+                });
             } catch (IOException | JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -387,7 +395,7 @@ public class SMSViewer extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        });
+        }).start();
     }
 
     public void onNewContact(View v){

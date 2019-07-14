@@ -142,9 +142,11 @@ public class FileViewer extends AppCompatActivity {
                     }
                 }
             } catch (ConnectException e){
-                Toast toast = Toast.makeText(this,
-                        "Сессия закрыта", Toast.LENGTH_LONG);
-                toast.show();
+                runOnUiThread(()->{
+                    Toast toast = Toast.makeText(this,
+                            "Сессия закрыта", Toast.LENGTH_LONG);
+                    toast.show();
+                });
             } catch (JSONException | IOException | NullPointerException e) {
                 e.printStackTrace();
             }
