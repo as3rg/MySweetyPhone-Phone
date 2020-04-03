@@ -58,96 +58,88 @@ public class ChooseWayToSend extends AppCompatActivity {
             RadioButton rb = findViewById(R.id.openSiteCHOOSEWAY);
             rg.removeView(rb);
         }
-        if(PreferenceManager.getDefaultSharedPreferences(this).getString("login","").isEmpty()){
-            RadioButton rb = findViewById(R.id.sendToSavedCHOOSEWAY);
-            rg.removeView(rb);
-        }
         ips = new TreeMap<>();
     }
 
 
     public void Send(View v) throws SocketException {
         RadioGroup rg = findViewById(R.id.wayToSendCHOOSEWAY);
-        if(rg.getCheckedRadioButtonId() == R.id.sendToSavedCHOOSEWAY) {
-            ChangeActivity(Main.class);
-        }
-        else {
-            socket = new DatagramSocket(BroadCastingPort);
-            Dialog d = new Dialog(this);
-            LinearLayout ll = new LinearLayout(this);
-            TextView label = new TextView(this);
-            label.setText("Выберите получателя:");
-            label.setTextSize(20);
-            label.setTextColor(Color.BLACK);
-            ll.setOrientation(LinearLayout.VERTICAL);
-            ll.addView(label);
-            ll.setPadding(10,10,10,10);
-            d.setContentView(ll);
-            Thread searching = new Thread(() -> {
-                try{
-                    byte[] buf = new byte[BROADCASTINGSIZE];
-                    DatagramPacket p = new DatagramPacket(buf, buf.length);
-                    while (true) {
-                        socket.receive(p);
-                        JSONObject ans = new JSONObject(new String(p.getData()));
-                        Button b = new Button(this);
-                        b.setBackgroundColor(Color.WHITE);
-                        b.setText(ans.get("Name") + "(" + p.getAddress().getHostAddress() + ")");
-                        Server s = new Server(b,ans.getInt("Port"));
-                        Activity thisActivity = this;
-                        b.setOnClickListener(button-> new Thread(()-> {
-                            try(DatagramSocket sendsocket = new DatagramSocket()) {
-                                runOnUiThread(()->{
-                                    FrameLayout fl = new FrameLayout(thisActivity);
-                                    TextView waiting = new TextView(thisActivity);
-                                    fl.addView(waiting);
-                                    waiting.setGravity(Gravity.CENTER);
-                                    waiting.setText("Ожидание завершения действия...");
-                                    waiting.setTextColor(Color.WHITE);
-                                    waiting.setTextSize(20);
-                                    thisActivity.setContentView(fl);
-                                    d.setOnCancelListener(dialog -> {});
-                                    d.cancel();
-                                });
-                                sendsocket.setBroadcast(true);
-                                JSONObject messages = new JSONObject();
-                                messages.put("Name", PreferenceManager.getDefaultSharedPreferences(this).getString("name", ""));
-                                messages.put("Login", PreferenceManager.getDefaultSharedPreferences(this).getString("login", ""));
-                                if (rg.getCheckedRadioButtonId() == R.id.openSiteCHOOSEWAY) {
-                                    messages.put("Type", "openSite");
-                                    messages.put("Site", getIntent().getStringExtra(Intent.EXTRA_TEXT));
-                                } else {
-                                    messages.put("Type", "copy");
-                                    messages.put("Value", getIntent().getStringExtra(Intent.EXTRA_TEXT));
-                                }
-                                for (Message m : Message.getMessages(messages.toString().getBytes(), Message.BODYMAXIMUM/10)) {
-                                    sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("Port")));
-                                }
-                            } catch (IOException | JSONException | NullPointerException e) {
-                                e.printStackTrace();
-                            }
-                            socket.close();
-                            thisActivity.finish();
-                        }).start());
-                        if (!ips.containsKey(p.getAddress().getHostAddress())) {
-                            ips.put(p.getAddress().getHostAddress(), s);
-                            this.runOnUiThread(()->{
-                                ll.addView(b);
+        socket = new DatagramSocket(BroadCastingPort);
+        Dialog d = new Dialog(this);
+        LinearLayout ll = new LinearLayout(this);
+        TextView label = new TextView(this);
+        label.setText("Выберите получателя:");
+        label.setTextSize(20);
+        label.setTextColor(Color.BLACK);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.addView(label);
+        ll.setPadding(10,10,10,10);
+        d.setContentView(ll);
+        Thread searching = new Thread(() -> {
+            try{
+                byte[] buf = new byte[BROADCASTINGSIZE];
+                DatagramPacket p = new DatagramPacket(buf, buf.length);
+                while (true) {
+                    socket.receive(p);
+                    JSONObject ans = new JSONObject(new String(p.getData()));
+                    Button b = new Button(this);
+                    b.setBackgroundColor(Color.WHITE);
+                    b.setText(ans.get("Name") + "(" + p.getAddress().getHostAddress() + ")");
+                    Server s = new Server(b,ans.getInt("Port"));
+                    int mode = ans.getInt("Mode");
+                    Activity thisActivity = this;
+                    b.setOnClickListener(button-> new Thread(()-> {
+                        try(DatagramSocket sendsocket = new DatagramSocket()) {
+                            runOnUiThread(()->{
+                                FrameLayout fl = new FrameLayout(thisActivity);
+                                TextView waiting = new TextView(thisActivity);
+                                fl.addView(waiting);
+                                waiting.setGravity(Gravity.CENTER);
+                                waiting.setText("Ожидание завершения действия...");
+                                waiting.setTextColor(Color.WHITE);
+                                waiting.setTextSize(20);
+                                thisActivity.setContentView(fl);
+                                d.setOnCancelListener(dialog -> {});
+                                d.cancel();
                             });
-                        }else
-                            Objects.requireNonNull(ips.get(p.getAddress().getHostAddress())).value++;
-                    }
-                } catch (IOException | JSONException | NullPointerException e) {
-                    e.printStackTrace();
+                            sendsocket.setBroadcast(true);
+                            JSONObject messages = new JSONObject();
+                            messages.put("Name", PreferenceManager.getDefaultSharedPreferences(this).getString("name", ""));
+                            messages.put("Code", PreferenceManager.getDefaultSharedPreferences(this).getInt("code", 0) % mode);
+                            if (rg.getCheckedRadioButtonId() == R.id.openSiteCHOOSEWAY) {
+                                messages.put("Type", "openSite");
+                                messages.put("Site", getIntent().getStringExtra(Intent.EXTRA_TEXT));
+                            } else {
+                                messages.put("Type", "copy");
+                                messages.put("Value", getIntent().getStringExtra(Intent.EXTRA_TEXT));
+                            }
+                            for (Message m : Message.getMessages(messages.toString().getBytes(), Message.BODYMAXIMUM/10)) {
+                                sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("Port")));
+                            }
+                        } catch (IOException | JSONException | NullPointerException e) {
+                            e.printStackTrace();
+                        }
+                        socket.close();
+                        thisActivity.finish();
+                    }).start());
+                    if (!ips.containsKey(p.getAddress().getHostAddress())) {
+                        ips.put(p.getAddress().getHostAddress(), s);
+                        this.runOnUiThread(()->{
+                            ll.addView(b);
+                        });
+                    }else
+                        Objects.requireNonNull(ips.get(p.getAddress().getHostAddress())).value++;
                 }
-            });
-            searching.start();
-            d.setOnCancelListener(dialog -> {
-                socket.close();
-                searching.interrupt();
-            });
-            d.show();
-        }
+            } catch (IOException | JSONException | NullPointerException e) {
+                e.printStackTrace();
+            }
+        });
+        searching.start();
+        d.setOnCancelListener(dialog -> {
+            socket.close();
+            searching.interrupt();
+        });
+        d.show();
     }
 
     private void ChangeActivity(Class<?> cls){

@@ -45,6 +45,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -69,8 +70,9 @@ public class SessionServer extends Session{
     public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
         MessageParser messageParser = new MessageParser();
-        String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", ""),
-            login = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("login", "");
+        String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", "");
+        int code = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getInt("code", 0);
+        int mode = new Random().nextInt(1000);
         JSONObject message = new JSONObject();
         switch (type){
             case KEYBOARD:
@@ -86,6 +88,7 @@ public class SessionServer extends Session{
         message.put("port", port);
         message.put("type", type);
         message.put("name", name);
+        message.put("mode", mode);
         byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
@@ -140,7 +143,7 @@ public class SessionServer extends Session{
                             String msgString = new String(messageParser.parse(head));
                             JSONObject msg = new JSONObject(msgString);
 
-                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Code") && msg.get("Code").equals(code % mode))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
@@ -235,7 +238,7 @@ public class SessionServer extends Session{
                             }
                             JSONObject msg = new JSONObject(line);
 
-                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Code") && msg.get("Code").equals(code % mode))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);
@@ -383,7 +386,7 @@ public class SessionServer extends Session{
                             }
                             JSONObject msg = new JSONObject(line);
 
-                            if(gotAccess.get().equals(0) && msg.has("Login") && msg.get("Login").equals(login))
+                            if(gotAccess.get().equals(0) && msg.has("Code") && msg.get("Code").equals(code % mode))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
                                 gotAccess.set(1);

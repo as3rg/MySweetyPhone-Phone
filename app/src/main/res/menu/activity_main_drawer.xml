@@ -4,14 +4,6 @@
     tools:showIn="navigation_view">
 
     <item
-        android:id="@+id/nav_saved"
-        android:icon="@drawable/ic_menu_send"
-        android:title="@string/savedNAV" />
-    <item
-        android:id="@+id/nav_devices_list"
-        android:icon="@drawable/ic_menu_devices_list"
-        android:title="@string/deviceslistNAV" />
-    <item
         android:id="@+id/nav_sclient"
         android:icon="@drawable/ic_menu_connect"
         android:title="@string/sclientNAV" />
@@ -19,10 +11,6 @@
         android:id="@+id/nav_sserver"
         android:icon="@drawable/ic_menu_new_session"
         android:title="@string/sserverNAV" />
-    <item
-        android:id="@+id/nav_instruction"
-        android:icon="@drawable/ic_menu_help"
-        android:title="@string/nav_help" />
     <item
         android:id="@+id/nav_exit"
         android:icon="@drawable/ic_menu_exit"

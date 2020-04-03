@@ -76,11 +76,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Login"
-            android:label=""
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".RegDevice"
             android:label=""
             android:configChanges="orientation|screenSize"
@@ -89,7 +84,8 @@
             android:name=".Main"
             android:label=""
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -31,6 +31,8 @@ import java.util.TreeMap;
 
 public class SessionClient extends Session{
 
+    private int mode;
+
     static private class Server{
         public int value;
         public Button b;
@@ -46,6 +48,10 @@ public class SessionClient extends Session{
     static boolean isSearching = false;
     static Thread searching;
     static DatagramSocket s;
+
+    public int getMode(){
+        return mode;
+    }
 
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
@@ -96,7 +102,7 @@ public class SessionClient extends Session{
                             )
                     ).equals(p.getAddress())) continue;
                     if (!ips.containsKey(name)) {
-                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity));
+                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")));
                         ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
@@ -144,12 +150,14 @@ public class SessionClient extends Session{
         }catch (NullPointerException ignored){}
     }
 
-    public SessionClient(InetAddress address, int Port, int type, Activity activity) {
+    public SessionClient(InetAddress address, int Port, int type, Activity activity, int mode) {
         this.address = address;
         this.port = Port;
         this.type = type;
+        this.mode = mode;
 
         switch (type) {
+            case KEYBOARD:
             case MOUSE:
                 t = new Thread(()->{
                     try {

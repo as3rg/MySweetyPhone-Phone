@@ -84,7 +84,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/D:/Programs/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_help_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Users/Xiaomi/AppData/Local/JetBrains/Toolbox/apps/AndroidStudio/ch-0/191.5791312/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_vpn_key_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -94,7 +94,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_menu_help" />
+                            <entry key="outputName" value="ic_code" />
                             <entry key="sourceFile" value="C:\Users\Alex" />
                           </map>
                         </option>

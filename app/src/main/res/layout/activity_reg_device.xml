@@ -71,7 +71,7 @@
             android:autoText="true"
             android:clickable="true"
             android:contextClickable="true"
-            android:drawableLeft="@drawable/ic_devices_list_phone"
+            android:drawableLeft="@drawable/ic_reg_device_phone"
             android:drawableTint="@android:color/white"
             android:editable="true"
             android:enabled="true"

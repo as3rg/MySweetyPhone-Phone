@@ -21,19 +21,6 @@
         android:layout_margin="30dp">
 
         <RadioButton
-            android:id="@+id/sendToSavedCHOOSEWAY"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:buttonTint="@android:color/white"
-            android:checked="true"
-            android:padding="20dp"
-            android:text="@string/send_to_savedCHOOSEWAY"
-            android:textColor="@android:color/white"
-            android:textColorHint="@android:color/white"
-            android:textSize="14sp" />
-
-        <RadioButton
             android:id="@+id/openSiteCHOOSEWAY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
