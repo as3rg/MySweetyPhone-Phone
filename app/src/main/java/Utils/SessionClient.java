@@ -34,20 +34,17 @@ public class SessionClient extends Session{
     private int mode;
 
     static private class Server{
-        public int value;
-        public Button b;
-        public SessionClient sc;
-        Server(Button b, SessionClient sc){
-            this.b = b;
-            this.sc = sc;
+        int value;
+        Button b;
+        Server(){
             value = 5;
         }
     }
 
-    static Map<String, Server> ips;
-    static boolean isSearching = false;
-    static Thread searching;
-    static DatagramSocket s;
+    private static Map<String, Server> ips;
+    private static boolean isSearching = false;
+    private static Thread searching;
+    private static DatagramSocket s;
 
     public int getMode(){
         return mode;
@@ -102,7 +99,7 @@ public class SessionClient extends Session{
                             )
                     ).equals(p.getAddress())) continue;
                     if (!ips.containsKey(name)) {
-                        Server server = new Server(null, new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")));
+                        Server server = new Server();
                         ips.put(name,server);
                         activity.runOnUiThread(() -> {
                             Button ip = new Button(activity);
@@ -120,8 +117,12 @@ public class SessionClient extends Session{
                             server.b = ip;
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
-                                server.sc.Start();
-                                v.removeView(ip);
+                                try {
+                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")).Start();
+                                    v.removeView(ip);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             });
                             v.setEnabled(true);
                             v.addView(ip);

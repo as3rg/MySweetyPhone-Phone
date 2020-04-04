@@ -89,6 +89,7 @@ public class SessionServer extends Session{
         message.put("type", type);
         message.put("name", name);
         message.put("mode", mode);
+        message.put("kind", 0);
         byte[] buf2 = String.format("%-100s", message.toString()).getBytes();
         DatagramSocket s1 = new DatagramSocket();
         s1.setBroadcast(true);
