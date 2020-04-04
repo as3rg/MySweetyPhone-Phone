@@ -1,14 +1,12 @@
 package com.mysweetyphone.phone;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,28 +17,19 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Random;
 
 import Utils.ServerMode;
 
 public class Main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private ImageButton reload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +62,7 @@ public class Main extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
             navigationView.setNavigationItemSelectedListener(this);
 
-            reload = findViewById(R.id.reloadMAIN);
             navigationView.inflateMenu(R.menu.activity_main_drawer);
-            reload.setVisibility(View.VISIBLE);
 
             ServerMode.SetContext(this);
         }
@@ -98,16 +85,6 @@ public class Main extends AppCompatActivity
         return true;
     }
 
-    public boolean reload(View v){
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment currentFragment = fm.findFragmentById(R.id.MainFragment);
-        ft.detach(currentFragment);
-        ft.attach(currentFragment);
-        ft.commit();
-        return true;
-    }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -125,11 +102,9 @@ public class Main extends AppCompatActivity
                 finish();
                 return false;
             case R.id.nav_sclient:
-                reload.setVisibility(View.GONE);
                 FragmentToReplace = new SClient();
                 break;
             case R.id.nav_sserver:
-                reload.setVisibility(View.GONE);
                 FragmentToReplace = new SServer();
                 break;
         }
