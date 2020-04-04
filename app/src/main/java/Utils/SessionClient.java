@@ -42,7 +42,6 @@ public class SessionClient extends Session{
     }
 
     private static Map<String, Server> ips;
-    private static boolean isSearching = false;
     private static Thread searching;
     private static DatagramSocket s;
 
@@ -52,11 +51,10 @@ public class SessionClient extends Session{
 
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
-        if(isSearching) {
+        if(searching.isAlive()) {
             StopSearching();
         }
         ips = new TreeMap<>();
-        isSearching = true;
         s = new DatagramSocket(BroadCastingPort);
         s.setBroadcast(true);
         s.setSoTimeout(60000);
@@ -133,7 +131,6 @@ public class SessionClient extends Session{
             } catch (IOException | NullPointerException | JSONException e) {
                 e.printStackTrace();
             }
-            isSearching = false;
             s.close();
             t.cancel();
             if(activity!=null) activity.runOnUiThread(onFinishSearching);
@@ -145,7 +142,6 @@ public class SessionClient extends Session{
         try {
             searching.interrupt();
         }catch (NullPointerException ignored){}
-        isSearching=false;
         try{
             s.close();
         }catch (NullPointerException ignored){}
