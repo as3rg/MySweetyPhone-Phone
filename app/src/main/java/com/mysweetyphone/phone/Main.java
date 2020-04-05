@@ -118,10 +118,10 @@ public class Main extends AppCompatActivity
 
     public void ChangeCode(View view) {
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         input.setSingleLine(true);
         int code = PreferenceManager.getDefaultSharedPreferences(this).getInt("code", 0);
-        input.setText(String.valueOf(code));
+        input.setText(String.format("%06d", code));
         input.setFilters(new InputFilter[] { new InputFilter.LengthFilter(6) });
         AlertDialog alert = new AlertDialog.Builder(this)
                 .setTitle("Код")
