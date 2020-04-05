@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
@@ -42,15 +41,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.Key;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import Utils.Message;
 import Utils.Session;
 import Utils.SessionClient;
 
@@ -96,7 +93,6 @@ public class MouseTracker extends AppCompatActivity {
     }
 
     static public SessionClient sc;
-    static public final int MESSAGESIZE = 100;
     static String name;
     static int code;
     Switch win, alt, shift, ctrl;
@@ -269,10 +265,7 @@ public class MouseTracker extends AppCompatActivity {
     public void Send(byte[] b) {
         new Thread(()-> {
             try {
-                Message[] messages = Message.getMessages(b, MESSAGESIZE);
-                for (Message m : messages) {
-                    sc.getDatagramSocket().send(new DatagramPacket(m.getArr(), m.getArr().length, sc.getAddress(), sc.getPort()));
-                }
+                sc.getDatagramSocket().send(new DatagramPacket(b, b.length, sc.getAddress(), sc.getPort()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -479,71 +472,71 @@ public class MouseTracker extends AppCompatActivity {
     static int ViewToButtonId(View v){
         switch(v.getId()){
             case R.id.escapeMOUSETRACKER:
-                return 27;
+                return PCKeys.Escape;
             case R.id.tabMOUSETRACKER:
-                return 9;
+                return PCKeys.Tab;
             case R.id.capslockMOUSETRACKER:
-                return 20;
+                return PCKeys.CapsLock;
             case R.id.leftMOUSETRACKER:
-                return 37;
+                return PCKeys.Left;
             case R.id.downMOUSETRACKER:
-                return 40;
+                return PCKeys.Down;
             case R.id.upMOUSETRACKER:
-                return 38;
+                return PCKeys.Up;
             case R.id.rightMOUSETRACKER:
-                return 39;
+                return PCKeys.Right;
             case R.id.delMOUSETRACKER:
-                return 127;
+                return PCKeys.Delete;
             case R.id.numlockMOUSETRACKER:
-                return 144;
+                return PCKeys.NumLock;
             case R.id.scrolllockMOUSETRACKER:
-                return 145;
+                return PCKeys.Scroll;
             case R.id.homeMOUSETRACKER:
-                return 36;
+                return PCKeys.Home;
             case R.id.endMOUSETRACKER:
-                return 35;
+                return PCKeys.End;
             case R.id.pageupMOUSETRACKER:
-                return 33;
+                return PCKeys.PageUp;
             case R.id.pagedownMOUSETRACKER:
-                return 34;
+                return PCKeys.PageDown;
             case R.id.insertMOUSETRACKER:
-                return 155;
+                return PCKeys.Insert;
             case R.id.printscreenMOUSETRACKER:
-                return 154;
+                return PCKeys.PrintScreen;
             case R.id.ctrlMOUSETRACKER:
-                return 17;
+                return PCKeys.LeftCtrl;
             case R.id.shiftMOUSETRACKER:
-                return 16;
+                return PCKeys.LeftShift;
             case R.id.altMOUSETRACKER:
-                return 18;
+                return PCKeys.LeftAlt;
             case R.id.winMOUSETRACKER:
-                return 524;
+                return PCKeys.LWin;
             case R.id.enterMOUSETRACKER:
-                return 10;
+                return PCKeys.Enter;
             case R.id.F1MOUSETRACKER:
-                return 112;
+                return PCKeys.F1;
             case R.id.F2MOUSETRACKER:
-                return 113;
+                return PCKeys.F2;
             case R.id.F3MOUSETRACKER:
-                return 114;
+                return PCKeys.F3;
             case R.id.F4MOUSETRACKER:
-                return 115;
+                return PCKeys.F4;
             case R.id.F5MOUSETRACKER:
-                return 116;
+                return PCKeys.F5;
             case R.id.F6MOUSETRACKER:
-                return 117;
+                return PCKeys.F6;
             case R.id.F7MOUSETRACKER:
-                return 118;
+                return PCKeys.F7;
             case R.id.F8MOUSETRACKER:
-                return 119;
+                return PCKeys.F8;
             case R.id.F9MOUSETRACKER:
-                return 120;
+                return PCKeys.F9;
             case R.id.F10MOUSETRACKER:
-                return 121;
+                return PCKeys.F10;
             case R.id.F11MOUSETRACKER:
-                return 122;
+                return PCKeys.F11;
             case R.id.F12MOUSETRACKER:
-                return 123;
+                return PCKeys.F12;
             default:
                 return -1;
         }
@@ -570,261 +563,1087 @@ public class MouseTracker extends AppCompatActivity {
 
     public static int AwtToAndroid(int e){
         switch (e){
-            case 48: return KeyEvent.KEYCODE_0;
-            case 49: return KeyEvent.KEYCODE_1;
-            case 50: return KeyEvent.KEYCODE_2;
-            case 51: return KeyEvent.KEYCODE_3;
-            case 52: return KeyEvent.KEYCODE_4;
-            case 53: return KeyEvent.KEYCODE_5;
-            case 54: return KeyEvent.KEYCODE_6;
-            case 55: return KeyEvent.KEYCODE_7;
-            case 56: return KeyEvent.KEYCODE_8;
-            case 57: return KeyEvent.KEYCODE_9;
-            case 151: return KeyEvent.KEYCODE_STAR;
-            case 520: return KeyEvent.KEYCODE_POUND;
-            case 38: return KeyEvent.KEYCODE_DPAD_UP;
-            case 40: return KeyEvent.KEYCODE_DPAD_DOWN;
-            case 37: return KeyEvent.KEYCODE_DPAD_LEFT;
-            case 39: return KeyEvent.KEYCODE_DPAD_RIGHT;
-            case 12: return KeyEvent.KEYCODE_CLEAR;
-            case 65: return KeyEvent.KEYCODE_A;
-            case 66: return KeyEvent.KEYCODE_B;
-            case 67: return KeyEvent.KEYCODE_C;
-            case 68: return KeyEvent.KEYCODE_D;
-            case 69: return KeyEvent.KEYCODE_E;
-            case 70: return KeyEvent.KEYCODE_F;
-            case 71: return KeyEvent.KEYCODE_G;
-            case 72: return KeyEvent.KEYCODE_H;
-            case 73: return KeyEvent.KEYCODE_I;
-            case 74: return KeyEvent.KEYCODE_J;
-            case 75: return KeyEvent.KEYCODE_K;
-            case 76: return KeyEvent.KEYCODE_L;
-            case 77: return KeyEvent.KEYCODE_M;
-            case 78: return KeyEvent.KEYCODE_N;
-            case 79: return KeyEvent.KEYCODE_O;
-            case 80: return KeyEvent.KEYCODE_P;
-            case 81: return KeyEvent.KEYCODE_Q;
-            case 82: return KeyEvent.KEYCODE_R;
-            case 83: return KeyEvent.KEYCODE_S;
-            case 84: return KeyEvent.KEYCODE_T;
-            case 85: return KeyEvent.KEYCODE_U;
-            case 86: return KeyEvent.KEYCODE_V;
-            case 87: return KeyEvent.KEYCODE_W;
-            case 88: return KeyEvent.KEYCODE_X;
-            case 89: return KeyEvent.KEYCODE_Y;
-            case 90: return KeyEvent.KEYCODE_Z;
-            case 44: return KeyEvent.KEYCODE_COMMA;
-            case 46: return KeyEvent.KEYCODE_PERIOD;
-            case 18: return KeyEvent.KEYCODE_ALT_LEFT;
-            case 16: return KeyEvent.KEYCODE_SHIFT_LEFT;
-            case 9: return KeyEvent.KEYCODE_TAB;
-            case 32: return KeyEvent.KEYCODE_SPACE;
-            case 10: return KeyEvent.KEYCODE_ENTER;
-            case 8: return KeyEvent.KEYCODE_DEL;
-            case 192: return KeyEvent.KEYCODE_GRAVE;
-            case 45: return KeyEvent.KEYCODE_MINUS;
-            case 61: return KeyEvent.KEYCODE_EQUALS;
-            case 91: return KeyEvent.KEYCODE_LEFT_BRACKET;
-            case 93: return KeyEvent.KEYCODE_RIGHT_BRACKET;
-            case 92: return KeyEvent.KEYCODE_BACKSLASH;
-            case 59: return KeyEvent.KEYCODE_SEMICOLON;
-            case 222: return KeyEvent.KEYCODE_APOSTROPHE;
-            case 47: return KeyEvent.KEYCODE_SLASH;
-            case 512: return KeyEvent.KEYCODE_AT;
-            case 521: return KeyEvent.KEYCODE_PLUS;
-            case 525: return KeyEvent.KEYCODE_MENU;
-            case 65488: return KeyEvent.KEYCODE_SEARCH;
-            case 19: return KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-            case 65480: return KeyEvent.KEYCODE_MEDIA_STOP;
-            case 33: return KeyEvent.KEYCODE_PAGE_UP;
-            case 34: return KeyEvent.KEYCODE_PAGE_DOWN;
-            case 27: return KeyEvent.KEYCODE_ESCAPE;
-            case 127: return KeyEvent.KEYCODE_FORWARD_DEL;
-            case 17: return KeyEvent.KEYCODE_CTRL_LEFT;
-            case 20: return KeyEvent.KEYCODE_CAPS_LOCK;
-            case 145: return KeyEvent.KEYCODE_SCROLL_LOCK;
-            case 157: return KeyEvent.KEYCODE_META_LEFT;
-            case 154: return KeyEvent.KEYCODE_SYSRQ;
-            case 36: return KeyEvent.KEYCODE_MOVE_HOME;
-            case 35: return KeyEvent.KEYCODE_MOVE_END;
-            case 155: return KeyEvent.KEYCODE_INSERT;
-            case 112: return KeyEvent.KEYCODE_F1;
-            case 113: return KeyEvent.KEYCODE_F2;
-            case 114: return KeyEvent.KEYCODE_F3;
-            case 115: return KeyEvent.KEYCODE_F4;
-            case 116: return KeyEvent.KEYCODE_F5;
-            case 117: return KeyEvent.KEYCODE_F6;
-            case 118: return KeyEvent.KEYCODE_F7;
-            case 119: return KeyEvent.KEYCODE_F8;
-            case 120: return KeyEvent.KEYCODE_F9;
-            case 121: return KeyEvent.KEYCODE_F10;
-            case 122: return KeyEvent.KEYCODE_F11;
-            case 123: return KeyEvent.KEYCODE_F12;
-            case 144: return KeyEvent.KEYCODE_NUM_LOCK;
-            case 96: return KeyEvent.KEYCODE_NUMPAD_0;
-            case 97: return KeyEvent.KEYCODE_NUMPAD_1;
-            case 98: return KeyEvent.KEYCODE_NUMPAD_2;
-            case 99: return KeyEvent.KEYCODE_NUMPAD_3;
-            case 100: return KeyEvent.KEYCODE_NUMPAD_4;
-            case 101: return KeyEvent.KEYCODE_NUMPAD_5;
-            case 102: return KeyEvent.KEYCODE_NUMPAD_6;
-            case 103: return KeyEvent.KEYCODE_NUMPAD_7;
-            case 104: return KeyEvent.KEYCODE_NUMPAD_8;
-            case 105: return KeyEvent.KEYCODE_NUMPAD_9;
-            case 111: return KeyEvent.KEYCODE_NUMPAD_DIVIDE;
-            case 106: return KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
-            case 109: return KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
-            case 107: return KeyEvent.KEYCODE_NUMPAD_ADD;
-            case 519: return KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN;
-            case 522: return KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN;
-            case 524: return KeyEvent.KEYCODE_WINDOW;
-            case 156: return KeyEvent.KEYCODE_HELP;
-            case 224: return KeyEvent.KEYCODE_DPAD_UP;
-            case 225: return KeyEvent.KEYCODE_DPAD_DOWN;
-            case 226: return KeyEvent.KEYCODE_DPAD_UP;
-            case 227: return KeyEvent.KEYCODE_DPAD_DOWN;
-            case 65489: return KeyEvent.KEYCODE_CUT;
-            case 65485: return KeyEvent.KEYCODE_COPY;
-            case 65487: return KeyEvent.KEYCODE_PASTE;
+            case PCKeys.Back: return KeyEvent.KEYCODE_DEL;
+            case PCKeys.Tab: return KeyEvent.KEYCODE_TAB ;
+            case PCKeys.Clear: return KeyEvent.KEYCODE_CLEAR ;
+            case PCKeys.Enter: return KeyEvent.KEYCODE_ENTER ;
+            case PCKeys.Pause: return KeyEvent.KEYCODE_MEDIA_PAUSE ;
+            case PCKeys.CapsLock: return KeyEvent.KEYCODE_CAPS_LOCK ;
+            case PCKeys.Escape: return KeyEvent.KEYCODE_ESCAPE ;
+            case PCKeys.Space: return KeyEvent.KEYCODE_SPACE ;
+            case PCKeys.PageUp: return KeyEvent.KEYCODE_PAGE_UP ;
+            case PCKeys.PageDown: return KeyEvent.KEYCODE_PAGE_DOWN ;
+            case PCKeys.End: return KeyEvent.KEYCODE_MOVE_END ;
+            case PCKeys.Home: return KeyEvent.KEYCODE_MOVE_HOME ;
+            case PCKeys.Left: return KeyEvent.KEYCODE_DPAD_LEFT ;
+            case PCKeys.Up: return KeyEvent.KEYCODE_DPAD_UP ;
+            case PCKeys.Right: return KeyEvent.KEYCODE_DPAD_RIGHT ;
+            case PCKeys.Down: return KeyEvent.KEYCODE_DPAD_DOWN ;
+            case PCKeys.Select: return KeyEvent.KEYCODE_BUTTON_SELECT ;
+            case PCKeys.PrintScreen: return KeyEvent.KEYCODE_SYSRQ ;
+            case PCKeys.Insert: return KeyEvent.KEYCODE_INSERT ;
+            case PCKeys.Delete: return KeyEvent.KEYCODE_FORWARD_DEL ;
+            case PCKeys.Help: return KeyEvent.KEYCODE_HELP ;
+            case PCKeys.D0: return KeyEvent.KEYCODE_0 ;
+            case PCKeys.D1: return KeyEvent.KEYCODE_1 ;
+            case PCKeys.D2: return KeyEvent.KEYCODE_2 ;
+            case PCKeys.D3: return KeyEvent.KEYCODE_3 ;
+            case PCKeys.D4: return KeyEvent.KEYCODE_4 ;
+            case PCKeys.D5: return KeyEvent.KEYCODE_5 ;
+            case PCKeys.D6: return KeyEvent.KEYCODE_6 ;
+            case PCKeys.D7: return KeyEvent.KEYCODE_7 ;
+            case PCKeys.D8: return KeyEvent.KEYCODE_8 ;
+            case PCKeys.D9: return KeyEvent.KEYCODE_9 ;
+            case PCKeys.A: return KeyEvent.KEYCODE_A ;
+            case PCKeys.B: return KeyEvent.KEYCODE_B ;
+            case PCKeys.C: return KeyEvent.KEYCODE_C ;
+            case PCKeys.D: return KeyEvent.KEYCODE_D ;
+            case PCKeys.E: return KeyEvent.KEYCODE_E ;
+            case PCKeys.F: return KeyEvent.KEYCODE_F ;
+            case PCKeys.G: return KeyEvent.KEYCODE_G ;
+            case PCKeys.H: return KeyEvent.KEYCODE_H ;
+            case PCKeys.I: return KeyEvent.KEYCODE_I ;
+            case PCKeys.J: return KeyEvent.KEYCODE_J ;
+            case PCKeys.K: return KeyEvent.KEYCODE_K ;
+            case PCKeys.L: return KeyEvent.KEYCODE_L ;
+            case PCKeys.M: return KeyEvent.KEYCODE_M ;
+            case PCKeys.N: return KeyEvent.KEYCODE_N ;
+            case PCKeys.O: return KeyEvent.KEYCODE_O ;
+            case PCKeys.P: return KeyEvent.KEYCODE_P ;
+            case PCKeys.Q: return KeyEvent.KEYCODE_Q ;
+            case PCKeys.R: return KeyEvent.KEYCODE_R ;
+            case PCKeys.S: return KeyEvent.KEYCODE_S ;
+            case PCKeys.T: return KeyEvent.KEYCODE_T ;
+            case PCKeys.U: return KeyEvent.KEYCODE_U ;
+            case PCKeys.V: return KeyEvent.KEYCODE_V ;
+            case PCKeys.W: return KeyEvent.KEYCODE_W ;
+            case PCKeys.X: return KeyEvent.KEYCODE_X ;
+            case PCKeys.Y: return KeyEvent.KEYCODE_Y ;
+            case PCKeys.Z: return KeyEvent.KEYCODE_Z ;
+            case PCKeys.LWin: return KeyEvent.KEYCODE_MENU ;
+            case PCKeys.RWin: return KeyEvent.KEYCODE_MENU ;
+            case PCKeys.Apps: return KeyEvent.KEYCODE_ALL_APPS ;
+            case PCKeys.Sleep: return KeyEvent.KEYCODE_SLEEP ;
+            case PCKeys.NumPad0: return KeyEvent.KEYCODE_NUMPAD_0 ;
+            case PCKeys.NumPad1: return KeyEvent.KEYCODE_NUMPAD_1 ;
+            case PCKeys.NumPad2: return KeyEvent.KEYCODE_NUMPAD_2 ;
+            case PCKeys.NumPad3: return KeyEvent.KEYCODE_NUMPAD_3 ;
+            case PCKeys.NumPad4: return KeyEvent.KEYCODE_NUMPAD_4 ;
+            case PCKeys.NumPad5: return KeyEvent.KEYCODE_NUMPAD_5 ;
+            case PCKeys.NumPad6: return KeyEvent.KEYCODE_NUMPAD_6 ;
+            case PCKeys.NumPad7: return KeyEvent.KEYCODE_NUMPAD_7 ;
+            case PCKeys.NumPad8: return KeyEvent.KEYCODE_NUMPAD_8 ;
+            case PCKeys.NumPad9: return KeyEvent.KEYCODE_NUMPAD_9 ;
+            case PCKeys.Multiply: return KeyEvent.KEYCODE_STAR ;
+            case PCKeys.Add: return KeyEvent.KEYCODE_PLUS ;
+            case PCKeys.Separator: return KeyEvent.KEYCODE_NUMPAD_COMMA ;
+            case PCKeys.Subtract: return KeyEvent.KEYCODE_MINUS ;
+            case PCKeys.Decimal: return KeyEvent.KEYCODE_NUMPAD_DOT ;
+            case PCKeys.Divide: return KeyEvent.KEYCODE_SLASH ;
+            case PCKeys.F1: return KeyEvent.KEYCODE_F1 ;
+            case PCKeys.F2: return KeyEvent.KEYCODE_F2 ;
+            case PCKeys.F3: return KeyEvent.KEYCODE_F3 ;
+            case PCKeys.F4: return KeyEvent.KEYCODE_F4 ;
+            case PCKeys.F5: return KeyEvent.KEYCODE_F5 ;
+            case PCKeys.F6: return KeyEvent.KEYCODE_F6 ;
+            case PCKeys.F7: return KeyEvent.KEYCODE_F7 ;
+            case PCKeys.F8: return KeyEvent.KEYCODE_F8 ;
+            case PCKeys.F9: return KeyEvent.KEYCODE_F9 ;
+            case PCKeys.F10: return KeyEvent.KEYCODE_F10 ;
+            case PCKeys.F11: return KeyEvent.KEYCODE_F11 ;
+            case PCKeys.F12: return KeyEvent.KEYCODE_F12 ;
+            case PCKeys.NumLock: return KeyEvent.KEYCODE_NUM_LOCK ;
+            case PCKeys.Scroll: return KeyEvent.KEYCODE_SCROLL_LOCK ;
+            case PCKeys.LeftShift: return KeyEvent.KEYCODE_SHIFT_LEFT ;
+            case PCKeys.RightShift: return KeyEvent.KEYCODE_SHIFT_RIGHT ;
+            case PCKeys.LeftCtrl: return KeyEvent.KEYCODE_CTRL_LEFT ;
+            case PCKeys.RightCtrl: return KeyEvent.KEYCODE_CTRL_RIGHT ;
+            case PCKeys.LeftAlt: return KeyEvent.KEYCODE_ALT_LEFT ;
+            case PCKeys.RightAlt: return KeyEvent.KEYCODE_ALT_RIGHT ;
+            case PCKeys.VolumeMute: return KeyEvent.KEYCODE_VOLUME_MUTE ;
+            case PCKeys.VolumeDown: return KeyEvent.KEYCODE_VOLUME_DOWN ;
+            case PCKeys.VolumeUp: return KeyEvent.KEYCODE_VOLUME_UP ;
+            case PCKeys.MediaNextTrack: return KeyEvent.KEYCODE_MEDIA_NEXT ;
+            case PCKeys.MediaPreviousTrack: return KeyEvent.KEYCODE_MEDIA_PREVIOUS ;
+            case PCKeys.MediaStop: return KeyEvent.KEYCODE_MEDIA_STOP ;
+            case PCKeys.MediaPlayPause: return KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ;
+            case PCKeys.SelectMedia: return KeyEvent.KEYCODE_BUTTON_SELECT ;
+            case PCKeys.OemPlus: return KeyEvent.KEYCODE_PLUS ;
+            case PCKeys.OemComma: return KeyEvent.KEYCODE_COMMA ;
+            case PCKeys.OemMinus: return KeyEvent.KEYCODE_MINUS ;
+            case PCKeys.OemPeriod: return KeyEvent.KEYCODE_PERIOD ;
+            case PCKeys.System: return KeyEvent.KEYCODE_MENU ;
+            case PCKeys.OemBackTab: return KeyEvent.KEYCODE_TAB ;
+            case PCKeys.Play: return KeyEvent.KEYCODE_MEDIA_PLAY ;
+            case PCKeys.Zoom: return KeyEvent.KEYCODE_ZOOM_IN;
+            case PCKeys.NoName: return KeyEvent.KEYCODE_UNKNOWN ;
+            case PCKeys.OemTilde: return KeyEvent.KEYCODE_GRAVE;
+            case PCKeys.OemClear: return KeyEvent.KEYCODE_CLEAR ;
+            case PCKeys.OemOpenBrackets: return KeyEvent.KEYCODE_LEFT_BRACKET;
+            case PCKeys.OemCloseBrackets: return KeyEvent.KEYCODE_RIGHT_BRACKET;
+            case PCKeys.OemSemicolon: return KeyEvent.KEYCODE_SEMICOLON;
+            case PCKeys.OemQuotes: return KeyEvent.KEYCODE_APOSTROPHE;
+            case PCKeys.OemQuestion: return KeyEvent.KEYCODE_SLASH;
+            case PCKeys.OemBackslash: return KeyEvent.KEYCODE_BACKSLASH;
         }
         return -1;
     }
 
     public static int AndroidToAwt(int e){
         switch (e){
-            case KeyEvent.KEYCODE_HOME: return 36;
-            case KeyEvent.KEYCODE_BACK: return 35;
-            case KeyEvent.KEYCODE_0: return 48;
-            case KeyEvent.KEYCODE_1: return 49;
-            case KeyEvent.KEYCODE_2: return 50;
-            case KeyEvent.KEYCODE_3: return 51;
-            case KeyEvent.KEYCODE_4: return 52;
-            case KeyEvent.KEYCODE_5: return 53;
-            case KeyEvent.KEYCODE_6: return 54;
-            case KeyEvent.KEYCODE_7: return 55;
-            case KeyEvent.KEYCODE_8: return 56;
-            case KeyEvent.KEYCODE_9: return 57;
-            case KeyEvent.KEYCODE_STAR: return 151;
-            case KeyEvent.KEYCODE_POUND: return 520;
-            case KeyEvent.KEYCODE_DPAD_UP: return 38;
-            case KeyEvent.KEYCODE_DPAD_DOWN: return 40;
-            case KeyEvent.KEYCODE_DPAD_LEFT: return 37;
-            case KeyEvent.KEYCODE_DPAD_RIGHT: return 39;
-            case KeyEvent.KEYCODE_CLEAR: return 12;
-            case KeyEvent.KEYCODE_A: return 65;
-            case KeyEvent.KEYCODE_B: return 66;
-            case KeyEvent.KEYCODE_C: return 67;
-            case KeyEvent.KEYCODE_D: return 68;
-            case KeyEvent.KEYCODE_E: return 69;
-            case KeyEvent.KEYCODE_F: return 70;
-            case KeyEvent.KEYCODE_G: return 71;
-            case KeyEvent.KEYCODE_H: return 72;
-            case KeyEvent.KEYCODE_I: return 73;
-            case KeyEvent.KEYCODE_J: return 74;
-            case KeyEvent.KEYCODE_K: return 75;
-            case KeyEvent.KEYCODE_L: return 76;
-            case KeyEvent.KEYCODE_M: return 77;
-            case KeyEvent.KEYCODE_N: return 78;
-            case KeyEvent.KEYCODE_O: return 79;
-            case KeyEvent.KEYCODE_P: return 80;
-            case KeyEvent.KEYCODE_Q: return 81;
-            case KeyEvent.KEYCODE_R: return 82;
-            case KeyEvent.KEYCODE_S: return 83;
-            case KeyEvent.KEYCODE_T: return 84;
-            case KeyEvent.KEYCODE_U: return 85;
-            case KeyEvent.KEYCODE_V: return 86;
-            case KeyEvent.KEYCODE_W: return 87;
-            case KeyEvent.KEYCODE_X: return 88;
-            case KeyEvent.KEYCODE_Y: return 89;
-            case KeyEvent.KEYCODE_Z: return 90;
-            case KeyEvent.KEYCODE_COMMA: return 44;
-            case KeyEvent.KEYCODE_PERIOD: return 46;
-            case KeyEvent.KEYCODE_ALT_LEFT: return 18;
-            case KeyEvent.KEYCODE_ALT_RIGHT: return 18;
-            case KeyEvent.KEYCODE_SHIFT_LEFT: return 16;
-            case KeyEvent.KEYCODE_SHIFT_RIGHT: return 16;
-            case KeyEvent.KEYCODE_TAB: return 9;
-            case KeyEvent.KEYCODE_SPACE: return 32;
-            case KeyEvent.KEYCODE_ENTER: return 10;
-            case KeyEvent.KEYCODE_DEL: return 8;
-            case KeyEvent.KEYCODE_GRAVE: return 192;
-            case KeyEvent.KEYCODE_MINUS: return 45;
-            case KeyEvent.KEYCODE_EQUALS: return 61;
-            case KeyEvent.KEYCODE_LEFT_BRACKET: return 91;
-            case KeyEvent.KEYCODE_RIGHT_BRACKET: return 93;
-            case KeyEvent.KEYCODE_BACKSLASH: return 92;
-            case KeyEvent.KEYCODE_SEMICOLON: return 59;
-            case KeyEvent.KEYCODE_APOSTROPHE: return 222;
-            case KeyEvent.KEYCODE_SLASH: return 47;
-            case KeyEvent.KEYCODE_AT: return 512;
-            case KeyEvent.KEYCODE_PLUS: return 521;
-            case KeyEvent.KEYCODE_MENU: return 525;
-            case KeyEvent.KEYCODE_SEARCH: return 65488;
-            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: return 19;
-            case KeyEvent.KEYCODE_MEDIA_STOP: return 65480;
-            case KeyEvent.KEYCODE_PAGE_UP: return 33;
-            case KeyEvent.KEYCODE_PAGE_DOWN: return 34;
-            case KeyEvent.KEYCODE_ESCAPE: return 27;
-            case KeyEvent.KEYCODE_FORWARD_DEL: return 127;
-            case KeyEvent.KEYCODE_CTRL_LEFT: return 17;
-            case KeyEvent.KEYCODE_CTRL_RIGHT: return 17;
-            case KeyEvent.KEYCODE_CAPS_LOCK: return 20;
-            case KeyEvent.KEYCODE_SCROLL_LOCK: return 145;
-            case KeyEvent.KEYCODE_META_LEFT: return 157;
-            case KeyEvent.KEYCODE_META_RIGHT: return 157;
-            case KeyEvent.KEYCODE_SYSRQ: return 154;
-            case KeyEvent.KEYCODE_MOVE_HOME: return 36;
-            case KeyEvent.KEYCODE_MOVE_END: return 35;
-            case KeyEvent.KEYCODE_INSERT: return 155;
-            case KeyEvent.KEYCODE_MEDIA_PLAY: return 19;
-            case KeyEvent.KEYCODE_MEDIA_PAUSE: return 19;
-            case KeyEvent.KEYCODE_F1: return 112;
-            case KeyEvent.KEYCODE_F2: return 113;
-            case KeyEvent.KEYCODE_F3: return 114;
-            case KeyEvent.KEYCODE_F4: return 115;
-            case KeyEvent.KEYCODE_F5: return 116;
-            case KeyEvent.KEYCODE_F6: return 117;
-            case KeyEvent.KEYCODE_F7: return 118;
-            case KeyEvent.KEYCODE_F8: return 119;
-            case KeyEvent.KEYCODE_F9: return 120;
-            case KeyEvent.KEYCODE_F10: return 121;
-            case KeyEvent.KEYCODE_F11: return 122;
-            case KeyEvent.KEYCODE_F12: return 123;
-            case KeyEvent.KEYCODE_NUM_LOCK: return 144;
-            case KeyEvent.KEYCODE_NUMPAD_0: return 96;
-            case KeyEvent.KEYCODE_NUMPAD_1: return 97;
-            case KeyEvent.KEYCODE_NUMPAD_2: return 98;
-            case KeyEvent.KEYCODE_NUMPAD_3: return 99;
-            case KeyEvent.KEYCODE_NUMPAD_4: return 100;
-            case KeyEvent.KEYCODE_NUMPAD_5: return 101;
-            case KeyEvent.KEYCODE_NUMPAD_6: return 102;
-            case KeyEvent.KEYCODE_NUMPAD_7: return 103;
-            case KeyEvent.KEYCODE_NUMPAD_8: return 104;
-            case KeyEvent.KEYCODE_NUMPAD_9: return 105;
-            case KeyEvent.KEYCODE_NUMPAD_DIVIDE: return 111;
-            case KeyEvent.KEYCODE_NUMPAD_MULTIPLY: return 106;
-            case KeyEvent.KEYCODE_NUMPAD_SUBTRACT: return 109;
-            case KeyEvent.KEYCODE_NUMPAD_ADD: return 107;
-            case KeyEvent.KEYCODE_NUMPAD_COMMA: return 44;
-            case KeyEvent.KEYCODE_NUMPAD_ENTER: return 10;
-            case KeyEvent.KEYCODE_NUMPAD_EQUALS: return 61;
-            case KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN: return 519;
-            case KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN: return 522;
-            case KeyEvent.KEYCODE_WINDOW: return 524;
-            case KeyEvent.KEYCODE_HELP: return 156;
-            case KeyEvent.KEYCODE_DPAD_UP_LEFT: return 224;
-            case KeyEvent.KEYCODE_DPAD_DOWN_LEFT: return 225;
-            case KeyEvent.KEYCODE_DPAD_UP_RIGHT: return 226;
-            case KeyEvent.KEYCODE_DPAD_DOWN_RIGHT: return 227;
-            case KeyEvent.KEYCODE_CUT: return 65489;
-            case KeyEvent.KEYCODE_COPY: return 65485;
-            case KeyEvent.KEYCODE_PASTE: return 65487;
-            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP: return 38;
-            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN: return 40;
-            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT: return 37;
-            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT: return 39;
+            case KeyEvent.KEYCODE_HOME: return PCKeys.BrowserHome;
+            case KeyEvent.KEYCODE_BACK: return PCKeys.BrowserBack;
+            case KeyEvent.KEYCODE_VOLUME_MUTE: return PCKeys.VolumeMute;
+            case KeyEvent.KEYCODE_VOLUME_DOWN: return PCKeys.VolumeDown;
+            case KeyEvent.KEYCODE_VOLUME_UP: return PCKeys.VolumeUp;
+            case KeyEvent.KEYCODE_0: return PCKeys.D0;
+            case KeyEvent.KEYCODE_1: return PCKeys.D1;
+            case KeyEvent.KEYCODE_2: return PCKeys.D2;
+            case KeyEvent.KEYCODE_3: return PCKeys.D3;
+            case KeyEvent.KEYCODE_4: return PCKeys.D4;
+            case KeyEvent.KEYCODE_5: return PCKeys.D5;
+            case KeyEvent.KEYCODE_6: return PCKeys.D6;
+            case KeyEvent.KEYCODE_7: return PCKeys.D7;
+            case KeyEvent.KEYCODE_8: return PCKeys.D8;
+            case KeyEvent.KEYCODE_9: return PCKeys.D9;
+            case KeyEvent.KEYCODE_STAR: return PCKeys.Multiply;
+            case KeyEvent.KEYCODE_POUND: return 0;
+            case KeyEvent.KEYCODE_DPAD_UP: return PCKeys.Up;
+            case KeyEvent.KEYCODE_DPAD_DOWN: return PCKeys.Down;
+            case KeyEvent.KEYCODE_DPAD_LEFT: return PCKeys.Left;
+            case KeyEvent.KEYCODE_DPAD_RIGHT: return PCKeys.Right;
+            case KeyEvent.KEYCODE_CLEAR: return PCKeys.Clear;
+            case KeyEvent.KEYCODE_HELP: return PCKeys.Help ;
+            case KeyEvent.KEYCODE_A: return PCKeys.A;
+            case KeyEvent.KEYCODE_B: return PCKeys.B;
+            case KeyEvent.KEYCODE_C: return PCKeys.C;
+            case KeyEvent.KEYCODE_D: return PCKeys.D;
+            case KeyEvent.KEYCODE_E: return PCKeys.E;
+            case KeyEvent.KEYCODE_F: return PCKeys.F;
+            case KeyEvent.KEYCODE_G: return PCKeys.G;
+            case KeyEvent.KEYCODE_H: return PCKeys.H;
+            case KeyEvent.KEYCODE_I: return PCKeys.I;
+            case KeyEvent.KEYCODE_J: return PCKeys.J;
+            case KeyEvent.KEYCODE_K: return PCKeys.K;
+            case KeyEvent.KEYCODE_L: return PCKeys.L;
+            case KeyEvent.KEYCODE_M: return PCKeys.M;
+            case KeyEvent.KEYCODE_N: return PCKeys.N;
+            case KeyEvent.KEYCODE_O: return PCKeys.O;
+            case KeyEvent.KEYCODE_P: return PCKeys.P;
+            case KeyEvent.KEYCODE_Q: return PCKeys.Q;
+            case KeyEvent.KEYCODE_R: return PCKeys.R;
+            case KeyEvent.KEYCODE_S: return PCKeys.S;
+            case KeyEvent.KEYCODE_T: return PCKeys.T;
+            case KeyEvent.KEYCODE_U: return PCKeys.U;
+            case KeyEvent.KEYCODE_V: return PCKeys.V;
+            case KeyEvent.KEYCODE_W: return PCKeys.W;
+            case KeyEvent.KEYCODE_X: return PCKeys.X;
+            case KeyEvent.KEYCODE_Y: return PCKeys.Y;
+            case KeyEvent.KEYCODE_Z: return PCKeys.Z;
+            case KeyEvent.KEYCODE_ALL_APPS: return PCKeys.Apps;
+            case KeyEvent.KEYCODE_SLEEP: return PCKeys.Sleep;
+            case KeyEvent.KEYCODE_COMMA: return PCKeys.OemComma;
+            case KeyEvent.KEYCODE_PERIOD: return PCKeys.OemPeriod;
+            case KeyEvent.KEYCODE_ALT_LEFT: return PCKeys.LeftAlt;
+            case KeyEvent.KEYCODE_ALT_RIGHT: return PCKeys.RightAlt;
+            case KeyEvent.KEYCODE_SHIFT_LEFT: return PCKeys.LeftShift;
+            case KeyEvent.KEYCODE_SHIFT_RIGHT: return PCKeys.RightShift;
+            case KeyEvent.KEYCODE_TAB: return PCKeys.Tab;
+            case KeyEvent.KEYCODE_SPACE: return PCKeys.Space;
+            case KeyEvent.KEYCODE_ENTER: return PCKeys.Enter;
+            case KeyEvent.KEYCODE_DEL: return PCKeys.Back;
+            case KeyEvent.KEYCODE_GRAVE: return PCKeys.OemTilde;
+            case KeyEvent.KEYCODE_MINUS: return PCKeys.Subtract;
+            case KeyEvent.KEYCODE_EQUALS: return 0;
+            case KeyEvent.KEYCODE_LEFT_BRACKET: return PCKeys.OemOpenBrackets;
+            case KeyEvent.KEYCODE_RIGHT_BRACKET: return PCKeys.OemCloseBrackets;
+            case KeyEvent.KEYCODE_BACKSLASH: return PCKeys.OemBackslash;
+            case KeyEvent.KEYCODE_SEMICOLON: return PCKeys.OemSemicolon;
+            case KeyEvent.KEYCODE_APOSTROPHE: return PCKeys.OemQuotes;
+            case KeyEvent.KEYCODE_SLASH: return PCKeys.Divide;
+            case KeyEvent.KEYCODE_AT: return 0;
+            case KeyEvent.KEYCODE_PLUS: return PCKeys.Add;
+            case KeyEvent.KEYCODE_MENU: return PCKeys.LWin;
+            case KeyEvent.KEYCODE_SEARCH: return PCKeys.BrowserSearch;
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: return PCKeys.MediaPlayPause;
+            case KeyEvent.KEYCODE_MEDIA_STOP: return PCKeys.MediaStop;
+            case KeyEvent.KEYCODE_MEDIA_NEXT: return PCKeys.MediaNextTrack;
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS: return PCKeys.MediaPreviousTrack;
+            case KeyEvent.KEYCODE_PAGE_UP: return PCKeys.PageUp;
+            case KeyEvent.KEYCODE_PAGE_DOWN: return PCKeys.PageDown;
+            case KeyEvent.KEYCODE_ESCAPE: return PCKeys.Escape;
+            case KeyEvent.KEYCODE_FORWARD_DEL: return PCKeys.Delete;
+            case KeyEvent.KEYCODE_CTRL_LEFT: return PCKeys.LeftCtrl;
+            case KeyEvent.KEYCODE_CTRL_RIGHT: return PCKeys.RightCtrl;
+            case KeyEvent.KEYCODE_CAPS_LOCK: return PCKeys.CapsLock;
+            case KeyEvent.KEYCODE_SCROLL_LOCK: return PCKeys.Scroll;
+            case KeyEvent.KEYCODE_META_LEFT: return 0;
+            case KeyEvent.KEYCODE_META_RIGHT: return 0;
+            case KeyEvent.KEYCODE_SYSRQ: return PCKeys.PrintScreen;
+            case KeyEvent.KEYCODE_MOVE_HOME: return PCKeys.Home;
+            case KeyEvent.KEYCODE_MOVE_END: return PCKeys.End;
+            case KeyEvent.KEYCODE_INSERT: return PCKeys.Insert;
+            case KeyEvent.KEYCODE_MEDIA_PLAY: return PCKeys.Play;
+            case KeyEvent.KEYCODE_MEDIA_PAUSE: return PCKeys.Pause;
+            case KeyEvent.KEYCODE_F1: return PCKeys.F1;
+            case KeyEvent.KEYCODE_F2: return PCKeys.F2;
+            case KeyEvent.KEYCODE_F3: return PCKeys.F3;
+            case KeyEvent.KEYCODE_F4: return PCKeys.F4;
+            case KeyEvent.KEYCODE_F5: return PCKeys.F5;
+            case KeyEvent.KEYCODE_F6: return PCKeys.F6;
+            case KeyEvent.KEYCODE_F7: return PCKeys.F7;
+            case KeyEvent.KEYCODE_F8: return PCKeys.F8;
+            case KeyEvent.KEYCODE_F9: return PCKeys.F9;
+            case KeyEvent.KEYCODE_F10: return PCKeys.F10;
+            case KeyEvent.KEYCODE_F11: return PCKeys.F11;
+            case KeyEvent.KEYCODE_F12: return PCKeys.F12;
+            case KeyEvent.KEYCODE_NUM_LOCK: return PCKeys.NumLock;
+            case KeyEvent.KEYCODE_NUMPAD_0: return PCKeys.NumPad0;
+            case KeyEvent.KEYCODE_NUMPAD_1: return PCKeys.NumPad1;
+            case KeyEvent.KEYCODE_NUMPAD_2: return PCKeys.NumPad2;
+            case KeyEvent.KEYCODE_NUMPAD_3: return PCKeys.NumPad3;
+            case KeyEvent.KEYCODE_NUMPAD_4: return PCKeys.NumPad4;
+            case KeyEvent.KEYCODE_NUMPAD_5: return PCKeys.NumPad5;
+            case KeyEvent.KEYCODE_NUMPAD_6: return PCKeys.NumPad6;
+            case KeyEvent.KEYCODE_NUMPAD_7: return PCKeys.NumPad7;
+            case KeyEvent.KEYCODE_NUMPAD_8: return PCKeys.NumPad8;
+            case KeyEvent.KEYCODE_NUMPAD_9: return PCKeys.NumPad9;
+            case KeyEvent.KEYCODE_REFRESH: return PCKeys.BrowserRefresh;
+            case KeyEvent.KEYCODE_NUMPAD_DIVIDE: return PCKeys.Divide;
+            case KeyEvent.KEYCODE_NUMPAD_MULTIPLY: return PCKeys.Multiply;
+            case KeyEvent.KEYCODE_NUMPAD_SUBTRACT: return PCKeys.Subtract;
+            case KeyEvent.KEYCODE_NUMPAD_ADD: return PCKeys.Add;
+            case KeyEvent.KEYCODE_NUMPAD_COMMA: return PCKeys.OemComma;
+            case KeyEvent.KEYCODE_NUMPAD_ENTER: return PCKeys.Enter;
+            case KeyEvent.KEYCODE_NUMPAD_EQUALS: return 0;
+            case KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN: return 0;
+            case KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN: return 0;
+            case KeyEvent.KEYCODE_WINDOW: return 0;
+            case KeyEvent.KEYCODE_DPAD_UP_LEFT: return 0;
+            case KeyEvent.KEYCODE_DPAD_DOWN_LEFT: return 0;
+            case KeyEvent.KEYCODE_DPAD_UP_RIGHT: return 0;
+            case KeyEvent.KEYCODE_DPAD_DOWN_RIGHT: return 0;
+            case KeyEvent.KEYCODE_CUT: return 0;
+            case KeyEvent.KEYCODE_COPY: return 0;
+            case KeyEvent.KEYCODE_PASTE: return 0;
+            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP: return PCKeys.Up;
+            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN: return PCKeys.Down;
+            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT: return PCKeys.Left;
+            case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT: return PCKeys.Right;
             default: return 0;
         }
+    }
+
+    class PCKeys {
+        public static final int
+                None = 0,
+        //
+        // Сводка:
+        //     Клавиша "Отмена".
+        Cancel = 1,
+        //
+        // Сводка:
+        //     Клавиша BACKSPACE.
+        Back = 2,
+        //
+        // Сводка:
+        //     Клавиша TAB.
+        Tab = 3,
+        //
+        // Сводка:
+        //     Клавиша перевода строки.
+        LineFeed = 4,
+        //
+        // Сводка:
+        //     Клавиша CLEAR.
+        Clear = 5,
+        //
+        // Сводка:
+        //     Клавиша RETURN.
+        Return = 6,
+        //
+        // Сводка:
+        //     Клавиша ВВОД.
+        Enter = 6,
+        //
+        // Сводка:
+        //     Клавиша паузы.
+        Pause = 7,
+        //
+        // Сводка:
+        //     Клавиша CAPS LOCK.
+        Capital = 8,
+        //
+        // Сводка:
+        //     Клавиша CAPS LOCK.
+        CapsLock = 8,
+        //
+        // Сводка:
+        //     Клавиша режима "Кана" редактора метода ввода.
+        KanaMode = 9,
+        //
+        // Сводка:
+        //     Клавиша режима "Хангыль" редактора метода ввода.
+        HangulMode = 9,
+        //
+        // Сводка:
+        //     Клавиша режима "Джунджа" редактора метода ввода.
+        JunjaMode = 10,
+        //
+        // Сводка:
+        //     Клавиша режима "Последний" редактора метода ввода.
+        FinalMode = 11,
+        //
+        // Сводка:
+        //     Клавиша режима "Ханджа" редактора метода ввода.
+        HanjaMode = 12,
+        //
+        // Сводка:
+        //     Клавиша режима "Кандзи" редактора метода ввода.
+        KanjiMode = 12,
+        //
+        // Сводка:
+        //     Клавиша ESC.
+        Escape = 13,
+        //
+        // Сводка:
+        //     Клавиша преобразования в редакторе метода ввода.
+        ImeConvert = 14,
+        //
+        // Сводка:
+        //     Клавиша без преобразования в редакторе метода ввода.
+        ImeNonConvert = 15,
+        //
+        // Сводка:
+        //     Клавиша принятия в редакторе метода ввода.
+        ImeAccept = 16,
+        //
+        // Сводка:
+        //     Запрос на изменение режима редактора метода ввода.
+        ImeModeChange = 17,
+        //
+        // Сводка:
+        //     Клавиша ПРОБЕЛ.
+        Space = 18,
+        //
+        // Сводка:
+        //     Клавиша PAGE UP.
+        Prior = 19,
+        //
+        // Сводка:
+        //     Клавиша PAGE UP.
+        PageUp = 19,
+        //
+        // Сводка:
+        //     Клавиша PAGE DOWN.
+        Next = 20,
+        //
+        // Сводка:
+        //     Клавиша PAGE DOWN.
+        PageDown = 20,
+        //
+        // Сводка:
+        //     Клавиша END.
+        End = 21,
+        //
+        // Сводка:
+        //     Клавиша HOME.
+        Home = 22,
+        //
+        // Сводка:
+        //     Клавиша СТРЕЛКА ВЛЕВО.
+        Left = 23,
+        //
+        // Сводка:
+        //     Клавиша СТРЕЛКА ВВЕРХ.
+        Up = 24,
+        //
+        // Сводка:
+        //     Клавиша СТРЕЛКА ВПРАВО.
+        Right = 25,
+        //
+        // Сводка:
+        //     Клавиша СТРЕЛКА ВНИЗ.
+        Down = 26,
+        //
+        // Сводка:
+        //     Клавиша "Выбрать".
+        Select = 27,
+        //
+        // Сводка:
+        //     Клавиша "Печать".
+        Print = 28,
+        //
+        // Сводка:
+        //     Клавиша "Выполнить".
+        Execute = 29,
+        //
+        // Сводка:
+        //     Клавиша PRINT SCREEN.
+        Snapshot = 30,
+        //
+        // Сводка:
+        //     Клавиша PRINT SCREEN.
+        PrintScreen = 30,
+        //
+        // Сводка:
+        //     Клавиша INSERT.
+        Insert = 31,
+        //
+        // Сводка:
+        //     Клавиша DELETE.
+        Delete = 32,
+        //
+        // Сводка:
+        //     Клавиша справки.
+        Help = 33,
+        //
+        // Сводка:
+        //     Клавиша 0 (нуль).
+        D0 = 34,
+        //
+        // Сводка:
+        //     Клавиша 1 (один).
+        D1 = 35,
+        //
+        // Сводка:
+        //     Клавиша 2.
+        D2 = 36,
+        //
+        // Сводка:
+        //     Клавиша 3.
+        D3 = 37,
+        //
+        // Сводка:
+        //     Клавиша 4.
+        D4 = 38,
+        //
+        // Сводка:
+        //     Клавиша 5.
+        D5 = 39,
+        //
+        // Сводка:
+        //     Клавиша 6.
+        D6 = 40,
+        //
+        // Сводка:
+        //     Клавиша 7.
+        D7 = 41,
+        //
+        // Сводка:
+        //     Клавиша 8.
+        D8 = 42,
+        //
+        // Сводка:
+        //     Клавиша 9.
+        D9 = 43,
+        //
+        // Сводка:
+        //     Клавиша A.
+        A = 44,
+        //
+        // Сводка:
+        //     Клавиша B.
+        B = 45,
+        //
+        // Сводка:
+        //     Клавиша C.
+        C = 46,
+        //
+        // Сводка:
+        //     Клавиша D.
+        D = 47,
+        //
+        // Сводка:
+        //     Клавиша E.
+        E = 48,
+        //
+        // Сводка:
+        //     Клавиша F.
+        F = 49,
+        //
+        // Сводка:
+        //     Клавиша G.
+        G = 50,
+        //
+        // Сводка:
+        //     Клавиша H.
+        H = 51,
+        //
+        // Сводка:
+        //     Клавиша I.
+        I = 52,
+        //
+        // Сводка:
+        //     Клавиша J.
+        J = 53,
+        //
+        // Сводка:
+        //     Клавиша K.
+        K = 54,
+        //
+        // Сводка:
+        //     Клавиша L.
+        L = 55,
+        //
+        // Сводка:
+        //     Клавиша M.
+        M = 56,
+        //
+        // Сводка:
+        //     Клавиша N.
+        N = 57,
+        //
+        // Сводка:
+        //     Клавиша O.
+        O = 58,
+        //
+        // Сводка:
+        //     Клавиша P.
+        P = 59,
+        //
+        // Сводка:
+        //     Клавиша Q.
+        Q = 60,
+        //
+        // Сводка:
+        //     Клавиша R.
+        R = 61,
+        //
+        // Сводка:
+        //     Клавиша S.
+        S = 62,
+        //
+        // Сводка:
+        //     Клавиша T.
+        T = 63,
+        //
+        // Сводка:
+        //     Клавиша U.
+        U = 64,
+        //
+        // Сводка:
+        //     Клавиша V.
+        V = 65,
+        //
+        // Сводка:
+        //     Клавиша W.
+        W = 66,
+        //
+        // Сводка:
+        //     Клавиша X.
+        X = 67,
+        //
+        // Сводка:
+        //     Клавиша Y.
+        Y = 68,
+        //
+        // Сводка:
+        //     Клавиша Z.
+        Z = 69,
+        //
+        // Сводка:
+        //     Левая клавиша с логотипом Windows (клавиатура Microsoft Natural Keyboard).
+        LWin = 70,
+        //
+        // Сводка:
+        //     Правая клавиша с логотипом Windows (клавиатура Microsoft Natural Keyboard).
+        RWin = 71,
+        //
+        // Сводка:
+        //     Клавиша приложения (клавиатура Microsoft Natural Keyboard).
+        Apps = 72,
+        //
+        // Сводка:
+        //     Клавиша перевода компьютера в спящий режим.
+        Sleep = 73,
+        //
+        // Сводка:
+        //     Клавиша 0 на цифровой клавиатуре.
+        NumPad0 = 74,
+        //
+        // Сводка:
+        //     Клавиша 1 на цифровой клавиатуре.
+        NumPad1 = 75,
+        //
+        // Сводка:
+        //     Клавиша 2 на цифровой клавиатуре.
+        NumPad2 = 76,
+        //
+        // Сводка:
+        //     Клавиша 3 на цифровой клавиатуре.
+        NumPad3 = 77,
+        //
+        // Сводка:
+        //     Клавиша 4 на цифровой клавиатуре.
+        NumPad4 = 78,
+        //
+        // Сводка:
+        //     Клавиша 5 на цифровой клавиатуре.
+        NumPad5 = 79,
+        //
+        // Сводка:
+        //     Клавиша 6 на цифровой клавиатуре.
+        NumPad6 = 80,
+        //
+        // Сводка:
+        //     Клавиша 7 на цифровой клавиатуре.
+        NumPad7 = 81,
+        //
+        // Сводка:
+        //     Клавиша 8 на цифровой клавиатуре.
+        NumPad8 = 82,
+        //
+        // Сводка:
+        //     Клавиша 9 на цифровой клавиатуре.
+        NumPad9 = 83,
+        //
+        // Сводка:
+        //     Клавиша умножения.
+        Multiply = 84,
+        //
+        // Сводка:
+        //     Клавиша сложения.
+        Add = 85,
+        //
+        // Сводка:
+        //     Клавиша разделителя.
+        Separator = 86,
+        //
+        // Сводка:
+        //     Клавиша вычитания.
+        Subtract = 87,
+        //
+        // Сводка:
+        //     Клавиша десятичного разделителя.
+        Decimal = 88,
+        //
+        // Сводка:
+        //     Клавиша деления.
+        Divide = 89,
+        //
+        // Сводка:
+        //     Клавиша F1.
+        F1 = 90,
+        //
+        // Сводка:
+        //     Клавиша F2.
+        F2 = 91,
+        //
+        // Сводка:
+        //     Клавиша F3.
+        F3 = 92,
+        //
+        // Сводка:
+        //     Клавиша F4.
+        F4 = 93,
+        //
+        // Сводка:
+        //     Клавиша F5.
+        F5 = 94,
+        //
+        // Сводка:
+        //     Клавиша F6.
+        F6 = 95,
+        //
+        // Сводка:
+        //     Клавиша F7.
+        F7 = 96,
+        //
+        // Сводка:
+        //     Клавиша F8.
+        F8 = 97,
+        //
+        // Сводка:
+        //     Клавиша F9.
+        F9 = 98,
+        //
+        // Сводка:
+        //     Клавиша F10.
+        F10 = 99,
+        //
+        // Сводка:
+        //     Клавиша F11.
+        F11 = 100,
+        //
+        // Сводка:
+        //     Клавиша F12.
+        F12 = 101,
+        //
+        // Сводка:
+        //     Клавиша F13.
+        F13 = 102,
+        //
+        // Сводка:
+        //     Клавиша F14.
+        F14 = 103,
+        //
+        // Сводка:
+        //     Клавиша F15.
+        F15 = 104,
+        //
+        // Сводка:
+        //     Клавиша F16.
+        F16 = 105,
+        //
+        // Сводка:
+        //     Клавиша F17.
+        F17 = 106,
+        //
+        // Сводка:
+        //     Клавиша F18.
+        F18 = 107,
+        //
+        // Сводка:
+        //     Клавиша F19.
+        F19 = 108,
+        //
+        // Сводка:
+        //     Клавиша F20.
+        F20 = 109,
+        //
+        // Сводка:
+        //     Клавиша F21.
+        F21 = 110,
+        //
+        // Сводка:
+        //     Клавиша F22.
+        F22 = 111,
+        //
+        // Сводка:
+        //     Клавиша F23.
+        F23 = 112,
+        //
+        // Сводка:
+        //     Клавиша F24.
+        F24 = 113,
+        //
+        // Сводка:
+        //     Клавиша NUM LOCK.
+        NumLock = 114,
+        //
+        // Сводка:
+        //     Клавиша SCROLL LOCK.
+        Scroll = 115,
+        //
+        // Сводка:
+        //     Левая клавиша SHIFT.
+        LeftShift = 116,
+        //
+        // Сводка:
+        //     Правая клавиша SHIFT.
+        RightShift = 117,
+        //
+        // Сводка:
+        //     Левая клавиша CTRL.
+        LeftCtrl = 118,
+        //
+        // Сводка:
+        //     Правая клавиша CTRL.
+        RightCtrl = 119,
+        //
+        // Сводка:
+        //     Левая клавиша ALT.
+        LeftAlt = 120,
+        //
+        // Сводка:
+        //     Правая клавиша ALT.
+        RightAlt = 121,
+        //
+        // Сводка:
+        //     Клавиша браузера "Назад".
+        BrowserBack = 122,
+        //
+        // Сводка:
+        //     Клавиша браузера "Вперед".
+        BrowserForward = 123,
+        //
+        // Сводка:
+        //     Клавиша браузера "Обновить".
+        BrowserRefresh = 124,
+        //
+        // Сводка:
+        //     Клавиша браузера "Остановить".
+        BrowserStop = 125,
+        //
+        // Сводка:
+        //     Клавиша браузера "Поиск".
+        BrowserSearch = 126,
+        //
+        // Сводка:
+        //     Клавиша браузера "Избранное".
+        BrowserFavorites = 127,
+        //
+        // Сводка:
+        //     Клавиша браузера "Главная".
+        BrowserHome = 128,
+        //
+        // Сводка:
+        //     Клавиша выключения звука.
+        VolumeMute = 129,
+        //
+        // Сводка:
+        //     Клавиша уменьшения громкости.
+        VolumeDown = 130,
+        //
+        // Сводка:
+        //     Клавиша увеличения громкости.
+        VolumeUp = 131,
+        //
+        // Сводка:
+        //     Клавиша "Следующая запись".
+        MediaNextTrack = 132,
+        //
+        // Сводка:
+        //     Клавиша "Предыдущая запись".
+        MediaPreviousTrack = 133,
+        //
+        // Сводка:
+        //     Клавиша остановки воспроизведения.
+        MediaStop = 134,
+        //
+        // Сводка:
+        //     Клавиша приостановки воспроизведения.
+        MediaPlayPause = 135,
+        //
+        // Сводка:
+        //     Клавиша запуска почты.
+        LaunchMail = 136,
+        //
+        // Сводка:
+        //     Клавиша выбора мультимедиа.
+        SelectMedia = 137,
+        //
+        // Сводка:
+        //     Клавиша запуска приложения 1.
+        LaunchApplication1 = 138,
+        //
+        // Сводка:
+        //     Клавиша запуска приложения 2.
+        LaunchApplication2 = 139,
+        //
+        // Сводка:
+        //     Клавиша OEM 1.
+        Oem1 = 140,
+        //
+        // Сводка:
+        //     Клавиша OEM с точкой с запятой.
+        OemSemicolon = 140,
+        //
+        // Сводка:
+        //     Клавиша OEM со сложением.
+        OemPlus = 141,
+        //
+        // Сводка:
+        //     Клавиша OEM с запятой.
+        OemComma = 142,
+        //
+        // Сводка:
+        //     Клавиша OEM с минусом.
+        OemMinus = 143,
+        //
+        // Сводка:
+        //     Клавиша OEM с точкой.
+        OemPeriod = 144,
+        //
+        // Сводка:
+        //     Клавиша OEM 2.
+        Oem2 = 145,
+        //
+        // Сводка:
+        //     Клавиша OEM с вопросительным знаком.
+        OemQuestion = 145,
+        //
+        // Сводка:
+        //     Клавиша OEM 3.
+        Oem3 = 146,
+        //
+        // Сводка:
+        //     Клавиша OEM с тильдой.
+        OemTilde = 146,
+        //
+        // Сводка:
+        //     Клавиша ABNT_C1 (Бразилия).
+        AbntC1 = 147,
+        //
+        // Сводка:
+        //     Клавиша ABNT_C2 (Бразилия).
+        AbntC2 = 148,
+        //
+        // Сводка:
+        //     Клавиша OEM 4.
+        Oem4 = 149,
+        //
+        // Сводка:
+        //     Клавиша OEM с открывающими скобками.
+        OemOpenBrackets = 149,
+        //
+        // Сводка:
+        //     Клавиша OEM 5.
+        Oem5 = 150,
+        //
+        // Сводка:
+        //     Клавиша OEM с вертикальной чертой.
+        OemPipe = 150,
+        //
+        // Сводка:
+        //     Клавиша OEM 6.
+        Oem6 = 151,
+        //
+        // Сводка:
+        //     Клавиша OEM с закрывающими скобками.
+        OemCloseBrackets = 151,
+        //
+        // Сводка:
+        //     Клавиша OEM 7.
+        Oem7 = 152,
+        //
+        // Сводка:
+        //     Клавиша OEM с кавычками.
+        OemQuotes = 152,
+        //
+        // Сводка:
+        //     Клавиша OEM 8.
+        Oem8 = 153,
+        //
+        // Сводка:
+        //     Клавиша OEM 102.
+        Oem102 = 154,
+        //
+        // Сводка:
+        //     Клавиша OEM с обратной косой чертой.
+        OemBackslash = 154,
+        //
+        // Сводка:
+        //     Специальная клавиша, маскирующая фактическую клавишу, обрабатываемую редактором
+        //     метода ввода.
+        ImeProcessed = 155,
+        //
+        // Сводка:
+        //     Специальный клавиша, маскирующая фактическую клавишу, обрабатываемую в качестве
+        //     системной клавиши.
+        System = 156,
+        //
+        // Сводка:
+        //     Клавиша OEM ATTN.
+        OemAttn = 157,
+        //
+        // Сводка:
+        //     Клавиша DBE_ALPHANUMERIC.
+        DbeAlphanumeric = 157,
+        //
+        // Сводка:
+        //     Клавиша OEM FINISH.
+        OemFinish = 158,
+        //
+        // Сводка:
+        //     Клавиша DBE_KATAKANA.
+        DbeKatakana = 158,
+        //
+        // Сводка:
+        //     Клавиша OEM COPY.
+        OemCopy = 159,
+        //
+        // Сводка:
+        //     Клавиша DBE_HIRAGANA.
+        DbeHiragana = 159,
+        //
+        // Сводка:
+        //     Клавиша OEM AUTO.
+        OemAuto = 160,
+        //
+        // Сводка:
+        //     Клавиша DBE_SBCSCHAR.
+        DbeSbcsChar = 160,
+        //
+        // Сводка:
+        //     Клавиша OEM ENLW.
+        OemEnlw = 161,
+        //
+        // Сводка:
+        //     Клавиша DBE_DBCSCHAR.
+        DbeDbcsChar = 161,
+        //
+        // Сводка:
+        //     Клавиша OEM BACKTAB.
+        OemBackTab = 162,
+        //
+        // Сводка:
+        //     Клавиша DBE_ROMAN.
+        DbeRoman = 162,
+        //
+        // Сводка:
+        //     Клавиша ATTN.
+        Attn = 163,
+        //
+        // Сводка:
+        //     Клавиша DBE_NOROMAN.
+        DbeNoRoman = 163,
+        //
+        // Сводка:
+        //     Клавиша CRSEL.
+        CrSel = 164,
+        //
+        // Сводка:
+        //     Клавиша DBE_ENTERWORDREGISTERMODE.
+        DbeEnterWordRegisterMode = 164,
+        //
+        // Сводка:
+        //     Клавиша EXSEL.
+        ExSel = 165,
+        //
+        // Сводка:
+        //     Клавиша DBE_ENTERIMECONFIGMODE.
+        DbeEnterImeConfigureMode = 165,
+        //
+        // Сводка:
+        //     Клавиша ERASE EOF.
+        EraseEof = 166,
+        //
+        // Сводка:
+        //     Клавиша DBE_FLUSHSTRING.
+        DbeFlushString = 166,
+        //
+        // Сводка:
+        //     Клавиша ВОСПРОИЗВЕСТИ.
+        Play = 167,
+        //
+        // Сводка:
+        //     Клавиша DBE_CODEINPUT.
+        DbeCodeInput = 167,
+        //
+        // Сводка:
+        //     Клавиша МАСШТАБ.
+        Zoom = 168,
+        //
+        // Сводка:
+        //     Клавиша DBE_NOCODEINPUT.
+        DbeNoCodeInput = 168,
+        //
+        // Сводка:
+        //     Константа, зарезервированная для будущего использования.
+        NoName = 169,
+        //
+        // Сводка:
+        //     Клавиша DBE_DETERMINESTRING.
+        DbeDetermineString = 169,
+        //
+        // Сводка:
+        //     Клавиша PA1.
+        Pa1 = 170,
+        //
+        // Сводка:
+        //     Клавиша DBE_ENTERDLGCONVERSIONMODE.
+        DbeEnterDialogConversionMode = 170,
+        //
+        // Сводка:
+        //     Клавиша OEM очистки.
+        OemClear = 171,
+        //
+        // Сводка:
+        //     Клавиша используется вместе с другой клавишей для создания одного объединенного
+        //     символа.
+        DeadCharProcessed = 172;
     }
 
 

@@ -44,6 +44,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -69,7 +70,6 @@ public class SessionServer extends Session{
     @SuppressLint("MissingPermission")
     public SessionServer(int type, int Port, Runnable doOnStopSession, Context thisContext) throws IOException, JSONException {
         onStop = new Thread(doOnStopSession);
-        MessageParser messageParser = new MessageParser();
         String name = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getString("name", "");
         int code = (PreferenceManager.getDefaultSharedPreferences(thisContext)).getInt("code", 0);
         int mode = new Random().nextInt(1000);
@@ -118,32 +118,24 @@ public class SessionServer extends Session{
                         while (!Dsocket.isClosed()) {
                             if(gotAccess.get().equals(1))
                                 continue;
-                            Message m = null;
-                            int head = -1;
-                            p = null;
-                            do{
-                                byte[] buf = new byte[Message.getMessageSize(MouseTracker.MESSAGESIZE)];
-                                p = new DatagramPacket(buf, buf.length);
-                                try {
-                                    Dsocket.receive(p);
-                                    broadcasting.cancel();
-                                    if(onStop != null){
-                                        onStop.start();
-                                        onStop = null;
-                                    }
-                                    m = new Message(p.getData());
-                                    messageParser.messageMap.put(m.getId(), m);
-                                    if (head == -1)
-                                        head = m.getId();
-                                } catch (SocketException ignored){
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                            byte[] buff = new byte[Dsocket.getReceiveBufferSize()];
+                            p = new DatagramPacket(buff, buff.length);
+                            try {
+                                Dsocket.receive(p);
+                                broadcasting.cancel();
+                                if(onStop != null){
+                                    onStop.start();
+                                    onStop = null;
                                 }
-                            }while (!Dsocket.isClosed() && (m == null || m.getNext() != -1));
-                            if(messageParser.messageMap.get(head) == null) continue;
-                            String msgString = new String(messageParser.parse(head));
+
+                            } catch (SocketException ignored){
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            String msgString = new String(p.getData(), StandardCharsets.UTF_8);
                             JSONObject msg = new JSONObject(msgString);
 
+                            System.out.println(msgString);
                             if(gotAccess.get().equals(0) && msg.has("Code") && msg.get("Code").equals(code % mode))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {

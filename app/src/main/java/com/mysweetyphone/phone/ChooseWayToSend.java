@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import Utils.Message;
-
 public class ChooseWayToSend extends AppCompatActivity {
 
     static private class Server{
@@ -113,9 +111,7 @@ public class ChooseWayToSend extends AppCompatActivity {
                                 messages.put("Type", "copy");
                                 messages.put("Value", getIntent().getStringExtra(Intent.EXTRA_TEXT));
                             }
-                            for (Message m : Message.getMessages(messages.toString().getBytes(), Message.BODYMAXIMUM/10)) {
-                                sendsocket.send(new DatagramPacket(m.getArr(), m.getArr().length, p.getAddress(),ans.getInt("Port")));
-                            }
+                            sendsocket.send(new DatagramPacket(messages.toString().getBytes(),messages.toString().getBytes().length, p.getAddress(),ans.getInt("Port")));
                         } catch (IOException | JSONException | NullPointerException e) {
                             e.printStackTrace();
                         }

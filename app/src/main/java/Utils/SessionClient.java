@@ -51,7 +51,7 @@ public class SessionClient extends Session{
 
     public static void Search(LinearLayout v, Thread onFinishSearching, Activity activity) throws SocketException {
         v.removeAllViews();
-        if(searching.isAlive()) {
+        if(searching != null && searching.isAlive()) {
             StopSearching();
         }
         ips = new TreeMap<>();
@@ -116,7 +116,7 @@ public class SessionClient extends Session{
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
                                 try {
-                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")).Start();
+                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode"));
                                     v.removeView(ip);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -147,57 +147,49 @@ public class SessionClient extends Session{
         }catch (NullPointerException ignored){}
     }
 
-    public SessionClient(InetAddress address, int Port, int type, Activity activity, int mode) {
+    private SessionClient(InetAddress address, int Port, int type, Activity activity, int mode) {
         this.address = address;
         this.port = Port;
         this.type = type;
         this.mode = mode;
 
-        switch (type) {
-            case KEYBOARD:
-            case MOUSE:
-                t = new Thread(()->{
-                    try {
-                        Dsocket = new DatagramSocket();
-                        Dsocket.setBroadcast(true);
-                        if (searching != null) StopSearching();
-                        activity.runOnUiThread(() -> {
-                            MouseTracker.sc = this;
-                            Intent intent = new Intent(activity, MouseTracker.class);
-                            activity.startActivity(intent);
-                        });
-                    } catch (SocketException | NullPointerException e) {
-                        e.printStackTrace();
-                    }
-                });
-                break;
-            case FILEVIEW:
-                t = new Thread(()->{
-                    if(searching != null) StopSearching();
-                    if(activity != null) activity.runOnUiThread(()->{
+
+        try {
+            switch (type) {
+                case KEYBOARD:
+                case MOUSE:
+                    Dsocket = new DatagramSocket();
+                    Dsocket.setBroadcast(true);
+                    activity.runOnUiThread(() -> {
+                        MouseTracker.sc = this;
+                        Intent intent = new Intent(activity, MouseTracker.class);
+                        activity.startActivity(intent);
+                    });
+
+                    if (searching != null) StopSearching();
+                    break;
+                case FILEVIEW:
+                    if (activity != null) activity.runOnUiThread(() -> {
                         FileViewer.sc = this;
                         Intent intent = new Intent(activity, FileViewer.class);
                         activity.startActivity(intent);
                     });
-                });
-                break;
-            case SMSVIEWER:
-                t = new Thread(()->{
-                    try {
-                        if (searching != null) StopSearching();
-                        Ssocket = new Socket(address, port);
-                        activity.runOnUiThread(() -> {
-                            SMSViewer.sc = this;
-                            Intent intent = new Intent(activity, SMSViewer.class);
-                            activity.startActivity(intent);
-                        });
-                    } catch (IOException | NullPointerException e) {
-                        e.printStackTrace();
-                    }
-                });
-                break;
-            default:
-                throw new RuntimeException("Неизвестный тип сессии");
+                    if (searching != null) StopSearching();
+                    break;
+                case SMSVIEWER:
+                    Ssocket = new Socket(address, port);
+                    activity.runOnUiThread(() -> {
+                        SMSViewer.sc = this;
+                        Intent intent = new Intent(activity, SMSViewer.class);
+                        activity.startActivity(intent);
+                    });
+                    if (searching != null) StopSearching();
+                    break;
+                default:
+                    throw new RuntimeException("Неизвестный тип сессии");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
