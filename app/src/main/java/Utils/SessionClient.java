@@ -116,7 +116,7 @@ public class SessionClient extends Session{
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
                                 try {
-                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode"));
+                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")).Start();
                                     v.removeView(ip);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -154,42 +154,52 @@ public class SessionClient extends Session{
         this.mode = mode;
 
 
-        try {
-            switch (type) {
-                case KEYBOARD:
-                case MOUSE:
-                    Dsocket = new DatagramSocket();
-                    Dsocket.setBroadcast(true);
-                    activity.runOnUiThread(() -> {
-                        MouseTracker.sc = this;
-                        Intent intent = new Intent(activity, MouseTracker.class);
-                        activity.startActivity(intent);
-                    });
+        switch (type) {
+            case KEYBOARD:
+            case MOUSE:
+                t = new Thread(()-> {
+                    try {
+                        Dsocket = new DatagramSocket();
+                        Dsocket.setBroadcast(true);
+                        activity.runOnUiThread(() -> {
+                            MouseTracker.sc = this;
+                            Intent intent = new Intent(activity, MouseTracker.class);
+                            activity.startActivity(intent);
+                        });
 
-                    if (searching != null) StopSearching();
-                    break;
-                case FILEVIEW:
-                    if (activity != null) activity.runOnUiThread(() -> {
-                        FileViewer.sc = this;
-                        Intent intent = new Intent(activity, FileViewer.class);
-                        activity.startActivity(intent);
+                        if (searching != null) StopSearching();
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
+            case FILEVIEW:
+                t = new Thread(()-> {
+                        if (activity != null) activity.runOnUiThread(() -> {
+                            FileViewer.sc = this;
+                            Intent intent = new Intent(activity, FileViewer.class);
+                            activity.startActivity(intent);
+                        });
+                        if (searching != null) StopSearching();
                     });
-                    if (searching != null) StopSearching();
-                    break;
-                case SMSVIEWER:
-                    Ssocket = new Socket(address, port);
-                    activity.runOnUiThread(() -> {
-                        SMSViewer.sc = this;
-                        Intent intent = new Intent(activity, SMSViewer.class);
-                        activity.startActivity(intent);
-                    });
-                    if (searching != null) StopSearching();
-                    break;
-                default:
-                    throw new RuntimeException("Неизвестный тип сессии");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+                break;
+            case SMSVIEWER:
+                t = new Thread(()-> {
+                    try {
+                        Ssocket = new Socket(address, port);
+                        activity.runOnUiThread(() -> {
+                            SMSViewer.sc = this;
+                            Intent intent = new Intent(activity, SMSViewer.class);
+                            activity.startActivity(intent);
+                        });
+                        if (searching != null) StopSearching();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
+            default:
+                throw new RuntimeException("Неизвестный тип сессии");
         }
     }
 
