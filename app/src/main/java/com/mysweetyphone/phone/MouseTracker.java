@@ -119,7 +119,7 @@ public class MouseTracker extends AppCompatActivity {
         try {
             msg2.put("Type", "start");
             msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+            if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -280,7 +280,7 @@ public class MouseTracker extends AppCompatActivity {
                 msg2.put("Type", "makeScreenshot");
                 msg2.put("Port", ss.getLocalPort());
                 msg2.put("Name", name);
-                msg2.put("Code", code % sc.getMode());
+                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                 Send(msg2.toString().getBytes());
                 ss.setSoTimeout(10000);
                 Socket socket = ss.accept();

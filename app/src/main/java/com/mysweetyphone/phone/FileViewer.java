@@ -65,6 +65,7 @@ public class FileViewer extends AppCompatActivity {
 
         receiving = new Thread(()-> {
             try {
+                System.out.println(sc.getAddress()+":"+sc.getPort());
                 sc.setSocket(new Socket(sc.getAddress(), sc.getPort()));
                 writer = new PrintWriter(sc.getSocket().getOutputStream());
                 reader = new BufferedReader(new InputStreamReader(sc.getSocket().getInputStream()));
@@ -77,7 +78,7 @@ public class FileViewer extends AppCompatActivity {
                             JSONObject msg2 = new JSONObject();
                             msg2.put("Type", "start");
                             msg2.put("Name", name);
-                            msg2.put("Code", code % sc.getMode());
+                            if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                             writer.println(msg2.toString());
                             writer.flush();
                         } catch (JSONException e) {
@@ -179,7 +180,7 @@ public class FileViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "back");
                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                 msg2.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText().toString());
                 writer.println(msg2.toString());
                 writer.flush();
@@ -224,7 +225,7 @@ public class FileViewer extends AppCompatActivity {
                             msg2.put("Type", "newDir");
                             msg2.put("DirName", input.getText().toString());
                             msg2.put("Name", name);
-                            msg2.put("Code", code % sc.getMode());
+                            if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                             msg2.put("Dir", ((TextView)findViewById(R.id.pathFILEVIEWER)).getText().toString());
                             writer.println(msg2.toString());
                             writer.flush();
@@ -272,7 +273,7 @@ public class FileViewer extends AppCompatActivity {
                     JSONObject msg2 = new JSONObject();
                     msg2.put("Type", "uploadFile");
                     msg2.put("Name", name);
-                    msg2.put("Code", code % sc.getMode());
+                    if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                     msg2.put("FileName", file.getName());
                     msg2.put("FileSocketPort", ss.getLocalPort());
                     msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());
@@ -326,7 +327,7 @@ public class FileViewer extends AppCompatActivity {
                                 JSONObject msg2 = new JSONObject();
                                 msg2.put("Type", "deleteFile");
                                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                                 msg2.put("FileName", fileName);
                                 msg2.put("Dir", dir);
                                 writer.println(msg2.toString());
@@ -348,7 +349,7 @@ public class FileViewer extends AppCompatActivity {
                                 JSONObject msg2 = new JSONObject();
                                 msg2.put("Type", "downloadFile");
                                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                                 msg2.put("FileName", fileName);
                                 msg2.put("FileSocketPort", ss.getLocalPort());
                                 msg2.put("Dir", ((TextView) findViewById(R.id.pathFILEVIEWER)).getText().toString());

@@ -131,7 +131,7 @@ public class SMSViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "start");
                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                 writer.println(msg2.toString());
                 writer.flush();
                 SimpleProperty<String>  Sim1 = new SimpleProperty<>(""), Sim2 = new SimpleProperty<>("");
@@ -337,7 +337,7 @@ public class SMSViewer extends AppCompatActivity {
                 JSONObject msg2 = new JSONObject();
                 msg2.put("Type", "finish");
                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                 writer.println(msg2.toString());
                 writer.flush();
             } catch (JSONException | NullPointerException e) {
@@ -371,7 +371,7 @@ public class SMSViewer extends AppCompatActivity {
                 msg2.put("Number", Contacts.getSelectedItem());
                 msg2.put("Text", MessageText.getText());
                 msg2.put("Name", name);
-            msg2.put("Code", code % sc.getMode());
+                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
                 msg2.put("Sim", i);
                 writer.println(msg2.toString());
                 writer.flush();

@@ -116,7 +116,7 @@ public class SessionClient extends Session{
                             ip.setTextColor(Color.parseColor("#F0F0F0"));
                             ip.setOnClickListener(event->{
                                 try {
-                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.getInt("mode")).Start();
+                                    new SessionClient(p.getAddress(),ans.getInt("port"), ans.getInt("type"), activity, ans.has("mode") ?  ans.getInt("mode") : 0).Start();
                                     v.removeView(ip);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
