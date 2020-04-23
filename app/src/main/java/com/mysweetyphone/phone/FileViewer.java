@@ -133,7 +133,7 @@ public class FileViewer extends AppCompatActivity {
                                 });
                             }else reloadFolder(null);
                             break;
-                        case "newDirAnswer":
+                        case "newDir":
                             runOnUiThread(()-> {
                                 try {
                                     Draw(msg.getString("DirName"), true, msg.getString("Dir"), folders);

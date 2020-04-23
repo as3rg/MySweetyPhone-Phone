@@ -301,7 +301,7 @@ public class SessionServer extends Session{
                                         writer.flush();
                                         break;
                                     case "newDir":
-                                        ans.put("Type", "newDirAnswer");
+                                        ans.put("Type", "newDir");
                                         File file = new File(msg.getString("Dir"), msg.getString("DirName"));
                                         boolean state = file.mkdirs();
                                         ans.put("State", state ? 1 : 0);
@@ -333,6 +333,19 @@ public class SessionServer extends Session{
                                                 e.printStackTrace();
                                             }
                                         }).start();
+                                        break;
+                                    case "renameFile":
+                                        ans.put("Type", "renameFile");
+                                        file = new File(msg.getString("Dir"), msg.getString("FileName"));
+                                        File newFile = new File(msg.getString("Dir"), msg.getString("NewFileName"));
+                                        state = newFile.exists();
+                                        if(!state){
+                                            state = !file.renameTo(newFile);
+                                        }
+                                        ans.put("State", state ? 1 : 0);        //0 - без ошибок, 1 - нет доступа
+                                        ans.put("Dir", msg.getString("Dir"));
+                                        writer.println(ans.toString());
+                                        writer.flush();
                                         break;
                                     case "downloadFile":
                                         new Thread(()->{
