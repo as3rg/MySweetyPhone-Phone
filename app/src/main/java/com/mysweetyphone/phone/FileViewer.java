@@ -124,6 +124,7 @@ public class FileViewer extends AppCompatActivity {
                         case "finish":
                             finish();
                             break;
+                        case "renameFile":
                         case "deleteFile":
                             if (msg.getInt("State") == 1) {
                                 runOnUiThread(()-> {
@@ -316,8 +317,8 @@ public class FileViewer extends AppCompatActivity {
         folders.addView(folder);
         folder.setOnLongClickListener(v -> {
             String[] actions;
-            if (!isFolder) actions = new String[]{"Удалить", "Скачать файл"};
-            else actions = new String[]{"Удалить"};
+            if (!isFolder) actions = new String[]{"Удалить", "Скачать файл", "Переименовать"};
+            else actions = new String[]{"Удалить", "Переименовать"};
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
             builder.setItems(actions, (dialog, item) -> {
                 switch (actions[item]) {
@@ -336,6 +337,56 @@ public class FileViewer extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }).start();
+                        break;
+                    case "Переименовать":
+                        final EditText input = new EditText(this);
+                        input.setSingleLine(true);
+                        AlertDialog alert = new AlertDialog.Builder(this)
+                                .setTitle("Имя папки")
+                                .setMessage("Введите имя папки")
+                                .setView(input)
+                                .setPositiveButton("Создать", null)
+                                .setNegativeButton("Отмена", (dialog2, which) -> {})
+                                .create();
+                        alert.setOnShowListener(dialog2 -> {
+                            alert.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v2 -> {
+                                if(
+                                        input.getText().toString().contains("\\")
+                                                || input.getText().toString().contains("/")
+                                                || input.getText().toString().contains(":")
+                                                || input.getText().toString().contains("*")
+                                                || input.getText().toString().contains("?")
+                                                || input.getText().toString().contains("\"")
+                                                || input.getText().toString().contains("<")
+                                                || input.getText().toString().contains(">")
+                                                || input.getText().toString().contains("|")
+                                ) {
+                                    alert.setMessage("Имя содержит недопустимые символы");
+                                }else if(files.contains(input.getText().toString())) {
+                                    alert.setMessage("Такая папка уже существует");
+                                }else if(input.getText().toString().isEmpty()) {
+                                    alert.setMessage("Имя файла не может быть пустым");
+                                }else {
+                                    new Thread(() -> {
+                                        try {
+                                            JSONObject msg2 = new JSONObject();
+                                            msg2.put("Type", "renameFile");
+                                            msg2.put("Name", name);
+                                            if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
+                                            msg2.put("FileName", fileName);
+                                            msg2.put("NewFileName", input.getText().toString());
+                                            msg2.put("Dir", dir);
+                                            writer.println(msg2.toString());
+                                            writer.flush();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }).start();
+                                    alert.dismiss();
+                                }
+                            });
+                        });
+                        alert.show();
                         break;
                     case "Скачать файл":
                         new Thread(() -> {
