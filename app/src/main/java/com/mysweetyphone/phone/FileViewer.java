@@ -35,6 +35,9 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -97,29 +100,49 @@ public class FileViewer extends AppCompatActivity {
                     JSONObject msg = new JSONObject(line);
                     switch ((String) msg.get("Type")) {
                         case "showDir":
-                            JSONArray values = msg.getJSONArray("Inside");
-                            files.clear();
-                            this.runOnUiThread(() -> {
-                                try {
-                                    if (msg.getInt("State") == 1) {
-                                        Toast toast = Toast.makeText(this,
-                                                "Нет доступа", Toast.LENGTH_LONG);
-                                        toast.show();
-                                    }
-                                    folders.removeAllViews();
-                                    path.setText(msg.getString("Dir"));
-                                    findViewById(R.id.backFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
-                                    findViewById(R.id.newDirFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
-                                    findViewById(R.id.uploadFileFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
-                                    findViewById(R.id.reloadFolderFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
-                                    for (int i = 0; i < values.length(); i++) {
-                                        JSONObject folder = values.getJSONObject(i);
-                                        Draw(folder.getString("Name"),folder.getString("Type").equals("Folder"), msg.getString("Dir"), folders);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                            try {
+                                JSONArray values = msg.getJSONArray("Inside");
+
+
+                                ArrayList<JSONObject> array = new ArrayList<>();
+                                for (int i = 0; i < values.length(); i++) {
+                                    JSONObject folder = values.getJSONObject(i);
+                                    array.add(folder);
                                 }
-                            });
+
+                                Collections.sort(array, (lhs, rhs) -> {
+                                    try {
+                                        return lhs.getString("Name").compareTo(rhs.getString("Name"));
+                                    } catch (JSONException e) {
+                                        return 0;
+                                    }
+                                });
+
+                                files.clear();
+                                this.runOnUiThread(() -> {
+                                    try {
+                                        if (msg.getInt("State") == 1) {
+                                            Toast toast = Toast.makeText(this,
+                                                    "Нет доступа", Toast.LENGTH_LONG);
+                                            toast.show();
+                                        }
+                                        folders.removeAllViews();
+                                        path.setText(msg.getString("Dir"));
+                                        findViewById(R.id.backFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
+                                        findViewById(R.id.newDirFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
+                                        findViewById(R.id.uploadFileFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
+                                        findViewById(R.id.reloadFolderFILEVIEWER).setVisibility(path.getText().toString().isEmpty() ? View.INVISIBLE : View.VISIBLE);
+
+                                        for (JSONObject folder : array) {
+                                            Draw(folder.getString("Name"), folder.getString("Type").equals("Folder"), msg.getString("Dir"), folders);
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case "finish":
                             finish();
@@ -340,6 +363,7 @@ public class FileViewer extends AppCompatActivity {
                         break;
                     case "Переименовать":
                         final EditText input = new EditText(this);
+                        input.setText(fileName);
                         input.setSingleLine(true);
                         AlertDialog alert = new AlertDialog.Builder(this)
                                 .setTitle("Имя папки")
