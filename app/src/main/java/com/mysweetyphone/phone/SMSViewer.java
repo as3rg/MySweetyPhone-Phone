@@ -44,8 +44,10 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import Utils.SessionClient;
 import Utils.SimpleProperty;
@@ -68,10 +70,12 @@ public class SMSViewer extends AppCompatActivity {
     Spinner Contacts;
     ArrayList<String> ContactList;
     int newContact = -1;
+    Map<String, String> NameToNumber;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NameToNumber = new HashMap<>();
         setContentView(R.layout.activity_smsviewer);
         Toolbar toolbar = findViewById(R.id.toolbarSMSVIEWER);
         setSupportActionBar(toolbar);
@@ -104,12 +108,7 @@ public class SMSViewer extends AppCompatActivity {
                         msg.put("Type", "showSMSs");
                         msg.put("Contact", Contacts.getSelectedItem().toString());
                         msg.put("Name", name);
-                        Pattern r = Pattern.compile(".*\\((.+)\\)");
-                        Matcher m = r.matcher(Contacts.getSelectedItem().toString());
-                        if (m.find())
-                            msg.put("Number", m.group(1));
-                        else
-                            msg.put("Number", Contacts.getSelectedItem());
+                        msg.put("Number", NameToNumber.get(Contacts.getSelectedItem()));
                         writer.println(msg.toString());
                         writer.flush();
                     } catch (JSONException e) {
@@ -128,15 +127,27 @@ public class SMSViewer extends AppCompatActivity {
             try {
                 writer = new PrintWriter(sc.getSocket().getOutputStream());
                 reader = new BufferedReader(new InputStreamReader(sc.getSocket().getInputStream()));
-                JSONObject msg2 = new JSONObject();
-                msg2.put("Type", "start");
-                msg2.put("Name", name);
-                if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
-                writer.println(msg2.toString());
-                writer.flush();
+                Timer t = new Timer();
+                LinearLayout folders = this.findViewById(R.id.foldersFILEVIEWER);
+                t.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject msg2 = new JSONObject();
+                            msg2.put("Type", "start");
+                            msg2.put("Name", name);
+                            if(sc.getMode() != 0) msg2.put("Code", code % sc.getMode());
+                            writer.println(msg2.toString());
+                            writer.flush();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 0, 2000);
                 SimpleProperty<String>  Sim1 = new SimpleProperty<>(""), Sim2 = new SimpleProperty<>("");
                 while (true) {
                     String line = reader.readLine();
+                    t.cancel();
                     if(line == null){
                         sc.Stop();
                         finish();
@@ -169,14 +180,13 @@ public class SMSViewer extends AppCompatActivity {
                                 }
                             });
                             break;
-                        case "accepted":
-                            writer.println(msg2.toString());
-                            writer.flush();
-                            break;
                         case "getContacts":
                             JSONArray values = (JSONArray) msg.get("Contacts");
-                            for(int i = 0; i < values.length(); i++)
-                                ContactList.add(values.getString(i));
+                            for(int i = 0; i < values.length(); i++){
+                                JSONObject contact = (JSONObject) values.get(i);
+                                NameToNumber.put(contact.has("Name") ? contact.getString("Name") : contact.getString("Number"), contact.getString("Number"));
+                                ContactList.add(contact.has("Name") ? contact.getString("Name") : contact.getString("Number"));
+                            }
                             runOnUiThread(()->Contacts.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_item, ContactList)));
                             break;
                         case "showSMSs":

@@ -45,11 +45,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
 public class SessionServer extends Session{
     private Thread onStop;
@@ -135,7 +137,6 @@ public class SessionServer extends Session{
                             String msgString = new String(p.getData(), StandardCharsets.UTF_8);
                             JSONObject msg = new JSONObject(msgString);
 
-                            System.out.println(msgString);
                             if(gotAccess.get().equals(0) && msg.has("Code") && msg.get("Code").equals(code % mode))
                                 gotAccess.set(2);
                             else if(gotAccess.get().equals(0)) {
@@ -401,19 +402,7 @@ public class SessionServer extends Session{
                                         new AlertDialog.Builder(thisContext)
                                                 .setTitle("Выполнить действие?")
                                                 .setMessage("Вы действительно хотите предоставить доступ к сообщениям \"" + msg.getString("Name") + "\"?")
-                                                .setPositiveButton("Да", (dialog, which) -> {
-                                                    gotAccess.set(2);
-                                                    new Thread(() -> {
-                                                        try {
-                                                            JSONObject msg2 = new JSONObject();
-                                                            msg2.put("Type", "accepted");
-                                                            writer.println(msg2.toString());
-                                                            writer.flush();
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }).start();
-                                                })
+                                                .setPositiveButton("Да", (dialog, which) -> gotAccess.set(2))
                                                 .setNegativeButton("Нет", (dialog, which) -> {
                                                     new Thread(() -> {
                                                         try {
@@ -450,54 +439,55 @@ public class SessionServer extends Session{
                                         ans.put("Type", "start");
                                         writer.println(ans.toString());
                                         writer.flush();
-                                        ans = new JSONObject();
-                                        t.scheduleAtFixedRate(new TimerTask() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
-                                                    JSONObject ans = new JSONObject();
-                                                    JSONArray sms = new JSONArray();
-                                                    @SuppressLint("Recycle") Cursor cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
-                                                    while (cur != null && cur.moveToNext()) {
-                                                        String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
-                                                        JSONObject a = new JSONObject();
-                                                        a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
-                                                        a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
-                                                        a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
-                                                        a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
-
-                                                        if(number.isEmpty()) continue;
-                                                        Cursor cur2 = thisContext
-                                                                .getContentResolver()
-                                                                .query(
-                                                                        Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                                                                                Uri.encode(number)),
-                                                                        new String[]{ContactsContract.Data.DISPLAY_NAME},
-                                                                        null,
-                                                                        null,
-                                                                        null
-                                                                );
-                                                        cur2.moveToFirst();
-                                                        if(number.replaceAll("[ \\-()]","").matches("\\+\\d{7,13}"))
-                                                            number = number.replaceAll("[ \\-()]","");
-                                                        if(cur2.getCount() > 0) a.put("contact", cur2.getString(0)+"("+number+")");
-                                                        else a.put("contact", number);
-                                                        sms.put(a);
-                                                    }
-                                                    if(sms.length() == 0) return;
-                                                    ans.put("SMS", sms);
-                                                    ans.put("Type", "newSMSs");
-                                                    writer.println(ans.toString());
-                                                    writer.flush();
-                                                    lastSync.set(System.currentTimeMillis() / 1000);
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }, 0, 45000);
+//                                        ans = new JSONObject();
+//                                        t.scheduleAtFixedRate(new TimerTask() {
+//                                            @Override
+//                                            public void run() {
+//                                                try {
+//                                                    if((System.currentTimeMillis()/1000 - lastSync.get()) < 60 || currentNumber.get().isEmpty()) return;
+//                                                    JSONObject ans = new JSONObject();
+//                                                    JSONArray sms = new JSONArray();
+//                                                    @SuppressLint("Recycle") Cursor cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.ADDRESS, Telephony.Sms.SUBSCRIPTION_ID}, "CAST(" + Telephony.Sms.DATE + " AS INTEGER)/1000 >= "+ lastSync.get(), null, Telephony.Sms.DATE + " ASC");
+//                                                    while (cur != null && cur.moveToNext()) {
+//                                                        String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
+//                                                        JSONObject a = new JSONObject();
+//                                                        a.put("text", cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
+//                                                        a.put("date", Long.parseLong(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.DATE))) / 1000);
+//                                                        a.put("type", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
+//                                                        a.put("sim", cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID)));
+//
+//                                                        if(number.isEmpty()) continue;
+//                                                        Cursor cur2 = thisContext
+//                                                                .getContentResolver()
+//                                                                .query(
+//                                                                        Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+//                                                                                Uri.encode(number)),
+//                                                                        new String[]{ContactsContract.Data.DISPLAY_NAME},
+//                                                                        null,
+//                                                                        null,
+//                                                                        null
+//                                                                );
+//                                                        cur2.moveToFirst();
+//                                                        if(number.replaceAll("[ \\-()]","").matches("\\+\\d{7,13}"))
+//                                                            number = number.replaceAll("[ \\-()]","");
+//                                                        if(cur2.getCount() > 0) a.put("contact", cur2.getString(0)+"("+number+")");
+//                                                        else a.put("contact", number);
+//                                                        sms.put(a);
+//                                                    }
+                                                    //if(sms.length() == 0) return;
+//                                                    ans.put("SMS", sms);
+//                                                    ans.put("Type", "newSMSs");
+//                                                    System.out.println(ans.toString());
+//                                                    writer.println(ans.toString());
+//                                                    writer.flush();
+//                                                    lastSync.set(System.currentTimeMillis() / 1000);
+//                                                } catch (JSONException e) {
+//                                                    e.printStackTrace();
+//                                                }
+//                                            }
+//                                        }, 0, 45000);
                                     case "getContacts":
-                                        Set<String> contacts = new HashSet<>();
+                                        Set<JSONObject> contacts = new TreeSet<>((t1, t2) -> t1.toString().compareTo(t2.toString()));
                                         Cursor cur = thisContext.getContentResolver().query(Uri.parse("content://sms"), new String[]{Telephony.Sms.ADDRESS}, null, null, null);
                                         while (cur != null && cur.moveToNext()) {
                                             String number = cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
@@ -513,10 +503,12 @@ public class SessionServer extends Session{
                                                             null
                                                     );
                                             cur2.moveToFirst();
+                                            JSONObject num = new JSONObject();
                                             if(number.replaceAll("[ \\-()]","").matches("\\+\\d{7,13}"))
                                                 number = number.replaceAll("[ \\-()]","");
-                                            if(cur2.getCount() > 0) contacts.add(cur2.getString(0)+"("+number+")");
-                                            else contacts.add(number);
+                                            num.put("Number", number);
+                                            if(cur2.getCount() > 0) num.put("Name",cur2.getString(0)+"("+number+")");
+                                            contacts.add(num);
                                         }
                                         ans.put("Type", "getContacts");
                                         ans.put("Contacts", new JSONArray(contacts));
